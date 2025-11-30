@@ -1,0 +1,80 @@
+/**
+ * Custom CSS für bessere Ionic Form-Darstellung
+ */
+
+/* Input-Felder mit deutlicher Umrandung */
+ion-input {
+  --padding-start: 12px;
+  --padding-end: 12px;
+  --padding-top: 12px;
+  --padding-bottom: 12px;
+  --border-width: 2px;
+  --border-style: solid;
+  --border-color: var(--ion-color-medium);
+  --border-radius: 8px;
+  --background: var(--ion-color-light);
+  min-height: 56px;
+}
+
+/* Input fokussiert */
+ion-input.has-focus,
+ion-input:focus-within {
+  --border-color: var(--ion-color-primary);
+  --background: var(--ion-background-color);
+}
+
+/* Input mit Wert */
+ion-input.has-value {
+  --border-color: var(--ion-color-medium);
+}
+
+/* Textarea ähnlich stylen */
+ion-textarea {
+  --padding-start: 12px;
+  --padding-end: 12px;
+  --padding-top: 12px;
+  --padding-bottom: 12px;
+  --border-width: 2px;
+  --border-style: solid;
+  --border-color: var(--ion-color-medium);
+  --border-radius: 8px;
+  --background: var(--ion-color-light);
+}
+
+ion-textarea.has-focus,
+ion-textarea:focus-within {
+  --border-color: var(--ion-color-primary);
+  --background: var(--ion-background-color);
+}
+
+/* Card-Styling */
+ion-card {
+  margin: 16px 0;
+}
+
+ion-card-header {
+  padding-bottom: 8px;
+}
+
+/* Button-Styling */
+ion-button {
+  text-transform: none;
+  font-weight: 500;
+}
+
+/* Segment-Buttons */
+ion-segment {
+  margin-bottom: 16px;
+}
+
+/* FAB-Button Position */
+ion-fab {
+  z-index: 10;
+}
+
+/* Tab-Bar */
+ion-tab-bar {
+  --background: var(--ion-background-color);
+  border-top: 1px solid var(--ion-border-color);
+}
+

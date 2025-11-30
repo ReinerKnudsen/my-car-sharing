@@ -1,0 +1,7 @@
+{
+  "name": "carsharing-app",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}
