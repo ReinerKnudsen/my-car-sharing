@@ -52,7 +52,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .single();
       
       if (error) throw error;
-      console.log("Profile loaded:", data);
+      //console.log("Profile loaded:", data);
       setProfile(data);
     } catch (error) {
       console.error('AuthProvider: Error loading profile:', error);

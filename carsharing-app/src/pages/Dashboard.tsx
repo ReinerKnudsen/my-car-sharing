@@ -40,13 +40,13 @@ const Dashboard: React.FC = () => {
     
     setLoading(true);
     try {
-      // Load upcoming bookings
+      // Load upcoming bookings (max 4)
       const bookings = await bookingsService.getUpcoming();
-      setUpcomingBookings(bookings.slice(0, 5));
+      setUpcomingBookings(bookings.slice(0, 4));
 
-      // Load recent trips
+      // Load recent trips (max 4)
       const trips = await tripsService.getAll();
-      setRecentTrips(trips.slice(0, 5));
+      setRecentTrips(trips.slice(0, 4));
 
       // Calculate total kilometers
       const total = await tripsService.getTotalKilometers();
@@ -105,31 +105,7 @@ const Dashboard: React.FC = () => {
               )}
             </IonCard>
 
-            {/* Statistics Cards */}
-            <IonGrid>
-              <IonRow>
-                <IonCol size="6">
-                  <IonCard>
-                    <IonCardContent>
-                      <IonText color="medium">
-                        <p style={{ margin: 0, fontSize: '0.9em' }}>Gesamt-Kilometer</p>
-                      </IonText>
-                      <h2 style={{ margin: '8px 0 0 0' }}>{totalKm.toLocaleString('de-DE')} km</h2>
-                    </IonCardContent>
-                  </IonCard>
-                </IonCol>
-                <IonCol size="6">
-                  <IonCard>
-                    <IonCardContent>
-                      <IonText color="medium">
-                        <p style={{ margin: 0, fontSize: '0.9em' }}>Meine Kilometer</p>
-                      </IonText>
-                      <h2 style={{ margin: '8px 0 0 0' }}>{myKm.toLocaleString('de-DE')} km</h2>
-                    </IonCardContent>
-                  </IonCard>
-                </IonCol>
-              </IonRow>
-            </IonGrid>
+            
 
             {/* Upcoming Bookings */}
             <IonCard>
@@ -144,9 +120,9 @@ const Dashboard: React.FC = () => {
                 ) : (
                   upcomingBookings.map((booking) => (
                     <div key={booking.id} style={{ marginBottom: '10px', padding: '10px', background: '#f5f5f5', borderRadius: '8px' }}>
-                      <strong>{formatDate(booking.start_datum)} {booking.start_uhrzeit} - {formatDate(booking.ende_datum)} {booking.ende_uhrzeit}</strong>
+                      <strong>{formatDate(booking.start_datum)}, {booking.start_uhrzeit.slice(0,5)} bis {formatDate(booking.ende_datum)}, {booking.ende_uhrzeit.slice(0,5)}</strong>
                       <p style={{ margin: '5px 0 0 0', color: '#666' }}>
-                        {booking.fahrer?.vorname} {booking.fahrer?.name}
+                        {booking.gruppe?.bezeichnung}
                       </p>
                     </div>
                   ))
@@ -176,6 +152,31 @@ const Dashboard: React.FC = () => {
                 )}
               </IonCardContent>
             </IonCard>
+            {/* Statistics Cards */}
+            <IonGrid>
+              <IonRow>
+                <IonCol size="6">
+                  <IonCard>
+                    <IonCardContent>
+                      <IonText color="medium">
+                        <p style={{ margin: 0, fontSize: '0.9em' }}>Gesamt-Kilometer</p>
+                      </IonText>
+                      <h2 style={{ margin: '8px 0 0 0' }}>{totalKm.toLocaleString('de-DE')} km</h2>
+                    </IonCardContent>
+                  </IonCard>
+                </IonCol>
+                <IonCol size="6">
+                  <IonCard>
+                    <IonCardContent>
+                      <IonText color="medium">
+                        <p style={{ margin: 0, fontSize: '0.9em' }}>Meine Kilometer</p>
+                      </IonText>
+                      <h2 style={{ margin: '8px 0 0 0' }}>{myKm.toLocaleString('de-DE')} km</h2>
+                    </IonCardContent>
+                  </IonCard>
+                </IonCol>
+              </IonRow>
+            </IonGrid>
           </>
         )}
       </IonContent>

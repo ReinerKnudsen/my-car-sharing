@@ -28,7 +28,12 @@ import BookingCalendar from '../components/BookingCalendar';
 const Bookings: React.FC = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  // Initialisiere mit heutigem Datum im Format YYYY-MM-DD
+  const getTodayString = () => {
+    const today = new Date();
+    return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  };
+  const [selectedDate, setSelectedDate] = useState<string | null>(getTodayString());
   const history = useHistory();
 
   // Lädt Buchungen jedes Mal, wenn die Seite angezeigt wird
