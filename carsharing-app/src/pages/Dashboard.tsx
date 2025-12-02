@@ -35,6 +35,7 @@ const Dashboard: React.FC = () => {
   }, [profile]);
 
   const loadDashboardData = async () => {
+
     if (!profile) return;
     
     setLoading(true);
@@ -92,7 +93,7 @@ const Dashboard: React.FC = () => {
             <IonCard>
               <IonCardHeader>
                 <IonCardTitle>
-                  Willkommen, {profile?.vorname} {profile?.name}! 🎉
+                 {profile ? `${profile.vorname} ${profile.name}` : 'Willkommen'}
                 </IonCardTitle>
               </IonCardHeader>
               {profile?.gruppe && (
@@ -143,7 +144,7 @@ const Dashboard: React.FC = () => {
                 ) : (
                   upcomingBookings.map((booking) => (
                     <div key={booking.id} style={{ marginBottom: '10px', padding: '10px', background: '#f5f5f5', borderRadius: '8px' }}>
-                      <strong>{formatDate(booking.datum)} - {booking.uhrzeit}</strong>
+                      <strong>{formatDate(booking.start_datum)} {booking.start_uhrzeit} - {formatDate(booking.ende_datum)} {booking.ende_uhrzeit}</strong>
                       <p style={{ margin: '5px 0 0 0', color: '#666' }}>
                         {booking.fahrer?.vorname} {booking.fahrer?.name}
                       </p>

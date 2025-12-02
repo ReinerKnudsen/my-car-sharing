@@ -41,24 +41,13 @@ export const authService = {
 
   // Sign Out
   async signOut() {
-    console.log("AuthService: Starte Signout");
     try {
-      // Timeout für signOut - falls Supabase hängt
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('SignOut Timeout')), 3000)
-      );
-      
-      // Versuche mit scope: 'local' - löscht nur lokale Session
-      const signOutPromise = supabase.auth.signOut({ scope: 'local' });
-      
-      await Promise.race([signOutPromise, timeoutPromise]);
-      console.log("AuthService: Signout erfolgreich abgeschlossen");
+      // Lokale Session löschen (schnell, kein Server-Call)
+      await supabase.auth.signOut({ scope: 'local' });
     } catch (error) {
-      console.error("AuthService: Fehler oder Timeout beim Abmelden", error);
-      // Auch bei Fehler/Timeout: Manuell lokalen Storage löschen
-      console.log("AuthService: Lösche manuell lokale Session");
+      console.error("Fehler beim Abmelden:", error);
       
-      // Lösche alle Supabase-relevanten Items aus localStorage
+      // Fallback: Manuell localStorage löschen
       const keysToRemove: string[] = [];
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
@@ -66,10 +55,7 @@ export const authService = {
           keysToRemove.push(key);
         }
       }
-      keysToRemove.forEach(key => {
-        console.log(`AuthService: Lösche ${key}`);
-        localStorage.removeItem(key);
-      });
+      keysToRemove.forEach(key => localStorage.removeItem(key));
     }
   },
 

@@ -29,8 +29,10 @@ export interface Trip {
 
 export interface Booking {
   id: string;
-  datum: string;
-  uhrzeit: string;
+  start_datum: string;
+  start_uhrzeit: string;
+  ende_datum: string;
+  ende_uhrzeit: string;
   gruppe_id: string;
   fahrer_id: string;
   kommentar: string | null;
@@ -48,8 +50,10 @@ export interface TripFormData {
 }
 
 export interface BookingFormData {
-  datum: string;
-  uhrzeit: string;
+  start_datum: string;
+  start_uhrzeit: string;
+  ende_datum: string;
+  ende_uhrzeit: string;
   gruppe_id: string;
   kommentar?: string;
 }

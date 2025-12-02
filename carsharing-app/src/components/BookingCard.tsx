@@ -36,6 +36,12 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onDelete }) => {
     });
   };
 
+  // Zeit kommt als "HH:MM:SS" aus der DB - zeige nur "HH:MM"
+  const formatTime = (timeString: string) => {
+    if (!timeString) return '';
+    return timeString.slice(0, 5); // "14:30:00" → "14:30"
+  };
+
   const canDelete = isAdmin || booking.fahrer_id === profile?.id;
 
   const handleDelete = () => {
@@ -75,26 +81,26 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onDelete }) => {
   return (
     <IonCard>
       <IonCardHeader>
-        <IonCardTitle>{formatDate(booking.datum)}</IonCardTitle>
+        <IonCardTitle>
+          {booking.gruppe?.bezeichnung} 
+        </IonCardTitle>
       </IonCardHeader>
       <IonCardContent>
         <IonItem lines="none">
           <IonLabel>
             <IonText color="medium">
-              <p>Uhrzeit</p>
+              <p>Start</p>
             </IonText>
-            <h2>{booking.uhrzeit}</h2>
+            <h3>{formatDate(booking.start_datum)} um {formatTime(booking.start_uhrzeit)}</h3>
           </IonLabel>
         </IonItem>
 
         <IonItem lines="none">
           <IonLabel>
             <IonText color="medium">
-              <p>Fahrer</p>
+              <p>Ende</p>
             </IonText>
-            <h2>
-              {booking.fahrer?.vorname} {booking.fahrer?.name}
-            </h2>
+            <h3>{formatDate(booking.ende_datum)} um {formatTime(booking.ende_uhrzeit)}</h3>
           </IonLabel>
         </IonItem>
 
@@ -102,9 +108,8 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onDelete }) => {
           <IonItem lines="none">
             <IonLabel>
               <IonText color="medium">
-                <p>Gruppe</p>
+                <p>Erstellt von {booking.fahrer?.vorname} {booking.fahrer?.name}</p>
               </IonText>
-              <h2>{booking.gruppe.bezeichnung}</h2>
             </IonLabel>
           </IonItem>
         )}

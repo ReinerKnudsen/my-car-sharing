@@ -16,6 +16,9 @@ import {
   IonSegment,
   IonSegmentButton,
   IonLabel,
+  IonButtons,
+  useIonViewWillEnter,
+  isPlatform,
 } from '@ionic/react';
 import { add } from 'ionicons/icons';
 import { RefresherEventDetail } from '@ionic/core';
@@ -33,10 +36,10 @@ const Trips: React.FC = () => {
   const { profile } = useAuth();
   const history = useHistory();
 
-  useEffect(() => {
-    // Kommentiert für jetzt - manuell laden
-    // loadTrips();
-  }, []);
+  // Lädt Fahrten jedes Mal, wenn die Seite angezeigt wird
+  useIonViewWillEnter(() => {
+    loadTrips();
+  });
 
   useEffect(() => {
     filterTrips();
@@ -73,11 +76,21 @@ const Trips: React.FC = () => {
     history.push('/trips/create');
   };
 
+  const isIOS = isPlatform('ios');
+
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
           <IonTitle>Fahrten</IonTitle>
+          {/* iOS: + Button im Header */}
+          {isIOS && (
+            <IonButtons slot="end">
+              <IonButton onClick={handleCreateTrip}>
+                <IonIcon icon={add} />
+              </IonButton>
+            </IonButtons>
+          )}
         </IonToolbar>
         <IonToolbar>
           <IonSegment value={filter} onIonChange={(e) => setFilter(e.detail.value as any)}>
@@ -119,11 +132,14 @@ const Trips: React.FC = () => {
           ))
         )}
 
-        <IonFab vertical="bottom" horizontal="end" slot="fixed">
-          <IonFabButton onClick={handleCreateTrip}>
-            <IonIcon icon={add} />
-          </IonFabButton>
-        </IonFab>
+        {/* Android: FAB Button unten rechts */}
+        {!isIOS && (
+          <IonFab vertical="bottom" horizontal="end" slot="fixed">
+            <IonFabButton onClick={handleCreateTrip}>
+              <IonIcon icon={add} />
+            </IonFabButton>
+          </IonFab>
+        )}
       </IonContent>
     </IonPage>
   );

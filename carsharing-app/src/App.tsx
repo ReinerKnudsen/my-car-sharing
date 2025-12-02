@@ -1,5 +1,5 @@
 import React from 'react';
-import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
+import { IonApp, IonRouterOutlet, IonSpinner, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { Route } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -30,27 +30,28 @@ setupIonicReact();
 const AppRoutes: React.FC = () => {
   const { user, loading } = useAuth();
 
-  console.log('AppRoutes: loading=', loading, 'user=', user ? 'present' : 'null');
+  //console.log('AppRoutes render:', { loading, user: user ? 'present' : 'null' });
 
   if (loading) {
     return (
       <div style={{ 
         display: 'flex', 
+        flexDirection: 'column',
         justifyContent: 'center', 
         alignItems: 'center', 
-        height: '100vh' 
+        height: '100vh',
+        gap: '16px'
       }}>
-        Loading...
+        <IonSpinner name="crescent" />
+        <p>Lädt...</p>
       </div>
     );
   }
 
   if (!user) {
-    console.log('AppRoutes: Kein User, zeige Login');
     return <Login />;
   }
 
-  console.log('AppRoutes: User vorhanden, zeige MainTabs');
   return <MainTabs />;
 };
 

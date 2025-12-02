@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   IonContent,
   IonHeader,
@@ -13,9 +13,9 @@ import {
   IonText,
   IonFab,
   IonFabButton,
-  IonSegment,
-  IonSegmentButton,
-  IonLabel,
+  IonButtons,
+  useIonViewWillEnter,
+  isPlatform,
 } from '@ionic/react';
 import { add } from 'ionicons/icons';
 import { RefresherEventDetail } from '@ionic/core';
@@ -23,26 +23,23 @@ import { useHistory } from 'react-router-dom';
 import { bookingsService } from '../services/database';
 import { Booking } from '../types';
 import BookingCard from '../components/BookingCard';
+import BookingCalendar from '../components/BookingCalendar';
 
 const Bookings: React.FC = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(false);
-  const [filter, setFilter] = useState<'all' | 'upcoming' | 'past'>('upcoming');
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const history = useHistory();
 
-  useEffect(() => {
-    // Kommentiert für jetzt - manuell laden
-    // loadBookings();
-  }, []);
-
-  useEffect(() => {
-    filterBookings();
-  }, [bookings, filter]);
+  // Lädt Buchungen jedes Mal, wenn die Seite angezeigt wird
+  useIonViewWillEnter(() => {
+    loadBookings();
+  });
 
   const loadBookings = async () => {
     try {
       setLoading(true);
+      // Holt nur aktive/zukünftige Buchungen (ende_datum >= heute)
       const data = await bookingsService.getAll();
       setBookings(data);
     } catch (error) {
@@ -52,19 +49,15 @@ const Bookings: React.FC = () => {
     }
   };
 
-  const filterBookings = () => {
-    const today = new Date().toISOString().split('T')[0];
+  // Filtere Buchungen für den ausgewählten Tag
+  const bookingsForSelectedDate = useMemo(() => {
+    if (!selectedDate) return [];
     
-    let filtered = [...bookings];
-    
-    if (filter === 'upcoming') {
-      filtered = bookings.filter((b) => b.datum >= today);
-    } else if (filter === 'past') {
-      filtered = bookings.filter((b) => b.datum < today);
-    }
-    
-    setFilteredBookings(filtered);
-  };
+    // String-Vergleich um Zeitzonen-Probleme zu vermeiden
+    return bookings.filter(booking => {
+      return selectedDate >= booking.start_datum && selectedDate <= booking.ende_datum;
+    });
+  }, [bookings, selectedDate]);
 
   const handleRefresh = async (event: CustomEvent<RefresherEventDetail>) => {
     await loadBookings();
@@ -72,7 +65,28 @@ const Bookings: React.FC = () => {
   };
 
   const handleCreateBooking = () => {
-    history.push('/bookings/create');
+    // Wenn ein Datum ausgewählt ist, übergebe es als Parameter
+    if (selectedDate) {
+      history.push(`/bookings/create?startDate=${selectedDate}`);
+    } else {
+      history.push('/bookings/create');
+    }
+  };
+
+  const isIOS = isPlatform('ios');
+
+  const handleDateSelect = (date: string) => {
+    // Toggle: Klick auf gleichen Tag hebt Auswahl auf
+    setSelectedDate(prev => prev === date ? null : date);
+  };
+
+  const formatSelectedDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleDateString('de-DE', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
   };
 
   return (
@@ -80,19 +94,14 @@ const Bookings: React.FC = () => {
       <IonHeader>
         <IonToolbar>
           <IonTitle>Buchungen</IonTitle>
-        </IonToolbar>
-        <IonToolbar>
-          <IonSegment value={filter} onIonChange={(e) => setFilter(e.detail.value as any)}>
-            <IonSegmentButton value="upcoming">
-              <IonLabel>Kommend</IonLabel>
-            </IonSegmentButton>
-            <IonSegmentButton value="all">
-              <IonLabel>Alle</IonLabel>
-            </IonSegmentButton>
-            <IonSegmentButton value="past">
-              <IonLabel>Vergangen</IonLabel>
-            </IonSegmentButton>
-          </IonSegment>
+          {/* iOS: + Button im Header */}
+          {isIOS && (
+            <IonButtons slot="end">
+              <IonButton onClick={handleCreateBooking}>
+                <IonIcon icon={add} />
+              </IonButton>
+            </IonButtons>
+          )}
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
@@ -104,31 +113,68 @@ const Bookings: React.FC = () => {
           <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
             <IonSpinner />
           </div>
-        ) : filteredBookings.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '40px' }}>
-            <IonText color="medium">
-              <p>Keine Buchungen vorhanden</p>
-            </IonText>
-            <IonButton onClick={handleCreateBooking}>
-              <IonIcon slot="start" icon={add} />
-              Neue Buchung
-            </IonButton>
-          </div>
         ) : (
-          filteredBookings.map((booking) => (
-            <BookingCard
-              key={booking.id}
-              booking={booking}
-              onDelete={loadBookings}
+          <>
+            {/* Kalender */}
+            <BookingCalendar 
+              bookings={bookings}
+              onDateSelect={handleDateSelect}
+              selectedDate={selectedDate}
             />
-          ))
+
+            {/* Buchungen für ausgewählten Tag */}
+            {selectedDate && (
+              <div style={{ marginTop: '20px' }}>
+                <h3 style={{ marginBottom: '12px' }}>
+                  {formatSelectedDate(selectedDate)}
+                </h3>
+                
+                {bookingsForSelectedDate.length === 0 ? (
+                  <IonText color="medium">
+                    <p>Keine Buchungen an diesem Tag</p>
+                  </IonText>
+                ) : (
+                  bookingsForSelectedDate.map((booking) => (
+                    <BookingCard
+                      key={booking.id}
+                      booking={booking}
+                      onDelete={loadBookings}
+                    />
+                  ))
+                )}
+              </div>
+            )}
+
+            {/* Hinweis wenn kein Tag ausgewählt */}
+            {!selectedDate && bookings.length > 0 && (
+              <IonText color="medium" style={{ textAlign: 'center', display: 'block' }}>
+                <p>Klicke auf einen Tag, um Buchungen anzuzeigen</p>
+              </IonText>
+            )}
+
+            {/* Keine Buchungen vorhanden */}
+            {bookings.length === 0 && (
+              <div style={{ textAlign: 'center', padding: '20px' }}>
+                <IonText color="medium">
+                  <p>Keine aktiven Buchungen</p>
+                </IonText>
+                <IonButton onClick={handleCreateBooking}>
+                  <IonIcon slot="start" icon={add} />
+                  Neue Buchung
+                </IonButton>
+              </div>
+            )}
+          </>
         )}
 
-        <IonFab vertical="bottom" horizontal="end" slot="fixed">
-          <IonFabButton onClick={handleCreateBooking}>
-            <IonIcon icon={add} />
-          </IonFabButton>
-        </IonFab>
+        {/* Android: FAB Button unten rechts */}
+        {!isIOS && (
+          <IonFab vertical="bottom" horizontal="end" slot="fixed">
+            <IonFabButton onClick={handleCreateBooking}>
+              <IonIcon icon={add} />
+            </IonFabButton>
+          </IonFab>
+        )}
       </IonContent>
     </IonPage>
   );

@@ -25,20 +25,15 @@ const Profile: React.FC = () => {
   const [present] = useIonToast();
 
   const handleSignOut = async () => {
-    console.log("Profile: Starte Signout");
     try {
       await signOut();
-      console.log("Profile: signOut abgeschlossen");
       present({
         message: 'Erfolgreich abgemeldet',
         duration: 2000,
         color: 'success',
       });
-      // Sofortige Navigation zur Login-Seite
-      console.log("Profile: Navigiere zu /login");
       window.location.href = '/login';
     } catch (error: any) {
-      console.error("Profile: Fehler beim Abmelden", error);
       present({
         message: error.message || 'Fehler beim Abmelden',
         duration: 3000,

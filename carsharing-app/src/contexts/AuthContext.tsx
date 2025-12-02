@@ -19,60 +19,43 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log('AuthProvider: Initializing...');
-    
-    // Check active session
-    checkUser();
-
-    // Listen for auth changes
-    try {
-      const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.email || 'kein Benutzer');
-        if (session?.user) {
-          setUser(session.user);
-          await loadProfile(session.user.id);
-        } else {
-          console.log('Auth state changed: Benutzer abgemeldet, setze auf null');
-          setUser(null);
-          setProfile(null);
-        }
-        setLoading(false);
-      });
-
-      return () => {
-        subscription.unsubscribe();
-      };
-    } catch (error) {
-      //console.error('Error setting up auth listener:', error);
-      setLoading(false);
-    }
-  }, []);
-
-  const checkUser = async () => {
-    console.log('AuthProvider: Checking user session...');
-    try {
-      const session = await authService.getSession();
-      console.log('AuthProvider: Session check result:', session ? 'Found' : 'None');
-      if (session?.user) {
-        setUser(session.user);
-        await loadProfile(session.user.id);
-      } else {
-        console.log('AuthProvider: Keine Session gefunden, User bleibt null');
+    // Schritt 1: Hole User und setze loading SOFORT auf false
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+      setLoading(false); // SOFORT auf false, egal was passiert
+      
+      // Schritt 2: Profil NACHTRÄGLICH laden (blockiert nicht)
+      if (user) {
+        loadProfile(user.id);
       }
-    } catch (error) {
-      console.error('AuthProvider: Error checking user:', error);
-    } finally {
-      setLoading(false);
-      console.log('AuthProvider: Initialization complete, loading=false, user=', user ? 'present' : 'null');
-    }
-  };
+    });
+
+    // Schritt 3: Listener für Login/Logout
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user || null);
+      if (session?.user) {
+        loadProfile(session.user.id);
+      } else {
+        setProfile(null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const loadProfile = async (userId: string) => {
     try {
-      const profileData = await authService.getProfile(userId);
-      setProfile(profileData);
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*, gruppe:groups(*)')
+        .eq('id', userId)
+        .single();
+      
+      if (error) throw error;
+      console.log("Profile loaded:", data);
+      setProfile(data);
     } catch (error) {
-      //console.error('Error loading profile:', error);
+      console.error('AuthProvider: Error loading profile:', error);
     }
   };
 
@@ -100,16 +83,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signOut = async () => {
-    console.log('AuthContext: signOut aufgerufen');
     try {
       await authService.signOut();
-      console.log('AuthContext: signOut erfolgreich, setze User und Profile auf null');
     } catch (error) {
-      console.error('AuthContext: Fehler beim signOut (wird ignoriert)', error);
-      // Fehler ignorieren - wir melden lokal trotzdem ab
+      console.error('Fehler beim Abmelden:', error);
     } finally {
-      // IMMER die lokalen States löschen, auch bei Fehler
-      console.log('AuthContext: Setze User und Profile auf null');
       setUser(null);
       setProfile(null);
     }

@@ -235,12 +235,15 @@ export const tripsService = {
 
 // Bookings Service
 export const bookingsService = {
+  // Holt nur aktive/zukünftige Buchungen (ende_datum >= heute)
   async getAll(): Promise<Booking[]> {
+    const today = new Date().toISOString().split('T')[0];
     const { data, error } = await supabase
       .from('bookings')
       .select('*, gruppe:groups(*), fahrer:profiles(*, gruppe:groups(*))')
-      .order('datum', { ascending: false })
-      .order('uhrzeit', { ascending: false });
+      .gte('ende_datum', today)
+      .order('start_datum')
+      .order('start_uhrzeit');
     
     if (error) throw error;
     return data || [];
@@ -258,40 +261,36 @@ export const bookingsService = {
   },
 
   async getByFahrerId(fahrerId: string): Promise<Booking[]> {
+    const today = new Date().toISOString().split('T')[0];
     const { data, error } = await supabase
       .from('bookings')
       .select('*, gruppe:groups(*), fahrer:profiles(*, gruppe:groups(*))')
       .eq('fahrer_id', fahrerId)
-      .order('datum', { ascending: false })
-      .order('uhrzeit', { ascending: false });
+      .gte('ende_datum', today)
+      .order('start_datum')
+      .order('start_uhrzeit');
     
     if (error) throw error;
     return data || [];
   },
 
   async getByGroupId(gruppeId: string): Promise<Booking[]> {
+    const today = new Date().toISOString().split('T')[0];
     const { data, error } = await supabase
       .from('bookings')
       .select('*, gruppe:groups(*), fahrer:profiles(*, gruppe:groups(*))')
       .eq('gruppe_id', gruppeId)
-      .order('datum', { ascending: false })
-      .order('uhrzeit', { ascending: false });
+      .gte('ende_datum', today)
+      .order('start_datum')
+      .order('start_uhrzeit');
     
     if (error) throw error;
     return data || [];
   },
 
+  // Alias für getAll (beide holen nur aktive/zukünftige)
   async getUpcoming(): Promise<Booking[]> {
-    const today = new Date().toISOString().split('T')[0];
-    const { data, error } = await supabase
-      .from('bookings')
-      .select('*, gruppe:groups(*), fahrer:profiles(*, gruppe:groups(*))')
-      .gte('datum', today)
-      .order('datum')
-      .order('uhrzeit');
-    
-    if (error) throw error;
-    return data || [];
+    return this.getAll();
   },
 
   async create(booking: InsertBooking): Promise<Booking> {

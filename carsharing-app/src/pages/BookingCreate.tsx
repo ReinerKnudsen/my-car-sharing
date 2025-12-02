@@ -14,46 +14,51 @@ import {
   IonInput,
   IonTextarea,
   IonButton,
-  IonSelect,
-  IonSelectOption,
   IonSpinner,
   IonBackButton,
   IonButtons,
   useIonToast,
 } from '@ionic/react';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { bookingsService, groupsService } from '../services/database';
-import { Group } from '../types';
+import { bookingsService } from '../services/database';
 
 const BookingCreate: React.FC = () => {
-  const [datum, setDatum] = useState('');
-  const [uhrzeit, setUhrzeit] = useState('');
-  const [gruppeId, setGruppeId] = useState('');
+  const [startDatum, setStartDatum] = useState('');
+  const [startUhrzeit, setStartUhrzeit] = useState('');
+  const [endeDatum, setEndeDatum] = useState('');
+  const [endeUhrzeit, setEndeUhrzeit] = useState('');
   const [kommentar, setKommentar] = useState('');
-  const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(false);
   const { profile } = useAuth();
   const history = useHistory();
+  const location = useLocation();
   const [present] = useIonToast();
 
+  // Lese startDate aus URL-Parameter (wenn vom Kalender kommend)
   useEffect(() => {
-    loadGroups();
-  }, []);
-
-  const loadGroups = async () => {
-    try {
-      const data = await groupsService.getAll();
-      setGroups(data);
-    } catch (error) {
-      console.error('Error loading groups:', error);
+    const params = new URLSearchParams(location.search);
+    const dateFromUrl = params.get('startDate');
+    if (dateFromUrl) {
+      setStartDatum(dateFromUrl);
     }
+  }, [location.search]);
+
+  const inputStyle = {
+    marginBottom: '16px',
+    '--background': '#f4f5f8',
+    '--border-width': '1px',
+    '--border-style': 'solid',
+    '--border-color': '#d7d8da',
+    '--border-radius': '8px',
+    '--padding-start': '16px',
+    '--padding-end': '16px',
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!datum || !uhrzeit || !gruppeId || !profile) {
+    if (!startDatum || !startUhrzeit || !endeDatum || !endeUhrzeit || !profile?.gruppe_id) {
       present({
         message: 'Bitte alle Pflichtfelder ausfüllen',
         duration: 3000,
@@ -65,9 +70,11 @@ const BookingCreate: React.FC = () => {
     setLoading(true);
     try {
       await bookingsService.create({
-        datum,
-        uhrzeit,
-        gruppe_id: gruppeId,
+        start_datum: startDatum,
+        start_uhrzeit: startUhrzeit,
+        ende_datum: endeDatum,
+        ende_uhrzeit: endeUhrzeit,
+        gruppe_id: profile.gruppe_id,
         fahrer_id: profile.id,
         kommentar: kommentar || null,
       });
@@ -107,61 +114,61 @@ const BookingCreate: React.FC = () => {
           </IonCardHeader>
             <IonCardContent>
               <form onSubmit={handleSubmit}>
-                <IonInput
-                  type="date"
-                  label="Datum *"
-                  labelPlacement="floating"
-                  fill="solid"
-                  value={datum}
-                  onIonInput={(e) => setDatum(e.detail.value!)}
-                  required
-                  style={{ 
-                    marginBottom: '16px',
-                    '--background': '#f4f5f8',
-                    '--border-width': '1px',
-                    '--border-style': 'solid',
-                    '--border-color': '#d7d8da',
-                    '--border-radius': '8px',
-                    '--padding-start': '16px',
-                    '--padding-end': '16px',
-                  }}
-                />
-
-                <IonInput
-                  type="time"
-                  label="Uhrzeit *"
-                  labelPlacement="floating"
-                  fill="solid"
-                  value={uhrzeit}
-                  onIonInput={(e) => setUhrzeit(e.detail.value!)}
-                  required
-                  style={{ 
-                    marginBottom: '16px',
-                    '--background': '#f4f5f8',
-                    '--border-width': '1px',
-                    '--border-style': 'solid',
-                    '--border-color': '#d7d8da',
-                    '--border-radius': '8px',
-                    '--padding-start': '16px',
-                    '--padding-end': '16px',
-                  }}
-                />
-
-                <IonItem style={{ marginBottom: '16px' }}>
-                  <IonLabel>Gruppe *</IonLabel>
-                  <IonSelect
-                    value={gruppeId}
-                    placeholder="Gruppe auswählen"
-                    onIonChange={(e) => setGruppeId(e.detail.value)}
-                  >
-                    {groups.map((group) => (
-                      <IonSelectOption key={group.id} value={group.id}>
-                        {group.bezeichnung}
-                      </IonSelectOption>
-                    ))}
-                  </IonSelect>
+                {/* Gruppe anzeigen (nicht änderbar) */}
+                <IonItem lines="none" style={{ marginBottom: '16px' }}>
+                  <IonLabel>
+                    <p>Gruppe</p>
+                    <h2>{profile?.gruppe?.bezeichnung || 'Keine Gruppe zugewiesen'}</h2>
+                  </IonLabel>
                 </IonItem>
 
+                {/* Start */}
+                <h3 style={{ margin: '16px 0 8px' }}>Start</h3>
+                <IonInput
+                  type="date"
+                  label="Start-Datum *"
+                  labelPlacement="floating"
+                  fill="solid"
+                  value={startDatum}
+                  onIonInput={(e) => setStartDatum(e.detail.value!)}
+                  required
+                  style={inputStyle}
+                />
+                <IonInput
+                  type="time"
+                  label="Start-Uhrzeit *"
+                  labelPlacement="floating"
+                  fill="solid"
+                  value={startUhrzeit}
+                  onIonInput={(e) => setStartUhrzeit(e.detail.value!)}
+                  required
+                  style={inputStyle}
+                />
+
+                {/* Ende */}
+                <h3 style={{ margin: '16px 0 8px' }}>Ende</h3>
+                <IonInput
+                  type="date"
+                  label="Ende-Datum *"
+                  labelPlacement="floating"
+                  fill="solid"
+                  value={endeDatum}
+                  onIonInput={(e) => setEndeDatum(e.detail.value!)}
+                  required
+                  style={inputStyle}
+                />
+                <IonInput
+                  type="time"
+                  label="Ende-Uhrzeit *"
+                  labelPlacement="floating"
+                  fill="solid"
+                  value={endeUhrzeit}
+                  onIonInput={(e) => setEndeUhrzeit(e.detail.value!)}
+                  required
+                  style={inputStyle}
+                />
+
+                {/* Kommentar */}
                 <IonTextarea
                   label="Kommentar"
                   labelPlacement="floating"
@@ -169,16 +176,7 @@ const BookingCreate: React.FC = () => {
                   value={kommentar}
                   onIonInput={(e) => setKommentar(e.detail.value!)}
                   rows={3}
-                  style={{ 
-                    marginBottom: '16px',
-                    '--background': '#f4f5f8',
-                    '--border-width': '1px',
-                    '--border-style': 'solid',
-                    '--border-color': '#d7d8da',
-                    '--border-radius': '8px',
-                    '--padding-start': '16px',
-                    '--padding-end': '16px',
-                  }}
+                  style={inputStyle}
                 />
 
               <IonButton
