@@ -32,7 +32,7 @@ const Trips: React.FC = () => {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [filteredTrips, setFilteredTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState(false);
-  const [filter, setFilter] = useState<'all' | 'mine'>('all');
+  const [filter, setFilter] = useState<'all' | 'mine'>('mine');
   const { profile } = useAuth();
   const history = useHistory();
 
@@ -94,12 +94,13 @@ const Trips: React.FC = () => {
         </IonToolbar>
         <IonToolbar>
           <IonSegment value={filter} onIonChange={(e) => setFilter(e.detail.value as any)}>
+          <IonSegmentButton value="mine">
+              <IonLabel>Meine Fahrten</IonLabel>
+            </IonSegmentButton>
             <IonSegmentButton value="all">
               <IonLabel>Alle</IonLabel>
             </IonSegmentButton>
-            <IonSegmentButton value="mine">
-              <IonLabel>Meine Fahrten</IonLabel>
-            </IonSegmentButton>
+            
           </IonSegment>
         </IonToolbar>
       </IonHeader>

@@ -80,8 +80,10 @@ export const mockTrip = {
 
 export const mockBooking = {
   id: '123e4567-e89b-12d3-a456-426614174003',
-  datum: '2024-01-01',
-  uhrzeit: '14:00',
+  start_datum: '2024-01-01',
+  start_uhrzeit: '14:00:00',
+  ende_datum: '2024-01-01',
+  ende_uhrzeit: '18:00:00',
   gruppe_id: mockGroup.id,
   fahrer_id: mockUser.id,
   kommentar: 'Test Buchung',

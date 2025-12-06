@@ -26,6 +26,18 @@ import { useAuth } from '../contexts/AuthContext';
 import { groupsService } from '../services/database';
 import { Group } from '../types';
 
+// Input-Style für bessere Sichtbarkeit
+const inputStyle = {
+  marginBottom: '16px',
+  '--background': '#f4f5f8',
+  '--border-width': '1px',
+  '--border-style': 'solid',
+  '--border-color': '#d7d8da',
+  '--border-radius': '8px',
+  '--padding-start': '16px',
+  '--padding-end': '16px',
+};
+
 const Register: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

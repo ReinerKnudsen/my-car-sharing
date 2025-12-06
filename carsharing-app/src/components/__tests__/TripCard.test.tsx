@@ -21,7 +21,7 @@ vi.mock('../../contexts/AuthContext', () => ({
 vi.mock('@ionic/react', async () => {
   const actual = await vi.importActual('@ionic/react');
   return {
-    ...actual,
+    ...(actual as object),
     useIonAlert: () => [vi.fn()],
     useIonToast: () => [vi.fn()],
   };

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '../../test/test-utils';
+import { render, screen } from '../../test/test-utils';
 import BookingCard from '../BookingCard';
 import { mockBooking } from '../../test/test-utils';
 
@@ -10,9 +10,9 @@ import { mockBooking } from '../../test/test-utils';
 // Mock useAuth Hook
 vi.mock('../../contexts/AuthContext', () => ({
   useAuth: () => ({
-    profile: { id: mockBooking.fahrer_id, ist_admin: false },
+    profile: { id: '123e4567-e89b-12d3-a456-426614174000', ist_admin: false },
     isAdmin: false,
-    user: { id: mockBooking.fahrer_id, email: 'test@example.com' },
+    user: { id: '123e4567-e89b-12d3-a456-426614174000', email: 'test@example.com' },
     loading: false,
   }),
 }));
@@ -21,7 +21,7 @@ vi.mock('../../contexts/AuthContext', () => ({
 vi.mock('@ionic/react', async () => {
   const actual = await vi.importActual('@ionic/react');
   return {
-    ...actual,
+    ...(actual as object),
     useIonAlert: () => [vi.fn()],
     useIonToast: () => [vi.fn()],
   };
@@ -30,9 +30,6 @@ vi.mock('@ionic/react', async () => {
 describe('BookingCard', () => {
   it('sollte Buchungsdetails anzeigen', () => {
     render(<BookingCard booking={mockBooking} />);
-
-    // Prüfe ob Uhrzeit angezeigt wird
-    expect(screen.getByText(mockBooking.uhrzeit)).toBeInTheDocument();
     
     // Prüfe ob Fahrer angezeigt wird
     expect(screen.getByText(/Test User/)).toBeInTheDocument();

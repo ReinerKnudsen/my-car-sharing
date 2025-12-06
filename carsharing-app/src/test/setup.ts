@@ -49,8 +49,9 @@ vi.mock('react-router-dom', () => ({
   })),
   useLocation: vi.fn(() => ({
     pathname: '/',
+    search: '',
   })),
-  Route: ({ component: Component }: any) => <Component />,
-  Redirect: () => null,
+  Route: vi.fn(({ component: Component }: any) => Component ? Component({}) : null),
+  Redirect: vi.fn(() => null),
 }));
 
