@@ -1,9 +1,10 @@
 import React from 'react';
 import { IonApp, IonRouterOutlet, IonSpinner, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { Route } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Login from './pages/Login';
+import ResetPassword from './pages/ResetPassword';
 import MainTabs from './components/MainTabs-simple';
 
 /* Core CSS required for Ionic components to work properly */
@@ -61,7 +62,10 @@ const App: React.FC = () => {
       <AuthProvider>
         <IonReactRouter>
           <IonRouterOutlet>
-            <Route path="/" component={AppRoutes} />
+            <Switch>
+              <Route path="/reset-password" component={ResetPassword} exact />
+              <Route path="/" component={AppRoutes} />
+            </Switch>
           </IonRouterOutlet>
         </IonReactRouter>
       </AuthProvider>
