@@ -149,6 +149,7 @@ describe('tripsService', () => {
         end_kilometer: 1050,
         datum: '2024-01-01',
         fahrer_id: '123',
+        kommentar: null,
       };
 
       const mockFrom = {

@@ -22,6 +22,7 @@ export interface Trip {
   end_kilometer: number;
   datum: string;
   fahrer_id: string;
+  kommentar: string | null;
   created_at: string;
   // Joined data
   fahrer?: Profile;
@@ -47,6 +48,7 @@ export interface TripFormData {
   start_kilometer: number;
   end_kilometer: number;
   datum: string;
+  kommentar?: string;
 }
 
 export interface BookingFormData {

@@ -143,7 +143,8 @@ export const tripsService = {
     const { data, error } = await supabase
       .from('trips')
       .select('*, fahrer:profiles(*, gruppe:groups(*))')
-      .order('datum', { ascending: false });
+      .order('end_kilometer', { ascending: false }) // Höchster Kilometerstand zuerst
+      .limit(50); // Nur die letzten 50 Fahrten laden
     
     if (error) throw error;
     return data || [];
@@ -230,6 +231,24 @@ export const tripsService = {
     return data.reduce((total, trip) => {
       return total + (trip.end_kilometer - trip.start_kilometer);
     }, 0);
+  },
+
+  // Holt die letzte Fahrt (höchster Endkilometerstand)
+  async getLastTrip(): Promise<Trip | null> {
+    const { data, error } = await supabase
+      .from('trips')
+      .select('*, fahrer:profiles(*, gruppe:groups(*))')
+      .order('end_kilometer', { ascending: false })
+      .limit(1)
+      .single();
+    
+    if (error) {
+      // Kein Eintrag gefunden ist kein Fehler
+      if (error.code === 'PGRST116') return null;
+      throw error;
+    }
+    
+    return data;
   },
 };
 

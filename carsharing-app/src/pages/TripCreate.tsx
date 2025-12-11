@@ -10,6 +10,7 @@ import {
   IonCardHeader,
   IonCardTitle,
   IonInput,
+  IonTextarea,
   IonButton,
   IonSpinner,
   IonBackButton,
@@ -19,15 +20,40 @@ import {
 import { useHistory } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { tripsService } from '../services/database';
+import { Trip } from '../types';
+
+// Heutiges Datum als YYYY-MM-DD String
+const getTodayString = () => {
+  const today = new Date();
+  return `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;
+};
 
 const TripCreate: React.FC = () => {
   const [startKilometer, setStartKilometer] = useState<string>('');
   const [endKilometer, setEndKilometer] = useState<string>('');
-  const [datum, setDatum] = useState('');
+  const [datum, setDatum] = useState<string>(getTodayString());
+  const [kommentar, setKommentar] = useState<string>('');
   const [loading, setLoading] = useState(false);
+  const [lastTrip, setLastTrip] = useState<Trip | null>(null);
   const { profile } = useAuth();
   const history = useHistory();
   const [present] = useIonToast();
+
+  // Lade die letzte Fahrt beim Mount
+  useEffect(() => {
+    const loadLastTrip = async () => {
+      try {
+        const trip = await tripsService.getLastTrip();
+        if (trip) {
+          setLastTrip(trip);
+          setStartKilometer(trip.end_kilometer.toString());
+        }
+      } catch (error) {
+        console.error('Fehler beim Laden der letzten Fahrt:', error);
+      }
+    };
+    loadLastTrip();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,7 +65,7 @@ const TripCreate: React.FC = () => {
         color: 'warning',
       });
       return;
-    }
+    }  
 
     if (!profile) {
       present({
@@ -71,6 +97,16 @@ const TripCreate: React.FC = () => {
       return;
     }
 
+    // Datum darf nicht in der Zukunft liegen
+    if (datum > getTodayString()) {
+      present({
+        message: 'Das Datum darf nicht in der Zukunft liegen',
+        duration: 3000,
+        color: 'warning',
+      });
+      return;
+    }
+
     setLoading(true);
     try {
       await tripsService.create({
@@ -78,6 +114,7 @@ const TripCreate: React.FC = () => {
         end_kilometer: endKm,
         datum,
         fahrer_id: profile.id,
+        kommentar: kommentar || null,
       });
       
       const distance = endKm - startKm;
@@ -119,13 +156,14 @@ const TripCreate: React.FC = () => {
             <IonCardTitle>Fahrt eintragen</IonCardTitle>
           </IonCardHeader>
           <IonCardContent>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} noValidate>
               <IonInput
                 type="date"
                 label="Datum *"
                 labelPlacement="floating"
                 fill="solid"
                 value={datum}
+                max={getTodayString()}
                 onIonInput={(e) => setDatum(e.detail.value!)}
                 required
                 style={{ 
@@ -168,6 +206,25 @@ const TripCreate: React.FC = () => {
                 value={endKilometer}
                 onIonInput={(e) => setEndKilometer(e.detail.value!)}
                 required
+                style={{ 
+                  marginBottom: '16px',
+                  '--background': '#f4f5f8',
+                  '--border-width': '1px',
+                  '--border-style': 'solid',
+                  '--border-color': '#d7d8da',
+                  '--border-radius': '8px',
+                  '--padding-start': '16px',
+                  '--padding-end': '16px',
+                }}
+              />
+
+              <IonTextarea
+                label="Kommentar"
+                labelPlacement="floating"
+                fill="solid"
+                value={kommentar}
+                onIonInput={(e) => setKommentar(e.detail.value!)}
+                rows={3}
                 style={{ 
                   marginBottom: '16px',
                   '--background': '#f4f5f8',

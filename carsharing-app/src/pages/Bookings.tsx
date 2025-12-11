@@ -97,7 +97,7 @@ const Bookings: React.FC = () => {
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar>
+        <IonToolbar color="primary">
           <IonTitle>Buchungen</IonTitle>
           {/* iOS: + Button im Header */}
           {isIOS && (

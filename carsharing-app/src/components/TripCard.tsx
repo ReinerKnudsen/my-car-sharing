@@ -17,28 +17,26 @@ import { trashOutline } from 'ionicons/icons';
 import { Trip } from '../types';
 import { tripsService } from '../services/database';
 import { useAuth } from '../contexts/AuthContext';
+import { formatDate } from '../utils/dateUtils';
 
 interface TripCardProps {
   trip: Trip;
+  isFirst?: boolean; // Nur der erste Eintrag darf gelöscht werden
   onDelete?: () => void;
 }
 
-const TripCard: React.FC<TripCardProps> = ({ trip, onDelete }) => {
+const TripCard: React.FC<TripCardProps> = ({ trip, isFirst = false, onDelete }) => {
   const { profile, isAdmin } = useAuth();
   const [presentAlert] = useIonAlert();
   const [present] = useIonToast();
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('de-DE', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
-
+ 
   const distance = trip.end_kilometer - trip.start_kilometer;
-  const canDelete = isAdmin || trip.fahrer_id === profile?.id;
+  
+  // Löschen erlaubt wenn:
+  // - Admin ODER
+  // - Erster Eintrag UND Fahrt gehört zur eigenen Gruppe
+  const isSameGroup = trip.fahrer?.gruppe_id === profile?.gruppe_id;
+  const canDelete = (isFirst && isSameGroup);
 
   const handleDelete = () => {
     presentAlert({
@@ -77,41 +75,45 @@ const TripCard: React.FC<TripCardProps> = ({ trip, onDelete }) => {
   return (
     <IonCard>
       <IonCardHeader>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <IonCardTitle>{formatDate(trip.datum)}</IonCardTitle>
-          <IonBadge color="primary">{distance} km</IonBadge>
-        </div>
+          <IonCardTitle>            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+               {trip.start_kilometer.toLocaleString('de-DE')} → {trip.end_kilometer.toLocaleString('de-DE')}
+            <IonBadge color="primary">{distance} km</IonBadge>
+            </div></IonCardTitle>
       </IonCardHeader>
       <IonCardContent>
+        <IonItem lines="none">
+          <IonLabel>
+            <IonText color="medium">
+              <p>Datum</p>
+            </IonText>
+            {formatDate(trip.datum, true)}
+          </IonLabel>
+        </IonItem>
+
         <IonItem lines="none">
           <IonLabel>
             <IonText color="medium">
               <p>Fahrer</p>
             </IonText>
             <h2>
-              {trip.fahrer?.vorname} {trip.fahrer?.name}
+              {trip.fahrer?.vorname} {trip.fahrer?.name} 
             </h2>
           </IonLabel>
-        </IonItem>
-
-        <IonItem lines="none">
           <IonLabel>
-            <IonText color="medium">
-              <p>Kilometer</p>
-            </IonText>
-            <h2>
-              {trip.start_kilometer.toLocaleString('de-DE')} km → {trip.end_kilometer.toLocaleString('de-DE')} km
-            </h2>
-          </IonLabel>
-        </IonItem>
-
-        {trip.fahrer?.gruppe && (
-          <IonItem lines="none">
-            <IonLabel>
               <IonText color="medium">
                 <p>Gruppe</p>
               </IonText>
-              <h2>{trip.fahrer.gruppe.bezeichnung}</h2>
+              <h2>{trip.fahrer?.gruppe?.bezeichnung}</h2>
+            </IonLabel>
+        </IonItem>
+        {trip.kommentar && (
+          <IonItem lines="none">
+            <IonLabel>
+              <IonText color="medium">
+                <p>Kommentar</p>
+              </IonText>
+              <h2>{trip.kommentar}</h2>
             </IonLabel>
           </IonItem>
         )}

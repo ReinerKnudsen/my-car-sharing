@@ -50,6 +50,7 @@ const Trips: React.FC = () => {
       setLoading(true);
       const data = await tripsService.getAll();
       setTrips(data);
+      // sort trips by end_kilometer descending
     } catch (error) {
       console.error('Error loading trips:', error);
     } finally {
@@ -81,7 +82,7 @@ const Trips: React.FC = () => {
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar>
+        <IonToolbar color="primary">
           <IonTitle>Fahrten</IonTitle>
           {/* iOS: + Button im Header */}
           {isIOS && (
@@ -124,10 +125,11 @@ const Trips: React.FC = () => {
             </IonButton>
           </div>
         ) : (
-          filteredTrips.map((trip) => (
+          filteredTrips.map((trip, index) => (
             <TripCard
               key={trip.id}
               trip={trip}
+              isFirst={index === 0}
               onDelete={loadTrips}
             />
           ))

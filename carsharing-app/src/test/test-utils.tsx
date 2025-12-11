@@ -74,6 +74,7 @@ export const mockTrip = {
   end_kilometer: 1050,
   datum: '2024-01-01',
   fahrer_id: mockUser.id,
+  kommentar: null,
   created_at: '2024-01-01T00:00:00Z',
   fahrer: mockProfile,
 };
