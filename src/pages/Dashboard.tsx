@@ -25,7 +25,8 @@ import { car, checkmarkCircle } from 'ionicons/icons';
 import { RefresherEventDetail } from '@ionic/core';
 import { useAuth } from '../contexts/AuthContext';
 import { bookingsService, tripsService } from '../services/database';
-import { Booking, Trip } from '../types';
+import { settingsService } from '../services/settings.service';
+import { Booking, Trip, GroupCosts, DriverCosts } from '../types';
 import { formatDate } from '../utils/dateUtils';
 
 // Typ für aktive Fahrt im localStorage
@@ -50,6 +51,9 @@ const Dashboard: React.FC = () => {
   const [startKilometerInput, setStartKilometerInput] = useState<string>('');
   const [showEndDialog, setShowEndDialog] = useState(false);
   const [showStartDialog, setShowStartDialog] = useState(false);
+  const [groupCosts, setGroupCosts] = useState<GroupCosts | null>(null);
+  const [driverCosts, setDriverCosts] = useState<DriverCosts[]>([]);
+  const [kostenProKm, setKostenProKm] = useState<number>(0.30);
   
   const [presentAlert] = useIonAlert();
   const [presentToast] = useIonToast();
@@ -100,6 +104,19 @@ const Dashboard: React.FC = () => {
       // Calculate user's kilometers
       const userKm = await tripsService.getKilometersByFahrer(profile.id);
       setMyKm(userKm);
+
+      // Load cost per km setting
+      const costRate = await settingsService.getKostenProKm();
+      setKostenProKm(costRate);
+
+      // Load group costs if user has a group
+      if (profile.gruppe_id) {
+        const costs = await settingsService.getGroupCosts(profile.gruppe_id);
+        setGroupCosts(costs);
+        
+        const driverData = await settingsService.getGroupCostsByDriver(profile.gruppe_id);
+        setDriverCosts(driverData);
+      }
     } catch (error) {
       console.error('Error loading dashboard data:', error);
     } finally {
@@ -133,6 +150,8 @@ const Dashboard: React.FC = () => {
       if (inputKm > lastKilometer) {
         const today = new Date();
         const datum = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;
+        const distance = inputKm - lastKilometer;
+        const kosten = distance * kostenProKm;
 
         await tripsService.create({
           start_kilometer: lastKilometer,
@@ -140,6 +159,7 @@ const Dashboard: React.FC = () => {
           datum,
           fahrer_id: profile.id,
           kommentar: '⚠️ Nachgetragen - Fahrer unbekannt',
+          kosten,
         });
 
         presentToast({
@@ -201,6 +221,8 @@ const Dashboard: React.FC = () => {
       // Heutiges Datum im Format YYYY-MM-DD
       const today = new Date();
       const datum = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;
+      const tripDistance = endKm - activeTrip.startKilometer;
+      const kosten = tripDistance * kostenProKm;
 
       await tripsService.create({
         start_kilometer: activeTrip.startKilometer,
@@ -208,6 +230,7 @@ const Dashboard: React.FC = () => {
         datum,
         fahrer_id: profile.id,
         kommentar: null,
+        kosten,
       });
 
       // Aktive Fahrt löschen
@@ -216,7 +239,7 @@ const Dashboard: React.FC = () => {
       setShowEndDialog(false);
       setLastKilometer(endKm);
 
-      const distance = endKm - activeTrip.startKilometer;
+      const distance = tripDistance;
       presentToast({
         message: `Fahrt beendet! ${distance} km gefahren`,
         duration: 2000,
@@ -363,6 +386,9 @@ const Dashboard: React.FC = () => {
                       <p style={{ margin: 0, fontSize: '14px' }}>
                         ⚠️ Eine Fahrt von <strong>{lastKilometer.toLocaleString('de-DE')}</strong> → <strong>{parseInt(startKilometerInput).toLocaleString('de-DE')} km</strong> wird als "Fahrer unbekannt" nachgetragen.
                       </p>
+                      <p style={{ margin: '8px 0 0 0', fontSize: '14px', color: 'var(--ion-color-success)' }}>
+                        Kosten: <strong>{((parseInt(startKilometerInput) - lastKilometer) * kostenProKm).toFixed(2)} €</strong>
+                      </p>
                     </div>
                   )}
                   <div style={{ display: 'flex', gap: '12px' }}>
@@ -413,14 +439,19 @@ const Dashboard: React.FC = () => {
                     }}
                   />
                   {endKilometerInput && parseInt(endKilometerInput) > activeTrip.startKilometer && (
-                    <p style={{ 
+                    <div style={{ 
                       padding: '12px', 
                       background: '#e3f2fd', 
                       borderRadius: '8px',
                       marginBottom: '16px'
                     }}>
-                      Gefahrene Strecke: <strong>{(parseInt(endKilometerInput) - activeTrip.startKilometer).toLocaleString('de-DE')} km</strong>
-                    </p>
+                      <p style={{ margin: 0 }}>
+                        Gefahrene Strecke: <strong>{(parseInt(endKilometerInput) - activeTrip.startKilometer).toLocaleString('de-DE')} km</strong>
+                      </p>
+                      <p style={{ margin: '8px 0 0 0', color: 'var(--ion-color-success)' }}>
+                        Kosten: <strong>{((parseInt(endKilometerInput) - activeTrip.startKilometer) * kostenProKm).toFixed(2)} €</strong>
+                      </p>
+                    </div>
                   )}
                   <div style={{ display: 'flex', gap: '12px' }}>
                     <IonButton 
@@ -484,12 +515,96 @@ const Dashboard: React.FC = () => {
                       <strong>{formatDate(trip.datum, false)}</strong>
                       <p style={{ margin: '5px 0 0 0', color: '#666' }}>
                         {trip.fahrer?.vorname} {trip.fahrer?.name} - {trip.end_kilometer - trip.start_kilometer} km
+                        {trip.kosten !== null && trip.kosten !== undefined && (
+                          <span style={{ color: 'var(--ion-color-success)', marginLeft: '8px' }}>
+                            ({trip.kosten.toFixed(2)} €)
+                          </span>
+                        )}
                       </p>
                     </div>
                   ))
                 )}
               </IonCardContent>
             </IonCard>
+
+            {/* Group Costs */}
+            {profile?.gruppe_id && groupCosts && (
+              <IonCard>
+                <IonCardHeader>
+                  <IonCardTitle>Gruppenkosten: {profile.gruppe?.bezeichnung}</IonCardTitle>
+                </IonCardHeader>
+                <IonCardContent>
+                  {/* Total Summary */}
+                  <div style={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: 'repeat(3, 1fr)', 
+                    gap: '12px',
+                    marginBottom: '20px',
+                    textAlign: 'center'
+                  }}>
+                    <div style={{ padding: '12px', background: '#e3f2fd', borderRadius: '8px' }}>
+                      <div style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--ion-color-primary)' }}>
+                        {groupCosts.total_trips}
+                      </div>
+                      <div style={{ fontSize: '12px', color: '#666' }}>Fahrten</div>
+                    </div>
+                    <div style={{ padding: '12px', background: '#e8f5e9', borderRadius: '8px' }}>
+                      <div style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--ion-color-success)' }}>
+                        {groupCosts.total_kilometers.toLocaleString('de-DE')}
+                      </div>
+                      <div style={{ fontSize: '12px', color: '#666' }}>Kilometer</div>
+                    </div>
+                    <div style={{ padding: '12px', background: '#fff3e0', borderRadius: '8px' }}>
+                      <div style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--ion-color-warning)' }}>
+                        {groupCosts.total_costs.toFixed(2)} €
+                      </div>
+                      <div style={{ fontSize: '12px', color: '#666' }}>Gesamt</div>
+                    </div>
+                  </div>
+
+                  {/* Per Driver Breakdown */}
+                  {driverCosts.length > 0 && (
+                    <>
+                      <h3 style={{ margin: '16px 0 12px 0', fontSize: '14px', color: '#666' }}>
+                        Kosten pro Fahrer
+                      </h3>
+                      {driverCosts.map((driver) => (
+                        <div 
+                          key={driver.fahrer_id} 
+                          style={{ 
+                            display: 'flex', 
+                            justifyContent: 'space-between', 
+                            alignItems: 'center',
+                            padding: '10px',
+                            background: driver.fahrer_id === profile.id ? '#e3f2fd' : '#f5f5f5',
+                            borderRadius: '8px',
+                            marginBottom: '8px',
+                            borderLeft: driver.fahrer_id === profile.id ? '4px solid var(--ion-color-primary)' : 'none'
+                          }}
+                        >
+                          <div>
+                            <strong>
+                              {driver.fahrer_name}
+                              {driver.fahrer_id === profile.id && ' (Du)'}
+                            </strong>
+                            <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#666' }}>
+                              {driver.trip_count} Fahrten · {driver.total_kilometers.toLocaleString('de-DE')} km
+                            </p>
+                          </div>
+                          <div style={{ 
+                            fontWeight: 'bold', 
+                            color: 'var(--ion-color-success)',
+                            fontSize: '16px'
+                          }}>
+                            {driver.total_costs.toFixed(2)} €
+                          </div>
+                        </div>
+                      ))}
+                    </>
+                  )}
+                </IonCardContent>
+              </IonCard>
+            )}
           </>
         )}
       </IonContent>

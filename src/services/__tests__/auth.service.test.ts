@@ -156,6 +156,8 @@ describe('authService', () => {
         name: 'Doe',
         gruppe_id: '456',
         ist_admin: false,
+        ist_gruppen_admin: false,
+        ist_gesperrt: false,
         created_at: '2024-01-01',
         gruppe: {
           id: '456',
