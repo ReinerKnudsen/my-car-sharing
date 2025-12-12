@@ -78,7 +78,12 @@ const TripCard: React.FC<TripCardProps> = ({ trip, isFirst = false, onDelete }) 
           <IonCardTitle>            
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                {trip.start_kilometer.toLocaleString('de-DE')} → {trip.end_kilometer.toLocaleString('de-DE')}
-            <IonBadge color="primary">{distance} km</IonBadge>
+               <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                 <IonBadge color="primary">{distance} km</IonBadge>
+                 {trip.kosten !== null && trip.kosten !== undefined && (
+                   <IonBadge color="success">{trip.kosten.toFixed(2)} €</IonBadge>
+                 )}
+               </div>
             </div></IonCardTitle>
       </IonCardHeader>
       <IonCardContent>

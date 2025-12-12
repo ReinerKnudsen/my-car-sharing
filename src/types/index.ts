@@ -25,9 +25,33 @@ export interface Trip {
   datum: string;
   fahrer_id: string;
   kommentar: string | null;
+  kosten: number | null;
   created_at: string;
   // Joined data
   fahrer?: Profile;
+}
+
+export interface Setting {
+  id: string;
+  key: string;
+  value: string;
+  description: string | null;
+  updated_at: string;
+  updated_by: string | null;
+}
+
+export interface GroupCosts {
+  total_trips: number;
+  total_kilometers: number;
+  total_costs: number;
+}
+
+export interface DriverCosts {
+  fahrer_id: string;
+  fahrer_name: string;
+  trip_count: number;
+  total_kilometers: number;
+  total_costs: number;
 }
 
 export interface Booking {
