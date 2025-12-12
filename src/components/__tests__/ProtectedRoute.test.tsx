@@ -16,6 +16,7 @@ describe('ProtectedRoute', () => {
         profile: null,
         loading: true,
         isAdmin: false,
+        isGroupAdmin: false,
       }),
     }));
 
@@ -34,9 +35,17 @@ describe('ProtectedRoute', () => {
     vi.mock('../../contexts/AuthContext', () => ({
       useAuth: () => ({
         user: { id: '123', email: 'test@example.com' },
-        profile: { id: '123', vorname: 'Test', name: 'User' },
+        profile: { 
+          id: '123', 
+          vorname: 'Test', 
+          name: 'User',
+          ist_admin: false,
+          ist_gruppen_admin: false,
+          ist_gesperrt: false,
+        },
         loading: false,
         isAdmin: false,
+        isGroupAdmin: false,
       }),
     }));
 
@@ -57,6 +66,7 @@ describe('ProtectedRoute', () => {
         profile: null,
         loading: false,
         isAdmin: false,
+        isGroupAdmin: false,
       }),
     }));
 

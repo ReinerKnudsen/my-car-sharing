@@ -16,6 +16,7 @@ describe('AdminRoute', () => {
         profile: null,
         loading: true,
         isAdmin: false,
+        isGroupAdmin: false,
       }),
     }));
 
@@ -34,9 +35,17 @@ describe('AdminRoute', () => {
     vi.mock('../../contexts/AuthContext', () => ({
       useAuth: () => ({
         user: { id: '123', email: 'admin@example.com' },
-        profile: { id: '123', vorname: 'Admin', name: 'User', ist_admin: true },
+        profile: { 
+          id: '123', 
+          vorname: 'Admin', 
+          name: 'User', 
+          ist_admin: true,
+          ist_gruppen_admin: false,
+          ist_gesperrt: false,
+        },
         loading: false,
         isAdmin: true,
+        isGroupAdmin: false,
       }),
     }));
 
@@ -54,9 +63,17 @@ describe('AdminRoute', () => {
     vi.mock('../../contexts/AuthContext', () => ({
       useAuth: () => ({
         user: { id: '123', email: 'test@example.com' },
-        profile: { id: '123', vorname: 'Test', name: 'User', ist_admin: false },
+        profile: { 
+          id: '123', 
+          vorname: 'Test', 
+          name: 'User', 
+          ist_admin: false,
+          ist_gruppen_admin: false,
+          ist_gesperrt: false,
+        },
         loading: false,
         isAdmin: false,
+        isGroupAdmin: false,
       }),
     }));
 
@@ -77,6 +94,7 @@ describe('AdminRoute', () => {
         profile: null,
         loading: false,
         isAdmin: false,
+        isGroupAdmin: false,
       }),
     }));
 
