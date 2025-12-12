@@ -26,6 +26,7 @@ import Profile from '../pages/Profile';
 import Users from '../pages/admin/Users';
 import Groups from '../pages/admin/Groups';
 import InvitationCodes from '../pages/admin/InvitationCodes';
+import Settings from '../pages/admin/Settings';
 import Register from '../pages/Register';
 
 const MainTabs: React.FC = () => {
@@ -43,6 +44,7 @@ const MainTabs: React.FC = () => {
           <Route exact path="/admin/users" component={Users} />
           <Route exact path="/admin/groups" component={Groups} />
           <Route exact path="/admin/invitation-codes" component={InvitationCodes} />
+          <Route exact path="/admin/settings" component={Settings} />
           <Route exact path="/admin/register" component={Register} />
           <Route exact path="/">
             <Redirect to="/dashboard" />

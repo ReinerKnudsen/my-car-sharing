@@ -175,6 +175,7 @@ const Groups: React.FC = () => {
           <IonSegment value="groups" onIonChange={(e) => {
             if (e.detail.value === 'users') history.push('/admin/users');
             if (e.detail.value === 'codes') history.push('/admin/invitation-codes');
+            if (e.detail.value === 'settings') history.push('/admin/settings');
           }}>
             <IonSegmentButton value="users">
               <IonLabel>Fahrer</IonLabel>
@@ -184,6 +185,9 @@ const Groups: React.FC = () => {
             </IonSegmentButton>
             <IonSegmentButton value="codes">
               <IonLabel>Einladungen</IonLabel>
+            </IonSegmentButton>
+            <IonSegmentButton value="settings">
+              <IonLabel>Kosten</IonLabel>
             </IonSegmentButton>
           </IonSegment>
         </IonToolbar>
