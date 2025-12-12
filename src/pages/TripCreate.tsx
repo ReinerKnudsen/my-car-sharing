@@ -20,6 +20,7 @@ import {
 import { useHistory } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { tripsService } from '../services/database';
+import { settingsService } from '../services/settings.service';
 import { Trip } from '../types';
 
 // Heutiges Datum als YYYY-MM-DD String
@@ -35,24 +36,29 @@ const TripCreate: React.FC = () => {
   const [kommentar, setKommentar] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [lastTrip, setLastTrip] = useState<Trip | null>(null);
+  const [kostenProKm, setKostenProKm] = useState<number>(0.30);
   const { profile } = useAuth();
   const history = useHistory();
   const [present] = useIonToast();
 
-  // Lade die letzte Fahrt beim Mount
+  // Lade die letzte Fahrt und Kostensatz beim Mount
   useEffect(() => {
-    const loadLastTrip = async () => {
+    const loadData = async () => {
       try {
-        const trip = await tripsService.getLastTrip();
+        const [trip, costRate] = await Promise.all([
+          tripsService.getLastTrip(),
+          settingsService.getKostenProKm(),
+        ]);
         if (trip) {
           setLastTrip(trip);
           setStartKilometer(trip.end_kilometer.toString());
         }
+        setKostenProKm(costRate);
       } catch (error) {
-        console.error('Fehler beim Laden der letzten Fahrt:', error);
+        console.error('Fehler beim Laden der Daten:', error);
       }
     };
-    loadLastTrip();
+    loadData();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -109,15 +115,19 @@ const TripCreate: React.FC = () => {
 
     setLoading(true);
     try {
+      const tripDistance = endKm - startKm;
+      const kosten = tripDistance * kostenProKm;
+      
       await tripsService.create({
         start_kilometer: startKm,
         end_kilometer: endKm,
         datum,
         fahrer_id: profile.id,
         kommentar: kommentar || null,
+        kosten,
       });
       
-      const distance = endKm - startKm;
+      const distance = tripDistance;
       present({
         message: `Fahrt erfolgreich erstellt! ${distance} km`,
         duration: 2000,
@@ -244,9 +254,12 @@ const TripCreate: React.FC = () => {
                   borderRadius: '8px',
                   marginBottom: '16px'
                 }}>
-                  <h3 style={{ margin: 0, color: '#1976d2' }}>
-                    Gefahrene Strecke: {distance.toLocaleString('de-DE')} km
-                  </h3>
+                  <p style={{ margin: 0, color: '#1976d2' }}>
+                    Gefahrene Strecke: <strong>{distance.toLocaleString('de-DE')} km</strong>
+                  </p>
+                  <p style={{ margin: '8px 0 0 0', color: 'var(--ion-color-success)' }}>
+                    Kosten: <strong>{(distance * kostenProKm).toFixed(2)} €</strong>
+                  </p>
                 </div>
               )}
 

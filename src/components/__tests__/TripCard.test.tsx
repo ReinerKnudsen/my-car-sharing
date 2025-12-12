@@ -10,8 +10,15 @@ import { mockTrip } from '../../test/test-utils';
 // Mock useAuth Hook
 vi.mock('../../contexts/AuthContext', () => ({
   useAuth: () => ({
-    profile: { id: mockTrip.fahrer_id, ist_admin: false },
+    profile: { 
+      id: mockTrip.fahrer_id, 
+      ist_admin: false, 
+      ist_gruppen_admin: false,
+      ist_gesperrt: false,
+      gruppe_id: '123e4567-e89b-12d3-a456-426614174001',
+    },
     isAdmin: false,
+    isGroupAdmin: false,
     user: { id: mockTrip.fahrer_id, email: 'test@example.com' },
     loading: false,
   }),

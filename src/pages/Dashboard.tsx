@@ -53,6 +53,7 @@ const Dashboard: React.FC = () => {
   const [showStartDialog, setShowStartDialog] = useState(false);
   const [groupCosts, setGroupCosts] = useState<GroupCosts | null>(null);
   const [driverCosts, setDriverCosts] = useState<DriverCosts[]>([]);
+  const [kostenProKm, setKostenProKm] = useState<number>(0.30);
   
   const [presentAlert] = useIonAlert();
   const [presentToast] = useIonToast();
@@ -104,6 +105,10 @@ const Dashboard: React.FC = () => {
       const userKm = await tripsService.getKilometersByFahrer(profile.id);
       setMyKm(userKm);
 
+      // Load cost per km setting
+      const costRate = await settingsService.getKostenProKm();
+      setKostenProKm(costRate);
+
       // Load group costs if user has a group
       if (profile.gruppe_id) {
         const costs = await settingsService.getGroupCosts(profile.gruppe_id);
@@ -145,6 +150,8 @@ const Dashboard: React.FC = () => {
       if (inputKm > lastKilometer) {
         const today = new Date();
         const datum = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;
+        const distance = inputKm - lastKilometer;
+        const kosten = distance * kostenProKm;
 
         await tripsService.create({
           start_kilometer: lastKilometer,
@@ -152,6 +159,7 @@ const Dashboard: React.FC = () => {
           datum,
           fahrer_id: profile.id,
           kommentar: '⚠️ Nachgetragen - Fahrer unbekannt',
+          kosten,
         });
 
         presentToast({
@@ -213,6 +221,8 @@ const Dashboard: React.FC = () => {
       // Heutiges Datum im Format YYYY-MM-DD
       const today = new Date();
       const datum = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;
+      const tripDistance = endKm - activeTrip.startKilometer;
+      const kosten = tripDistance * kostenProKm;
 
       await tripsService.create({
         start_kilometer: activeTrip.startKilometer,
@@ -220,6 +230,7 @@ const Dashboard: React.FC = () => {
         datum,
         fahrer_id: profile.id,
         kommentar: null,
+        kosten,
       });
 
       // Aktive Fahrt löschen
@@ -228,7 +239,7 @@ const Dashboard: React.FC = () => {
       setShowEndDialog(false);
       setLastKilometer(endKm);
 
-      const distance = endKm - activeTrip.startKilometer;
+      const distance = tripDistance;
       presentToast({
         message: `Fahrt beendet! ${distance} km gefahren`,
         duration: 2000,
@@ -375,6 +386,9 @@ const Dashboard: React.FC = () => {
                       <p style={{ margin: 0, fontSize: '14px' }}>
                         ⚠️ Eine Fahrt von <strong>{lastKilometer.toLocaleString('de-DE')}</strong> → <strong>{parseInt(startKilometerInput).toLocaleString('de-DE')} km</strong> wird als "Fahrer unbekannt" nachgetragen.
                       </p>
+                      <p style={{ margin: '8px 0 0 0', fontSize: '14px', color: 'var(--ion-color-success)' }}>
+                        Kosten: <strong>{((parseInt(startKilometerInput) - lastKilometer) * kostenProKm).toFixed(2)} €</strong>
+                      </p>
                     </div>
                   )}
                   <div style={{ display: 'flex', gap: '12px' }}>
@@ -425,14 +439,19 @@ const Dashboard: React.FC = () => {
                     }}
                   />
                   {endKilometerInput && parseInt(endKilometerInput) > activeTrip.startKilometer && (
-                    <p style={{ 
+                    <div style={{ 
                       padding: '12px', 
                       background: '#e3f2fd', 
                       borderRadius: '8px',
                       marginBottom: '16px'
                     }}>
-                      Gefahrene Strecke: <strong>{(parseInt(endKilometerInput) - activeTrip.startKilometer).toLocaleString('de-DE')} km</strong>
-                    </p>
+                      <p style={{ margin: 0 }}>
+                        Gefahrene Strecke: <strong>{(parseInt(endKilometerInput) - activeTrip.startKilometer).toLocaleString('de-DE')} km</strong>
+                      </p>
+                      <p style={{ margin: '8px 0 0 0', color: 'var(--ion-color-success)' }}>
+                        Kosten: <strong>{((parseInt(endKilometerInput) - activeTrip.startKilometer) * kostenProKm).toFixed(2)} €</strong>
+                      </p>
+                    </div>
                   )}
                   <div style={{ display: 'flex', gap: '12px' }}>
                     <IonButton 

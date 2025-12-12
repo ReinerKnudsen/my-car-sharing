@@ -13,6 +13,7 @@ interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
     profile: Profile | null;
     loading: boolean;
     isAdmin: boolean;
+    isGroupAdmin: boolean;
   };
 }
 
@@ -50,6 +51,7 @@ export const mockProfile: Profile = {
   gruppe_id: '123e4567-e89b-12d3-a456-426614174001',
   ist_admin: false,
   ist_gruppen_admin: false,
+  ist_gesperrt: false,
   created_at: '2024-01-01T00:00:00Z',
   gruppe: {
     id: '123e4567-e89b-12d3-a456-426614174001',
@@ -76,6 +78,7 @@ export const mockTrip = {
   datum: '2024-01-01',
   fahrer_id: mockUser.id,
   kommentar: null,
+  kosten: 15.00, // 50 km * 0.30 €/km
   created_at: '2024-01-01T00:00:00Z',
   fahrer: mockProfile,
 };

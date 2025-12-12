@@ -137,8 +137,8 @@ const Settings: React.FC = () => {
                     fill="solid"
                     value={kostenProKm}
                     onIonInput={(e) => setKostenProKm(e.detail.value || '0')}
-                    min={0}
-                    step={0.01}
+                    min="0"
+                    step="0.01"
                     style={{
                       flex: 1,
                       '--background': '#f4f5f8',
