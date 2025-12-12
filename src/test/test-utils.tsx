@@ -49,6 +49,7 @@ export const mockProfile: Profile = {
   name: 'User',
   gruppe_id: '123e4567-e89b-12d3-a456-426614174001',
   ist_admin: false,
+  ist_gruppen_admin: false,
   created_at: '2024-01-01T00:00:00Z',
   gruppe: {
     id: '123e4567-e89b-12d3-a456-426614174001',

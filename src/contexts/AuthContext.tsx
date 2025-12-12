@@ -104,6 +104,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     profile,
     loading,
     isAdmin: profile?.ist_admin || false,
+    isGroupAdmin: profile?.ist_gruppen_admin || false,
     signIn,
     signUp,
     signOut,

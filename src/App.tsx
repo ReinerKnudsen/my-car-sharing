@@ -4,6 +4,7 @@ import { IonReactRouter } from '@ionic/react-router';
 import { Route, Switch } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import ResetPassword from './pages/ResetPassword';
 import MainTabs from './components/MainTabs-simple';
 
@@ -63,6 +64,7 @@ const App: React.FC = () => {
         <IonReactRouter>
           <IonRouterOutlet>
             <Switch>
+              <Route path="/register" component={Register} exact />
               <Route path="/reset-password" component={ResetPassword} exact />
               <Route path="/" component={AppRoutes} />
             </Switch>

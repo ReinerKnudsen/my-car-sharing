@@ -20,11 +20,15 @@ import {
   IonLabel,
   IonInput,
   IonButtons,
+  IonSegment,
+  IonSegmentButton,
   useIonAlert,
   useIonToast,
+  isPlatform,
 } from '@ionic/react';
 import { add, trashOutline, pencilOutline, close } from 'ionicons/icons';
 import { RefresherEventDetail } from '@ionic/core';
+import { useHistory } from 'react-router-dom';
 import { groupsService } from '../../services/database';
 import { Group } from '../../types';
 
@@ -36,6 +40,8 @@ const Groups: React.FC = () => {
   const [groupName, setGroupName] = useState('');
   const [presentAlert] = useIonAlert();
   const [present] = useIonToast();
+  const history = useHistory();
+  const isIOS = isPlatform('ios');
 
   useEffect(() => {
     loadGroups();
@@ -156,7 +162,30 @@ const Groups: React.FC = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Gruppen verwalten</IonTitle>
+          <IonTitle>Verwaltung</IonTitle>
+          {isIOS && (
+            <IonButtons slot="end">
+              <IonButton onClick={() => handleOpenModal()}>
+                <IonIcon icon={add} />
+              </IonButton>
+            </IonButtons>
+          )}
+        </IonToolbar>
+        <IonToolbar>
+          <IonSegment value="groups" onIonChange={(e) => {
+            if (e.detail.value === 'users') history.push('/admin/users');
+            if (e.detail.value === 'codes') history.push('/admin/invitation-codes');
+          }}>
+            <IonSegmentButton value="users">
+              <IonLabel>Fahrer</IonLabel>
+            </IonSegmentButton>
+            <IonSegmentButton value="groups">
+              <IonLabel>Gruppen</IonLabel>
+            </IonSegmentButton>
+            <IonSegmentButton value="codes">
+              <IonLabel>Einladungen</IonLabel>
+            </IonSegmentButton>
+          </IonSegment>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
@@ -206,11 +235,13 @@ const Groups: React.FC = () => {
           ))
         )}
 
-        <IonFab vertical="bottom" horizontal="end" slot="fixed">
-          <IonFabButton onClick={() => handleOpenModal()}>
-            <IonIcon icon={add} />
-          </IonFabButton>
-        </IonFab>
+        {!isIOS && (
+          <IonFab vertical="bottom" horizontal="end" slot="fixed">
+            <IonFabButton onClick={() => handleOpenModal()}>
+              <IonIcon icon={add} />
+            </IonFabButton>
+          </IonFab>
+        )}
 
         {/* Create/Edit Modal */}
         <IonModal isOpen={showModal} onDidDismiss={handleCloseModal}>

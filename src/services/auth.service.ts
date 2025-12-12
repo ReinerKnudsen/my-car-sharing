@@ -12,8 +12,8 @@ export const authService = {
     return data;
   },
 
-  // Sign Up
-  async signUp(email: string, password: string, vorname: string, name: string, gruppe_id: string | null, ist_admin: boolean = false) {
+  // Sign Up (Admin creates user)
+  async signUp(email: string, password: string, vorname: string, name: string, gruppe_id: string | null, ist_admin: boolean = false, ist_gruppen_admin: boolean = false) {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -31,11 +31,33 @@ export const authService = {
           name,
           gruppe_id,
           ist_admin,
+          ist_gruppen_admin,
         });
       
       if (profileError) throw profileError;
     }
     
+    return data;
+  },
+
+  // Sign Up with Invitation Code (Self-registration)
+  async signUpWithInvitation(email: string, password: string, vorname: string, name: string, gruppe_id: string) {
+    // Sign up with user metadata - the trigger will create the profile
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          vorname,
+          name,
+          gruppe_id,
+          ist_admin: false,
+          ist_gruppen_admin: false,
+        },
+      },
+    });
+    
+    if (error) throw error;
     return data;
   },
 

@@ -176,11 +176,25 @@ const Login: React.FC = () => {
                 Passwort vergessen?
               </IonButton>
 
-              <IonText color="medium">
-                <p style={{ textAlign: 'center', marginTop: '20px' }}>
-                  Noch kein Account? Kontaktieren Sie einen Administrator.
-                </p>
-              </IonText>
+              <div style={{ 
+                marginTop: '24px', 
+                paddingTop: '20px', 
+                borderTop: '1px solid #d7d8da',
+                textAlign: 'center'
+              }}>
+                <IonText color="medium">
+                  <p style={{ marginBottom: '12px' }}>
+                    Noch kein Account?
+                  </p>
+                </IonText>
+                <IonButton
+                  fill="outline"
+                  expand="block"
+                  routerLink="/register"
+                >
+                  Mit Einladungscode registrieren
+                </IonButton>
+              </div>
             </IonCardContent>
           </IonCard>
         </div>
