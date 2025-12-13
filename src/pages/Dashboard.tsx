@@ -479,7 +479,7 @@ const Dashboard: React.FC = () => {
             {/* Upcoming Bookings */}
             <IonCard>
               <IonCardHeader>
-                <IonCardTitle>Kommende Buchungen</IonCardTitle>
+                <IonCardTitle className="small-card-title">Kommende Buchungen</IonCardTitle>
               </IonCardHeader>
               <IonCardContent>
                 {upcomingBookings.length === 0 ? (
@@ -502,7 +502,7 @@ const Dashboard: React.FC = () => {
             {/* Recent Trips */}
             <IonCard>
               <IonCardHeader>
-                <IonCardTitle>Letzte Fahrten</IonCardTitle>
+                <IonCardTitle className="small-card-title">Letzte Fahrten</IonCardTitle>
               </IonCardHeader>
               <IonCardContent>
                 {recentTrips.length === 0 ? (
@@ -531,7 +531,7 @@ const Dashboard: React.FC = () => {
             {profile?.gruppe_id && groupCosts && (
               <IonCard>
                 <IonCardHeader>
-                  <IonCardTitle>Gruppenkosten: {profile.gruppe?.bezeichnung}</IonCardTitle>
+                  <IonCardTitle className="small-card-title">Gruppenkosten: {profile.gruppe?.bezeichnung}</IonCardTitle>
                 </IonCardHeader>
                 <IonCardContent>
                   {/* Total Summary */}

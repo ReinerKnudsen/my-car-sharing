@@ -54,6 +54,49 @@ export interface DriverCosts {
   total_costs: number;
 }
 
+// Receipt Types
+export interface ReceiptType {
+  id: string;
+  bezeichnung: string;
+  beschreibung: string | null;
+  aktiv: boolean;
+  sort_order: number;
+  created_at: string;
+}
+
+export interface Receipt {
+  id: string;
+  gruppe_id: string;
+  fahrer_id: string;
+  receipt_type_id: string;
+  datum: string;
+  betrag: number;
+  kommentar: string | null;
+  created_at: string;
+  // Joined data
+  gruppe?: Group;
+  fahrer?: Profile;
+  receipt_type?: ReceiptType;
+}
+
+export interface GroupAccount {
+  total_trip_costs: number;
+  total_receipts: number;
+  balance: number;
+  trip_count: number;
+  receipt_count: number;
+}
+
+export interface GroupAccountTransaction {
+  id: string;
+  datum: string;
+  typ: string;
+  beschreibung: string;
+  fahrer_name: string;
+  einnahme: number;
+  ausgabe: number;
+}
+
 export interface Booking {
   id: string;
   start_datum: string;
@@ -139,6 +182,8 @@ export type InsertBooking = Omit<Booking, 'id' | 'created_at' | 'gruppe' | 'fahr
 export type InsertProfile = Omit<Profile, 'id' | 'created_at' | 'gruppe'>;
 export type InsertGroup = Omit<Group, 'id' | 'created_at'>;
 export type InsertInvitationCode = Omit<InvitationCode, 'id' | 'created_at' | 'uses_count' | 'gruppe' | 'creator'>;
+export type InsertReceipt = Omit<Receipt, 'id' | 'created_at' | 'gruppe' | 'fahrer' | 'receipt_type'>;
+export type InsertReceiptType = Omit<ReceiptType, 'id' | 'created_at'>;
 
 // Update Types
 export type UpdateTrip = Partial<InsertTrip>;
@@ -146,4 +191,6 @@ export type UpdateBooking = Partial<InsertBooking>;
 export type UpdateProfile = Partial<InsertProfile>;
 export type UpdateGroup = Partial<InsertGroup>;
 export type UpdateInvitationCode = Partial<Pick<InvitationCode, 'is_active' | 'expires_at' | 'max_uses'>>;
+export type UpdateReceipt = Partial<Omit<InsertReceipt, 'gruppe_id' | 'fahrer_id'>>;
+export type UpdateReceiptType = Partial<Omit<InsertReceiptType, 'sort_order'>>;
 

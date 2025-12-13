@@ -94,7 +94,7 @@ CREATE POLICY "Only admins can create groups"
     WITH CHECK (
         EXISTS (
             SELECT 1 FROM public.profiles
-            WHERE profiles.id = auth.uid()
+            WHERE profiles.id = (select auth.uid())
             AND profiles.ist_admin = true
         )
     );
@@ -107,7 +107,7 @@ CREATE POLICY "Only admins can update groups"
     USING (
         EXISTS (
             SELECT 1 FROM public.profiles
-            WHERE profiles.id = auth.uid()
+            WHERE profiles.id = (select auth.uid())
             AND profiles.ist_admin = true
         )
     );
@@ -120,7 +120,7 @@ CREATE POLICY "Only admins can delete groups"
     USING (
         EXISTS (
             SELECT 1 FROM public.profiles
-            WHERE profiles.id = auth.uid()
+            WHERE profiles.id = (select auth.uid())
             AND profiles.ist_admin = true
         )
     );
@@ -144,7 +144,7 @@ CREATE POLICY "Only admins can create profiles"
     WITH CHECK (
         EXISTS (
             SELECT 1 FROM public.profiles
-            WHERE profiles.id = auth.uid()
+            WHERE profiles.id = (select auth.uid())
             AND profiles.ist_admin = true
         )
     );
@@ -155,10 +155,10 @@ CREATE POLICY "Users can update own profile, admins can update all"
     FOR UPDATE
     TO authenticated
     USING (
-        id = auth.uid()
+        id = (select auth.uid())
         OR EXISTS (
             SELECT 1 FROM public.profiles
-            WHERE profiles.id = auth.uid()
+            WHERE profiles.id = (select auth.uid())
             AND profiles.ist_admin = true
         )
     );
@@ -171,7 +171,7 @@ CREATE POLICY "Only admins can delete profiles"
     USING (
         EXISTS (
             SELECT 1 FROM public.profiles
-            WHERE profiles.id = auth.uid()
+            WHERE profiles.id = (select auth.uid())
             AND profiles.ist_admin = true
         )
     );
@@ -193,7 +193,7 @@ CREATE POLICY "Authenticated users can create bookings"
     FOR INSERT
     TO authenticated
     WITH CHECK (
-        fahrer_id = auth.uid()
+        fahrer_id = (select auth.uid())
     );
 
 -- Benutzer können eigene Buchungen aktualisieren, Admins können alle aktualisieren
@@ -202,10 +202,10 @@ CREATE POLICY "Users can update own bookings, admins can update all"
     FOR UPDATE
     TO authenticated
     USING (
-        fahrer_id = auth.uid()
+        fahrer_id = (select auth.uid())
         OR EXISTS (
             SELECT 1 FROM public.profiles
-            WHERE profiles.id = auth.uid()
+            WHERE profiles.id = (select auth.uid())
             AND profiles.ist_admin = true
         )
     );
@@ -216,10 +216,10 @@ CREATE POLICY "Users can delete own bookings, admins can delete all"
     FOR DELETE
     TO authenticated
     USING (
-        fahrer_id = auth.uid()
+        fahrer_id = (select auth.uid())
         OR EXISTS (
             SELECT 1 FROM public.profiles
-            WHERE profiles.id = auth.uid()
+            WHERE profiles.id = (select auth.uid())
             AND profiles.ist_admin = true
         )
     );
@@ -241,7 +241,7 @@ CREATE POLICY "Authenticated users can create trips"
     FOR INSERT
     TO authenticated
     WITH CHECK (
-        fahrer_id = auth.uid()
+        fahrer_id = (select auth.uid())
     );
 
 -- Benutzer können eigene Fahrten aktualisieren, Admins können alle aktualisieren
@@ -250,10 +250,10 @@ CREATE POLICY "Users can update own trips, admins can update all"
     FOR UPDATE
     TO authenticated
     USING (
-        fahrer_id = auth.uid()
+        fahrer_id = (select auth.uid())
         OR EXISTS (
             SELECT 1 FROM public.profiles
-            WHERE profiles.id = auth.uid()
+            WHERE profiles.id = (select auth.uid())
             AND profiles.ist_admin = true
         )
     );
@@ -264,10 +264,10 @@ CREATE POLICY "Users can delete own trips, admins can delete all"
     FOR DELETE
     TO authenticated
     USING (
-        fahrer_id = auth.uid()
+        fahrer_id = (select auth.uid())
         OR EXISTS (
             SELECT 1 FROM public.profiles
-            WHERE profiles.id = auth.uid()
+            WHERE profiles.id = (select auth.uid())
             AND profiles.ist_admin = true
         )
     );
