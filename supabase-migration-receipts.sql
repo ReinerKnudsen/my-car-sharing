@@ -224,7 +224,7 @@ BEGIN
     SELECT 
         tt.costs::DECIMAL(10, 2) as total_trip_costs,
         rt.costs::DECIMAL(10, 2) as total_receipts,
-        (tt.costs - rt.costs)::DECIMAL(10, 2) as balance,
+        (rt.costs - tt.costs)::DECIMAL(10, 2) as balance,  -- Einzahlungen MINUS Kosten
         tt.cnt as trip_count,
         rt.cnt as receipt_count
     FROM trip_totals tt, receipt_totals rt;
@@ -253,15 +253,15 @@ RETURNS TABLE (
 ) AS $$
 BEGIN
     RETURN QUERY
-    -- Fahrten als Einnahmen
+    -- Fahrten als Ausgaben (Kosten)
     SELECT 
         t.id,
         t.datum,
         'Fahrt'::TEXT as typ,
         ((t.end_kilometer - t.start_kilometer)::TEXT || ' km')::TEXT as beschreibung,
         (p.vorname || ' ' || p.name)::TEXT as fahrer_name,
-        t.kosten as einnahme,
-        0.00::DECIMAL(10, 2) as ausgabe
+        0.00::DECIMAL(10, 2) as einnahme,
+        t.kosten as ausgabe
     FROM public.trips t
     JOIN public.profiles p ON t.fahrer_id = p.id
     WHERE p.gruppe_id = p_group_id
@@ -270,15 +270,15 @@ BEGIN
     
     UNION ALL
     
-    -- Belege als Ausgaben
+    -- Belege als Einnahmen (Einzahlungen)
     SELECT 
         r.id,
         r.datum,
         rt.bezeichnung as typ,
         COALESCE(r.kommentar, '')::TEXT as beschreibung,
         (p.vorname || ' ' || p.name)::TEXT as fahrer_name,
-        0.00::DECIMAL(10, 2) as einnahme,
-        r.betrag as ausgabe
+        r.betrag as einnahme,
+        0.00::DECIMAL(10, 2) as ausgabe
     FROM public.receipts r
     JOIN public.profiles p ON r.fahrer_id = p.id
     JOIN public.receipt_types rt ON r.receipt_type_id = rt.id
@@ -286,7 +286,7 @@ BEGIN
     AND (p_start_date IS NULL OR r.datum >= p_start_date)
     AND (p_end_date IS NULL OR r.datum <= p_end_date)
     
-    ORDER BY datum DESC, einnahme DESC
+    ORDER BY datum DESC, ausgabe DESC
     LIMIT p_limit;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
