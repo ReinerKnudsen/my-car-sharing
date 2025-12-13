@@ -26,6 +26,8 @@ import { useAuth } from '../../contexts/AuthContext';
 
 const Settings: React.FC = () => {
   const [kostenProKm, setKostenProKm] = useState<string>('0.30');
+  const [paypalEmail, setPaypalEmail] = useState<string>('');
+  const [paypalClientId, setPaypalClientId] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [present] = useIonToast();
@@ -39,8 +41,14 @@ const Settings: React.FC = () => {
   const loadSettings = async () => {
     try {
       setLoading(true);
-      const value = await settingsService.getKostenProKm();
-      setKostenProKm(value.toString());
+      const [kostenValue, emailValue, clientIdValue] = await Promise.all([
+        settingsService.getKostenProKm(),
+        settingsService.getPayPalEmail(),
+        settingsService.getPayPalClientId(),
+      ]);
+      setKostenProKm(kostenValue.toString());
+      setPaypalEmail(emailValue || '');
+      setPaypalClientId(clientIdValue || '');
     } catch (error) {
       console.error('Error loading settings:', error);
     } finally {
@@ -54,7 +62,7 @@ const Settings: React.FC = () => {
     const value = parseFloat(kostenProKm);
     if (isNaN(value) || value < 0) {
       present({
-        message: 'Bitte einen gültigen Betrag eingeben',
+        message: 'Bitte einen gültigen Betrag für Kosten pro km eingeben',
         duration: 3000,
         color: 'warning',
       });
@@ -64,6 +72,7 @@ const Settings: React.FC = () => {
     setSaving(true);
     try {
       await settingsService.update('kosten_pro_km', value.toFixed(2), profile.id);
+      await settingsService.updatePayPalSettings(paypalEmail, paypalClientId, profile.id);
       present({
         message: 'Einstellungen gespeichert',
         duration: 2000,
@@ -91,12 +100,15 @@ const Settings: React.FC = () => {
           <IonTitle>Verwaltung</IonTitle>
         </IonToolbar>
         <IonToolbar>
-          <IonSegment value="settings" onIonChange={(e) => {
-            if (e.detail.value === 'users') history.push('/admin/users');
-            if (e.detail.value === 'groups') history.push('/admin/groups');
-            if (e.detail.value === 'codes') history.push('/admin/invitation-codes');
-            if (e.detail.value === 'receipt-types') history.push('/admin/receipt-types');
-          }}>
+          <IonSegment
+            value="settings"
+            onIonChange={(e) => {
+              if (e.detail.value === 'users') history.push('/admin/users');
+              if (e.detail.value === 'groups') history.push('/admin/groups');
+              if (e.detail.value === 'codes') history.push('/admin/invitation-codes');
+              if (e.detail.value === 'receipt-types') history.push('/admin/receipt-types');
+            }}
+          >
             <IonSegmentButton value="users">
               <IonLabel>Fahrer</IonLabel>
             </IonSegmentButton>
@@ -158,15 +170,18 @@ const Settings: React.FC = () => {
                 </div>
 
                 {/* Example calculation */}
-                <div style={{ 
-                  marginTop: '20px', 
-                  padding: '16px', 
-                  backgroundColor: 'var(--ion-color-light)',
-                  borderRadius: '8px'
-                }}>
+                <div
+                  style={{
+                    marginTop: '20px',
+                    padding: '16px',
+                    backgroundColor: 'var(--ion-color-light)',
+                    borderRadius: '8px',
+                  }}
+                >
                   <IonText color="medium">
                     <p style={{ margin: 0 }}>
-                      <strong>Beispiel:</strong> Eine Fahrt von {exampleKm} km kostet{' '}
+                      <strong>Beispiel:</strong> <br />
+                      Eine Fahrt von {exampleKm} km kostet{' '}
                       <strong style={{ color: 'var(--ion-color-primary)' }}>
                         {exampleCost.toFixed(2)} €
                       </strong>
@@ -194,16 +209,101 @@ const Settings: React.FC = () => {
 
             <IonCard>
               <IonCardHeader>
+                <IonCardTitle>PayPal Integration</IonCardTitle>
+              </IonCardHeader>
+              <IonCardContent>
+                <IonText color="medium">
+                  <p style={{ marginBottom: '16px' }}>
+                    Konfiguriere PayPal für automatische Gruppenzahlungen. Gruppenmitglieder können
+                    direkt vom Gruppenkonto aus bezahlen.
+                  </p>
+                </IonText>
+
+                <IonInput
+                  type="email"
+                  label="PayPal E-Mail-Adresse"
+                  labelPlacement="floating"
+                  fill="solid"
+                  value={paypalEmail}
+                  onIonInput={(e) => setPaypalEmail(e.detail.value || '')}
+                  placeholder="paypal@beispiel.de"
+                  style={{
+                    marginBottom: '16px',
+                    '--background': '#f4f5f8',
+                    '--border-width': '1px',
+                    '--border-style': 'solid',
+                    '--border-color': '#d7d8da',
+                    '--border-radius': '8px',
+                    '--padding-start': '16px',
+                    '--padding-end': '16px',
+                  }}
+                />
+
+                <IonInput
+                  type="text"
+                  label="PayPal Client ID (optional)"
+                  labelPlacement="floating"
+                  fill="solid"
+                  value={paypalClientId}
+                  onIonInput={(e) => setPaypalClientId(e.detail.value || '')}
+                  placeholder="Aus PayPal Developer Dashboard"
+                  style={{
+                    '--background': '#f4f5f8',
+                    '--border-width': '1px',
+                    '--border-style': 'solid',
+                    '--border-color': '#d7d8da',
+                    '--border-radius': '8px',
+                    '--padding-start': '16px',
+                    '--padding-end': '16px',
+                  }}
+                />
+
+                <div
+                  style={{
+                    marginTop: '16px',
+                    padding: '12px',
+                    background: '#e3f2fd',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                  }}
+                >
+                  <IonText color="medium">
+                    <p style={{ margin: 0 }}>
+                      💡 <strong>Tipp:</strong> Lasse die Felder leer, um PayPal zu deaktivieren.
+                    </p>
+                  </IonText>
+                </div>
+                <IonButton
+                  expand="block"
+                  onClick={handleSave}
+                  disabled={saving}
+                  style={{ marginTop: '20px' }}
+                >
+                  {saving ? (
+                    <IonSpinner name="crescent" />
+                  ) : (
+                    <>
+                      <IonIcon slot="start" icon={saveOutline} />
+                      Speichern
+                    </>
+                  )}
+                </IonButton>
+              </IonCardContent>
+            </IonCard>
+
+            <IonCard>
+              <IonCardHeader>
                 <IonCardTitle>Hinweis</IonCardTitle>
               </IonCardHeader>
               <IonCardContent>
                 <IonText color="medium">
                   <p>
-                    Der Kostensatz wird nur für <strong>neue Fahrten</strong> angewendet. 
-                    Bestehende Fahrten behalten ihre ursprünglichen Kosten.
+                    Der Kostensatz wird nur für <strong>neue Fahrten</strong> angewendet. Bestehende
+                    Fahrten behalten ihre ursprünglichen Kosten.
                   </p>
                   <p style={{ marginTop: '8px' }}>
-                    Die Kosten werden automatisch berechnet als:<br />
+                    Die Kosten werden automatisch berechnet als:
+                    <br />
                     <code>(End-Kilometer - Start-Kilometer) × Kostensatz</code>
                   </p>
                 </IonText>
@@ -217,4 +317,3 @@ const Settings: React.FC = () => {
 };
 
 export default Settings;
-
