@@ -177,7 +177,9 @@ const BookingCalendar: React.FC<BookingCalendarProps> = ({
         display: 'flex', 
         justifyContent: 'space-between', 
         alignItems: 'center',
-        marginBottom: '16px'
+        marginBottom: '16px',
+        border: '1px solid var(--ion-color-medium)',
+        borderRadius: '8px',
       }}>
         {/* Zurück-Button nur anzeigen wenn nicht im aktuellen Monat */}
         {currentMonth === today.getMonth() && currentYear === today.getFullYear() ? (
@@ -187,7 +189,7 @@ const BookingCalendar: React.FC<BookingCalendarProps> = ({
             <IonIcon icon={chevronBack} />
           </IonButton>
         )}
-        <h2 style={{ margin: 0, fontSize: '1.2em' }}>
+        <h2 style={{ margin: 0, fontSize: '1.2em', fontWeight: 'bold' }}>
           {monthNames[currentMonth]} {currentYear}
         </h2>
         <IonButton fill="clear" onClick={goToNextMonth}>
@@ -202,6 +204,8 @@ const BookingCalendar: React.FC<BookingCalendarProps> = ({
         textAlign: 'center',
         marginBottom: '8px',
         fontWeight: 'bold',
+        border: '1px solid var(--ion-color-medium)',
+        borderRadius: '8px',
         color: '#666'
       }}>
         {weekDays.map(day => (
@@ -213,7 +217,7 @@ const BookingCalendar: React.FC<BookingCalendarProps> = ({
       <div style={{ 
         display: 'grid', 
         gridTemplateColumns: 'repeat(7, 1fr)',
-        textAlign: 'center'
+        textAlign: 'center',
       }}>
         {calendarDays.map(({ date, day, isCurrentMonth }) => (
           <div 
@@ -252,6 +256,9 @@ const BookingCalendar: React.FC<BookingCalendarProps> = ({
         gap: '12px', 
         marginTop: '16px',
         justifyContent: 'center',
+        border: '1px solid var(--ion-color-medium)',
+        borderRadius: '8px',
+        padding: '8px 0px',
         fontSize: '0.85em',
         color: '#666'
       }}>

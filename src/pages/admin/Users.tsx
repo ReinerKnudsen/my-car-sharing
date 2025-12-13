@@ -379,6 +379,7 @@ const Users: React.FC = () => {
               if (e.detail.value === 'groups') history.push('/admin/groups');
               if (e.detail.value === 'codes') history.push('/admin/invitation-codes');
               if (e.detail.value === 'settings') history.push('/admin/settings');
+              if (e.detail.value === 'receipt-types') history.push('/admin/receipt-types');
             }}>
               <IonSegmentButton value="users">
                 <IonLabel>Fahrer</IonLabel>
@@ -391,6 +392,9 @@ const Users: React.FC = () => {
               </IonSegmentButton>
               <IonSegmentButton value="settings">
                 <IonLabel>Kosten</IonLabel>
+              </IonSegmentButton>
+              <IonSegmentButton value="receipt-types">
+                <IonLabel>Belegarten</IonLabel>
               </IonSegmentButton>
             </IonSegment>
           </IonToolbar>

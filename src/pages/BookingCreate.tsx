@@ -19,7 +19,7 @@ import {
   IonButtons,
   useIonToast,
 } from '@ionic/react';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useHistory, useLocation, useParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { bookingsService } from '../services/database';
 
@@ -30,19 +30,71 @@ const BookingCreate: React.FC = () => {
   const [endeUhrzeit, setEndeUhrzeit] = useState('');
   const [kommentar, setKommentar] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loadingBooking, setLoadingBooking] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [bookingId, setBookingId] = useState<string | null>(null);
   const { profile } = useAuth();
   const history = useHistory();
   const location = useLocation();
   const [present] = useIonToast();
 
-  // Lese startDate aus URL-Parameter (wenn vom Kalender kommend)
+  // Lade bestehende Buchung zum Bearbeiten
   useEffect(() => {
     const params = new URLSearchParams(location.search);
+    const editId = params.get('edit');
     const dateFromUrl = params.get('startDate');
-    if (dateFromUrl) {
+    
+    if (editId) {
+      loadBookingForEdit(editId);
+    } else if (dateFromUrl) {
       setStartDatum(dateFromUrl);
     }
   }, [location.search]);
+
+  const loadBookingForEdit = async (id: string) => {
+    setLoadingBooking(true);
+    try {
+      const booking = await bookingsService.getById(id);
+      if (!booking) {
+        present({
+          message: 'Buchung nicht gefunden',
+          duration: 3000,
+          color: 'danger',
+        });
+        history.goBack();
+        return;
+      }
+
+      // Prüfe ob Benutzer zur gleichen Gruppe gehört
+      if (booking.gruppe_id !== profile?.gruppe_id) {
+        present({
+          message: 'Du kannst nur Buchungen deiner Gruppe bearbeiten',
+          duration: 3000,
+          color: 'warning',
+        });
+        history.goBack();
+        return;
+      }
+
+      // Fülle Felder vor
+      setBookingId(booking.id);
+      setStartDatum(booking.start_datum);
+      setStartUhrzeit(booking.start_uhrzeit);
+      setEndeDatum(booking.ende_datum);
+      setEndeUhrzeit(booking.ende_uhrzeit);
+      setKommentar(booking.kommentar || '');
+      setEditMode(true);
+    } catch (error: any) {
+      present({
+        message: error.message || 'Fehler beim Laden der Buchung',
+        duration: 3000,
+        color: 'danger',
+      });
+      history.goBack();
+    } finally {
+      setLoadingBooking(false);
+    }
+  };
 
   const inputStyle = {
     marginBottom: '16px',
@@ -69,26 +121,44 @@ const BookingCreate: React.FC = () => {
 
     setLoading(true);
     try {
-      await bookingsService.create({
-        start_datum: startDatum,
-        start_uhrzeit: startUhrzeit,
-        ende_datum: endeDatum,
-        ende_uhrzeit: endeUhrzeit,
-        gruppe_id: profile.gruppe_id,
-        fahrer_id: profile.id,
-        kommentar: kommentar || null,
-      });
-      
-      present({
-        message: 'Buchung erfolgreich erstellt!',
-        duration: 2000,
-        color: 'success',
-      });
+      if (editMode && bookingId) {
+        // Buchung aktualisieren
+        await bookingsService.update(bookingId, {
+          start_datum: startDatum,
+          start_uhrzeit: startUhrzeit,
+          ende_datum: endeDatum,
+          ende_uhrzeit: endeUhrzeit,
+          kommentar: kommentar || null,
+        });
+        
+        present({
+          message: 'Buchung erfolgreich aktualisiert!',
+          duration: 2000,
+          color: 'success',
+        });
+      } else {
+        // Neue Buchung erstellen
+        await bookingsService.create({
+          start_datum: startDatum,
+          start_uhrzeit: startUhrzeit,
+          ende_datum: endeDatum,
+          ende_uhrzeit: endeUhrzeit,
+          gruppe_id: profile.gruppe_id,
+          fahrer_id: profile.id,
+          kommentar: kommentar || null,
+        });
+        
+        present({
+          message: 'Buchung erfolgreich erstellt!',
+          duration: 2000,
+          color: 'success',
+        });
+      }
       
       history.goBack();
     } catch (error: any) {
       present({
-        message: error.message || 'Fehler beim Erstellen der Buchung',
+        message: error.message || `Fehler beim ${editMode ? 'Aktualisieren' : 'Erstellen'} der Buchung`,
         duration: 3000,
         color: 'danger',
       });
@@ -104,14 +174,19 @@ const BookingCreate: React.FC = () => {
           <IonButtons slot="start">
             <IonBackButton defaultHref="/bookings" />
           </IonButtons>
-          <IonTitle>Neue Buchung</IonTitle>
+          <IonTitle>{editMode ? 'Buchung bearbeiten' : 'Neue Buchung'}</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
-        <IonCard>
-          <IonCardHeader>
-            <IonCardTitle>Auto buchen</IonCardTitle>
-          </IonCardHeader>
+        {loadingBooking ? (
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
+            <IonSpinner />
+          </div>
+        ) : (
+          <IonCard>
+            <IonCardHeader>
+              <IonCardTitle>{editMode ? 'Buchung bearbeiten' : 'Auto buchen'}</IonCardTitle>
+            </IonCardHeader>
             <IonCardContent>
               <form onSubmit={handleSubmit}>
                 {/* Gruppe anzeigen (nicht änderbar) */}
@@ -185,11 +260,16 @@ const BookingCreate: React.FC = () => {
                 disabled={loading}
                 style={{ marginTop: '20px' }}
               >
-                {loading ? <IonSpinner name="crescent" /> : 'Buchung erstellen'}
+                {loading ? (
+                  <IonSpinner name="crescent" />
+                ) : (
+                  editMode ? 'Buchung aktualisieren' : 'Buchung erstellen'
+                )}
               </IonButton>
             </form>
           </IonCardContent>
         </IonCard>
+        )}
       </IonContent>
     </IonPage>
   );

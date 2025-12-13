@@ -76,10 +76,10 @@ CREATE POLICY "Non-blocked users can create bookings"
     FOR INSERT
     TO authenticated
     WITH CHECK (
-        fahrer_id = auth.uid()
+        fahrer_id = (select auth.uid())
         AND NOT EXISTS (
             SELECT 1 FROM public.profiles
-            WHERE profiles.id = auth.uid()
+            WHERE profiles.id = (select auth.uid())
             AND profiles.ist_gesperrt = true
         )
     );
@@ -91,14 +91,14 @@ CREATE POLICY "Non-blocked users can update own bookings, admins can update all"
     FOR UPDATE
     TO authenticated
     USING (
-        (fahrer_id = auth.uid() AND NOT EXISTS (
+        (fahrer_id = (select auth.uid()) AND NOT EXISTS (
             SELECT 1 FROM public.profiles
-            WHERE profiles.id = auth.uid()
+            WHERE profiles.id = (select auth.uid())
             AND profiles.ist_gesperrt = true
         ))
         OR EXISTS (
             SELECT 1 FROM public.profiles
-            WHERE profiles.id = auth.uid()
+            WHERE profiles.id = (select auth.uid())
             AND profiles.ist_admin = true
         )
     );
@@ -110,10 +110,10 @@ CREATE POLICY "Non-blocked users can create trips"
     FOR INSERT
     TO authenticated
     WITH CHECK (
-        fahrer_id = auth.uid()
+        fahrer_id = (select auth.uid())
         AND NOT EXISTS (
             SELECT 1 FROM public.profiles
-            WHERE profiles.id = auth.uid()
+            WHERE profiles.id = (select auth.uid())
             AND profiles.ist_gesperrt = true
         )
     );
@@ -125,14 +125,14 @@ CREATE POLICY "Non-blocked users can update own trips, admins can update all"
     FOR UPDATE
     TO authenticated
     USING (
-        (fahrer_id = auth.uid() AND NOT EXISTS (
+        (fahrer_id = (select auth.uid()) AND NOT EXISTS (
             SELECT 1 FROM public.profiles
-            WHERE profiles.id = auth.uid()
+            WHERE profiles.id = (select auth.uid())
             AND profiles.ist_gesperrt = true
         ))
         OR EXISTS (
             SELECT 1 FROM public.profiles
-            WHERE profiles.id = auth.uid()
+            WHERE profiles.id = (select auth.uid())
             AND profiles.ist_admin = true
         )
     );
@@ -154,7 +154,7 @@ BEGIN
     -- Prüfen ob der aufrufende Benutzer Admin ist
     IF NOT EXISTS (
         SELECT 1 FROM public.profiles 
-        WHERE id = auth.uid() AND ist_admin = true
+        WHERE id = (select auth.uid()) AND ist_admin = true
     ) THEN
         RAISE EXCEPTION 'Nur Administratoren können Gruppen-Admins setzen';
     END IF;
@@ -205,7 +205,7 @@ BEGIN
     -- Prüfen ob der aufrufende Benutzer Admin ist
     IF NOT EXISTS (
         SELECT 1 FROM public.profiles 
-        WHERE id = auth.uid() AND ist_admin = true
+        WHERE id = (select auth.uid()) AND ist_admin = true
     ) THEN
         RAISE EXCEPTION 'Nur Administratoren können Gruppen-Admin Status entfernen';
     END IF;
@@ -230,23 +230,23 @@ CREATE POLICY "Users and group admins can update profiles"
     TO authenticated
     USING (
         -- Eigenes Profil
-        id = auth.uid()
+        id = (select auth.uid())
         -- Oder Admin
         OR EXISTS (
             SELECT 1 FROM public.profiles p
-            WHERE p.id = auth.uid()
+            WHERE p.id = (select auth.uid())
             AND p.ist_admin = true
         )
         -- Oder Gruppen-Admin für Mitglieder seiner Gruppe (außer andere Admins)
         OR (
             EXISTS (
                 SELECT 1 FROM public.profiles p
-                WHERE p.id = auth.uid()
+                WHERE p.id = (select auth.uid())
                 AND p.ist_gruppen_admin = true
                 AND p.gruppe_id = profiles.gruppe_id
             )
             AND profiles.ist_admin = false
-            AND profiles.id != auth.uid()
+            AND profiles.id != (select auth.uid())
         )
     );
 
@@ -260,20 +260,20 @@ CREATE POLICY "Admins and group admins can delete profiles"
         -- Admin kann alle löschen
         EXISTS (
             SELECT 1 FROM public.profiles p
-            WHERE p.id = auth.uid()
+            WHERE p.id = (select auth.uid())
             AND p.ist_admin = true
         )
         -- Oder Gruppen-Admin für normale Mitglieder seiner Gruppe
         OR (
             EXISTS (
                 SELECT 1 FROM public.profiles p
-                WHERE p.id = auth.uid()
+                WHERE p.id = (select auth.uid())
                 AND p.ist_gruppen_admin = true
                 AND p.gruppe_id = profiles.gruppe_id
             )
             AND profiles.ist_admin = false
             AND profiles.ist_gruppen_admin = false
-            AND profiles.id != auth.uid()
+            AND profiles.id != (select auth.uid())
         )
     );
 

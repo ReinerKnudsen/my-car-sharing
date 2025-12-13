@@ -14,6 +14,7 @@ import {
   carOutline,
   peopleOutline,
   personOutline,
+  receiptOutline,
 } from 'ionicons/icons';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -22,11 +23,15 @@ import Bookings from '../pages/Bookings';
 import BookingCreate from '../pages/BookingCreate';
 import Trips from '../pages/Trips';
 import TripCreate from '../pages/TripCreate';
+import Receipts from '../pages/Receipts';
+import ReceiptCreate from '../pages/ReceiptCreate';
+import GroupAccount from '../pages/GroupAccount';
 import Profile from '../pages/Profile';
 import Users from '../pages/admin/Users';
 import Groups from '../pages/admin/Groups';
 import InvitationCodes from '../pages/admin/InvitationCodes';
 import Settings from '../pages/admin/Settings';
+import ReceiptTypes from '../pages/admin/ReceiptTypes';
 import Register from '../pages/Register';
 
 const MainTabs: React.FC = () => {
@@ -40,11 +45,15 @@ const MainTabs: React.FC = () => {
           <Route exact path="/trips/create" component={TripCreate} />
           <Route exact path="/bookings" component={Bookings} />
           <Route exact path="/bookings/create" component={BookingCreate} />
+          <Route exact path="/receipts" component={Receipts} />
+          <Route exact path="/receipts/create" component={ReceiptCreate} />
+          <Route exact path="/group-account" component={GroupAccount} />
           <Route exact path="/profile" component={Profile} />
           <Route exact path="/admin/users" component={Users} />
           <Route exact path="/admin/groups" component={Groups} />
           <Route exact path="/admin/invitation-codes" component={InvitationCodes} />
           <Route exact path="/admin/settings" component={Settings} />
+          <Route exact path="/admin/receipt-types" component={ReceiptTypes} />
           <Route exact path="/admin/register" component={Register} />
           <Route exact path="/">
             <Redirect to="/dashboard" />
@@ -65,6 +74,11 @@ const MainTabs: React.FC = () => {
         <IonTabButton tab="bookings" href="/bookings">
           <IonIcon icon={calendarOutline} />
           <IonLabel>Buchungen</IonLabel>
+        </IonTabButton>
+
+        <IonTabButton tab="receipts" href="/receipts">
+          <IonIcon icon={receiptOutline} />
+          <IonLabel>Belege</IonLabel>
         </IonTabButton>
 
         {(isAdmin || isGroupAdmin) && (

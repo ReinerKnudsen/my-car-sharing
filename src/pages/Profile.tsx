@@ -14,13 +14,15 @@ import {
   IonItem,
   IonLabel,
   IonText,
+  IonIcon,
   useIonToast,
 } from '@ionic/react';
+import { walletOutline, chevronForwardOutline } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 const Profile: React.FC = () => {
-  const { profile, signOut, user } = useAuth();
+  const { profile, signOut, user, isAdmin, isGroupAdmin } = useAuth();
   const history = useHistory();
   const [present] = useIonToast();
 
@@ -94,10 +96,30 @@ const Profile: React.FC = () => {
                     <IonText color="medium">
                       <p>Rolle</p>
                     </IonText>
-                    <h2>{profile.ist_admin ? 'Administrator' : 'Fahrer'}</h2>
+                    <h2>
+                      {profile.ist_admin 
+                        ? 'Administrator' 
+                        : profile.ist_gruppen_admin 
+                          ? 'Gruppenadmin' 
+                          : 'Fahrer'}
+                    </h2>
                   </IonLabel>
                 </IonItem>
               </>
+            )}
+
+            {/* Gruppenkonto Link für Admin/Gruppenadmin */}
+            {(isAdmin || isGroupAdmin) && profile?.gruppe_id && (
+              <IonButton
+                expand="block"
+                fill="outline"
+                onClick={() => history.push('/group-account')}
+                style={{ marginTop: '20px' }}
+              >
+                <IonIcon slot="start" icon={walletOutline} />
+                Gruppenkonto
+                <IonIcon slot="end" icon={chevronForwardOutline} />
+              </IonButton>
             )}
 
             <IonButton
