@@ -97,7 +97,7 @@ const GroupAccount: React.FC = () => {
       : `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=EUR`;
 
     script.onload = () => {
-      console.log(`✅ PayPal SDK geladen (${isSandbox ? 'Sandbox' : 'Production'})`);
+      isSandbox && console.log('✅ PayPal SDK geladen (Sandbox)');
       setPaypalSdkLoaded(true);
     };
     script.onerror = () => {
@@ -212,64 +212,6 @@ const GroupAccount: React.FC = () => {
         },
       })
       .render(container);
-  };
-
-  const initiatePayPalPayment = async (amount: number) => {
-    if (!profile?.gruppe_id || !paypalEmail) return;
-
-    setPaypalProcessing(true);
-
-    try {
-      // PayPal Base URL aus ENV (sandbox oder production)
-      const paypalBaseUrl = import.meta.env.VITE_PAYPAL_BASE_URL || 'https://www.paypal.com';
-
-      // Für Sandbox: Verwende die komplette Email
-      // Für Production: PayPal.me mit Username
-      const isSandbox = paypalBaseUrl.includes('sandbox');
-
-      let paypalUrl: string;
-      if (isSandbox) {
-        // Sandbox: Direkter Payment-Link
-        paypalUrl = `${paypalBaseUrl}/cgi-bin/webscr?cmd=_xclick&business=${encodeURIComponent(paypalEmail)}&amount=${amount.toFixed(2)}&currency_code=EUR&item_name=${encodeURIComponent('CarSharing Gruppenkonto')}`;
-      } else {
-        // Production: PayPal.me
-        const paypalIdentifier = paypalEmail.split('@')[0];
-        paypalUrl = `https://www.paypal.com/paypalme/${paypalIdentifier}/${amount.toFixed(2)}EUR`;
-      }
-
-      // Öffne PayPal
-      window.open(paypalUrl, '_blank');
-
-      // Frage nach erfolgter Zahlung
-      setTimeout(() => {
-        presentAlert({
-          header: 'Zahlung abgeschlossen?',
-          message: `Hast du die Zahlung von ${amount.toFixed(2)} € erfolgreich abgeschlossen?`,
-          buttons: [
-            {
-              text: 'Nein, abgebrochen',
-              role: 'cancel',
-              handler: () => {
-                setPaypalProcessing(false);
-              },
-            },
-            {
-              text: 'Ja, bezahlt ✓',
-              handler: async () => {
-                await createPaymentReceipt(amount);
-              },
-            },
-          ],
-        });
-      }, 2000);
-    } catch (error: any) {
-      presentToast({
-        message: error.message || 'Fehler beim Öffnen von PayPal',
-        duration: 3000,
-        color: 'danger',
-      });
-      setPaypalProcessing(false);
-    }
   };
 
   const createPaymentReceipt = async (amount: number) => {
@@ -456,33 +398,36 @@ const GroupAccount: React.FC = () => {
                             : 'var(--ion-color-danger)',
                       }}
                     >
-                      {account.balance >= 0 ? '+' : ''}
+                      {account.balance > 0 ? '+' : ''}
                       {account.balance.toFixed(2)} €
                     </div>
                   </div>
 
-                  {/* Erklärung */}
-                  <div
-                    style={{
-                      marginTop: '12px',
-                      padding: '12px',
-                      background: account.balance >= 0 ? '#e8f5e9' : '#ffebee',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      color: '#666',
-                    }}
-                  >
-                    {account.balance >= 0 ? (
-                      <>
-                        💰 Die Gruppe hat <strong>{account.balance.toFixed(2)} €</strong> Guthaben.
-                      </>
-                    ) : (
-                      <>
-                        ⚠️ Die Gruppe muss noch{' '}
-                        <strong>{Math.abs(account.balance).toFixed(2)} €</strong> bezahlen.
-                      </>
-                    )}
-                  </div>
+                  {/* Erklärung - nur anzeigen wenn Balance nicht 0 */}
+                  {account.balance !== 0 && (
+                    <div
+                      style={{
+                        marginTop: '12px',
+                        padding: '12px',
+                        background: account.balance > 0 ? '#e8f5e9' : '#ffebee',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        color: '#666',
+                      }}
+                    >
+                      {account.balance > 0 ? (
+                        <>
+                          💰 Die Gruppe hat <strong>{account.balance.toFixed(2)} €</strong>{' '}
+                          Guthaben.
+                        </>
+                      ) : (
+                        <>
+                          ⚠️ Die Gruppe muss noch{' '}
+                          <strong>{Math.abs(account.balance).toFixed(2)} €</strong> bezahlen.
+                        </>
+                      )}
+                    </div>
+                  )}
                 </IonCardContent>
               </IonCard>
             )}
