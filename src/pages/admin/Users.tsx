@@ -51,7 +51,7 @@ const Users: React.FC = () => {
   const [present] = useIonToast();
   const history = useHistory();
   const isIOS = isPlatform('ios');
-  const { profile: currentUser, isAdmin, isGroupAdmin } = useAuth();
+  const { profile: currentUser, isAdmin, isGroupAdmin, refreshProfile } = useAuth();
 
   // Determine if current user is ONLY a group admin (not a full admin)
   const isOnlyGroupAdmin = isGroupAdmin && !isAdmin;
@@ -214,6 +214,9 @@ const Users: React.FC = () => {
 
   const executeSetGroupAdmin = async (user: Profile, removeExisting: boolean) => {
     try {
+      // Merke: War ich vorher Gruppenadmin?
+      const wasIGroupAdmin = currentUser?.ist_gruppen_admin;
+      
       const { error } = await supabase.rpc('set_group_admin', {
         user_id: user.id,
         remove_existing: removeExisting
@@ -226,7 +229,23 @@ const Users: React.FC = () => {
         duration: 2000,
         color: 'success',
       });
+      
+      // Lade User-Liste und eigenes Profil neu
       loadUsers();
+      await refreshProfile();
+      
+      // Wenn ich vorher Gruppenadmin war und jetzt nicht mehr:
+      // → Redirect zum Dashboard
+      if (wasIGroupAdmin && user.id !== currentUser?.id) {
+        setTimeout(() => {
+          present({
+            message: 'Admin-Rechte erfolgreich übertragen',
+            duration: 3000,
+            color: 'primary',
+          });
+          history.push('/dashboard');
+        }, 500);
+      }
     } catch (error: any) {
       present({
         message: error.message || 'Fehler beim Setzen des Gruppen-Admins',
@@ -260,7 +279,10 @@ const Users: React.FC = () => {
                 duration: 2000,
                 color: 'success',
               });
+              
+              // Lade User-Liste und eigenes Profil neu
               loadUsers();
+              await refreshProfile(); // ← Wichtig: Eigenes Profil aktualisieren!
             } catch (error: any) {
               present({
                 message: error.message || 'Fehler',
@@ -299,8 +321,11 @@ const Users: React.FC = () => {
       ];
     }
 
-    // Group Admin actions - only for full admins
-    if (isAdmin && selectedUser.gruppe_id) {
+    // Group Admin actions - for full admins or group admins (of same group)
+    const canManageGroupAdmin = isAdmin || 
+      (isGroupAdmin && selectedUser.gruppe_id === currentUser?.gruppe_id);
+    
+    if (canManageGroupAdmin && selectedUser.gruppe_id) {
       if (selectedUser.ist_gruppen_admin) {
         buttons.push({
           text: 'Gruppen-Admin entfernen',
