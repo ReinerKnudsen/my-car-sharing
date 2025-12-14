@@ -27,7 +27,6 @@ import { useAuth } from '../../contexts/AuthContext';
 const Settings: React.FC = () => {
   const [kostenProKm, setKostenProKm] = useState<string>('0.30');
   const [paypalEmail, setPaypalEmail] = useState<string>('');
-  const [paypalClientId, setPaypalClientId] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [present] = useIonToast();
@@ -41,14 +40,12 @@ const Settings: React.FC = () => {
   const loadSettings = async () => {
     try {
       setLoading(true);
-      const [kostenValue, emailValue, clientIdValue] = await Promise.all([
+      const [kostenValue, emailValue] = await Promise.all([
         settingsService.getKostenProKm(),
         settingsService.getPayPalEmail(),
-        settingsService.getPayPalClientId(),
       ]);
       setKostenProKm(kostenValue.toString());
       setPaypalEmail(emailValue || '');
-      setPaypalClientId(clientIdValue || '');
     } catch (error) {
       console.error('Error loading settings:', error);
     } finally {
@@ -72,7 +69,7 @@ const Settings: React.FC = () => {
     setSaving(true);
     try {
       await settingsService.update('kosten_pro_km', value.toFixed(2), profile.id);
-      await settingsService.updatePayPalSettings(paypalEmail, paypalClientId, profile.id);
+      await settingsService.update('paypal_email', paypalEmail, profile.id);
       present({
         message: 'Einstellungen gespeichert',
         duration: 2000,
@@ -209,13 +206,13 @@ const Settings: React.FC = () => {
 
             <IonCard>
               <IonCardHeader>
-                <IonCardTitle>PayPal Integration</IonCardTitle>
+                <IonCardTitle>PayPal.me Integration</IonCardTitle>
               </IonCardHeader>
               <IonCardContent>
                 <IonText color="medium">
                   <p style={{ marginBottom: '16px' }}>
-                    Konfiguriere PayPal für automatische Gruppenzahlungen. Gruppenmitglieder können
-                    direkt vom Gruppenkonto aus bezahlen.
+                    Konfiguriere deine PayPal E-Mail-Adresse für Gruppenzahlungen. Nutzer können direkt
+                    per PayPal.me Link bezahlen (Freunde & Familie - keine Gebühren).
                   </p>
                 </IonText>
 
@@ -239,25 +236,6 @@ const Settings: React.FC = () => {
                   }}
                 />
 
-                <IonInput
-                  type="text"
-                  label="PayPal Client ID (optional)"
-                  labelPlacement="floating"
-                  fill="solid"
-                  value={paypalClientId}
-                  onIonInput={(e) => setPaypalClientId(e.detail.value || '')}
-                  placeholder="Aus PayPal Developer Dashboard"
-                  style={{
-                    '--background': '#f4f5f8',
-                    '--border-width': '1px',
-                    '--border-style': 'solid',
-                    '--border-color': '#d7d8da',
-                    '--border-radius': '8px',
-                    '--padding-start': '16px',
-                    '--padding-end': '16px',
-                  }}
-                />
-
                 <div
                   style={{
                     marginTop: '16px',
@@ -268,9 +246,15 @@ const Settings: React.FC = () => {
                   }}
                 >
                   <IonText color="medium">
-                    <p style={{ margin: 0 }}>
-                      💡 <strong>Tipp:</strong> Lasse die Felder leer, um PayPal zu deaktivieren.
+                    <p style={{ margin: '0 0 8px 0' }}>
+                      💡 <strong>So funktioniert's:</strong>
                     </p>
+                    <ul style={{ margin: 0, paddingLeft: '20px' }}>
+                      <li>Nutzer klicken auf "Bezahlen"</li>
+                      <li>PayPal.me Link öffnet sich automatisch</li>
+                      <li>Zahlung als "Freunde & Familie" (keine Gebühren!)</li>
+                      <li>Nach Zahlung: Bestätigung im Dialog</li>
+                    </ul>
                   </IonText>
                 </div>
                 <IonButton
