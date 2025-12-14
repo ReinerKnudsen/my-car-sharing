@@ -1,0 +1,48 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background (optional - entfernen für Transparenz) -->
+  <rect width="1024" height="1024" fill="#3880ff" rx="180"/>
+  
+  <!-- Safe Zone Guide (80% - beim Export entfernen) -->
+  <rect x="102" y="102" width="820" height="820" stroke="#ffffff" stroke-width="2" stroke-dasharray="10,10" fill="none" opacity="0.3"/>
+  
+  <!-- Icon Design - Stilisiertes Auto mit Sharing-Symbol -->
+  <g transform="translate(512, 512)">
+    <!-- Auto -->
+    <g transform="translate(0, 30)">
+      <!-- Auto Body -->
+      <rect x="-180" y="-60" width="360" height="120" rx="20" fill="white"/>
+      
+      <!-- Windschutzscheibe -->
+      <path d="M -120 -60 L -80 -120 L 80 -120 L 120 -60 Z" fill="white" opacity="0.8"/>
+      
+      <!-- Fenster -->
+      <rect x="-110" y="-110" width="80" height="50" rx="5" fill="#3880ff"/>
+      <rect x="30" y="-110" width="80" height="50" rx="5" fill="#3880ff"/>
+      
+      <!-- Räder -->
+      <circle cx="-120" cy="60" r="40" fill="#2c3e50"/>
+      <circle cx="-120" cy="60" r="20" fill="#95a5a6"/>
+      <circle cx="120" cy="60" r="40" fill="#2c3e50"/>
+      <circle cx="120" cy="60" r="20" fill="#95a5a6"/>
+      
+      <!-- Scheinwerfer -->
+      <circle cx="-160" cy="0" r="15" fill="#f39c12"/>
+      <circle cx="160" cy="0" r="15" fill="#f39c12"/>
+    </g>
+    
+    <!-- Sharing Symbol (Kreispfeile) -->
+    <g transform="translate(0, -150)">
+      <circle cx="0" cy="0" r="60" fill="white"/>
+      <!-- Pfeil links -->
+      <path d="M -20 -15 A 25 25 0 1 1 -20 15 L -30 15 L -15 30 L 0 15 L -20 15" fill="#3880ff"/>
+      <!-- Pfeil rechts -->
+      <path d="M 20 15 A 25 25 0 1 1 20 -15 L 30 -15 L 15 -30 L 0 -15 L 20 -15" fill="#3880ff"/>
+    </g>
+  </g>
+  
+  <!-- Text (optional - beim Export entfernen) -->
+  <text x="512" y="900" font-family="Arial, sans-serif" font-size="60" font-weight="bold" fill="white" text-anchor="middle">
+    CarSharing
+  </text>
+</svg>
+
