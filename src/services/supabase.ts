@@ -20,6 +20,27 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = createClient(
   supabaseUrl || 'https://placeholder.supabase.co', 
-  supabaseAnonKey || 'placeholder-key'
+  supabaseAnonKey || 'placeholder-key',
+  {
+    auth: {
+      // Session-Persistierung für PWA (besonders wichtig für iOS)
+      persistSession: true,
+      
+      // Eindeutiger Storage-Key für diese App
+      storageKey: 'carsharing-auth-token',
+      
+      // Explizit localStorage verwenden (wichtig für PWAs)
+      storage: window.localStorage,
+      
+      // Token automatisch erneuern (verhindert Session-Ablauf)
+      autoRefreshToken: true,
+      
+      // Session aus URL erkennen (z.B. nach Password-Reset)
+      detectSessionInUrl: true,
+      
+      // Flow-Type für bessere PWA-Kompatibilität
+      flowType: 'pkce',
+    },
+  }
 );
 
