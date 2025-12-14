@@ -9,10 +9,10 @@ interface BookingCalendarProps {
   selectedDate: string | null;
 }
 
-const BookingCalendar: React.FC<BookingCalendarProps> = ({ 
-  bookings, 
-  onDateSelect, 
-  selectedDate 
+const BookingCalendar: React.FC<BookingCalendarProps> = ({
+  bookings,
+  onDateSelect,
+  selectedDate,
 }) => {
   const today = new Date();
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
@@ -26,11 +26,11 @@ const BookingCalendar: React.FC<BookingCalendarProps> = ({
     const days: string[] = [];
     const [startYear, startMonth, startDay] = startStr.split('-').map(Number);
     const [endYear, endMonth, endDay] = endStr.split('-').map(Number);
-    
+
     // Lokale Datumsobjekte (ohne Zeitzone-Probleme)
     const current = new Date(startYear, startMonth - 1, startDay);
     const end = new Date(endYear, endMonth - 1, endDay);
-    
+
     while (current <= end) {
       const y = current.getFullYear();
       const m = String(current.getMonth() + 1).padStart(2, '0');
@@ -38,7 +38,7 @@ const BookingCalendar: React.FC<BookingCalendarProps> = ({
       days.push(`${y}-${m}-${d}`);
       current.setDate(current.getDate() + 1);
     }
-    
+
     return days;
   };
 
@@ -46,24 +46,24 @@ const BookingCalendar: React.FC<BookingCalendarProps> = ({
   const { bookedDays, fullDays } = useMemo(() => {
     const booked = new Set<string>();
     const full = new Set<string>(); // Tage, die 24h durchgebucht sind
-    
-    bookings.forEach(booking => {
+
+    bookings.forEach((booking) => {
       const days = getDaysBetween(booking.start_datum, booking.ende_datum);
-      
+
       days.forEach((dateStr, index) => {
         booked.add(dateStr);
-        
+
         // Prüfe ob es ein "Durchgangstag" ist (nicht erster, nicht letzter)
         const isFirstDay = index === 0;
         const isLastDay = index === days.length - 1;
-        
+
         if (!isFirstDay && !isLastDay) {
           // Mittlerer Tag = 24h gebucht
           full.add(dateStr);
         }
       });
     });
-    
+
     return { bookedDays: booked, fullDays: full };
   }, [bookings]);
 
@@ -79,34 +79,44 @@ const BookingCalendar: React.FC<BookingCalendarProps> = ({
     const firstDay = new Date(currentYear, currentMonth, 1);
     const lastDay = new Date(currentYear, currentMonth + 1, 0);
     const startDayOfWeek = (firstDay.getDay() + 6) % 7; // Montag = 0
-    
+
     const days: Array<{ date: string; day: number; isCurrentMonth: boolean }> = [];
-    
+
     // Leere Tage am Anfang (Tage des Vormonats)
     for (let i = 0; i < startDayOfWeek; i++) {
       const prevDate = new Date(currentYear, currentMonth, -startDayOfWeek + i + 1);
       days.push({
         date: formatDateString(prevDate.getFullYear(), prevDate.getMonth(), prevDate.getDate()),
         day: prevDate.getDate(),
-        isCurrentMonth: false
+        isCurrentMonth: false,
       });
     }
-    
+
     // Tage des aktuellen Monats
     for (let day = 1; day <= lastDay.getDate(); day++) {
       days.push({
         date: formatDateString(currentYear, currentMonth, day),
         day,
-        isCurrentMonth: true
+        isCurrentMonth: true,
       });
     }
-    
+
     return days;
   }, [currentMonth, currentYear]);
 
   const monthNames = [
-    'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
-    'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'
+    'Januar',
+    'Februar',
+    'März',
+    'April',
+    'Mai',
+    'Juni',
+    'Juli',
+    'August',
+    'September',
+    'Oktober',
+    'November',
+    'Dezember',
   ];
 
   const weekDays = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
@@ -133,13 +143,21 @@ const BookingCalendar: React.FC<BookingCalendarProps> = ({
     const isToday = date === todayStr;
     const isBooked = bookedDays.has(date);
     const isSelected = date === selectedDate;
+    const isPast = date < todayStr; // Vergangenheit prüfen
 
     let backgroundColor = 'transparent';
     let color = isCurrentMonth ? '#333' : '#ccc';
     let border = 'none';
     let fontWeight = 'normal';
+    let opacity = 1;
 
-    if (isBooked && isCurrentMonth) {
+    // Vergangene Tage ausgegraut
+    if (isPast && isCurrentMonth) {
+      color = '#ccc';
+      opacity = 1;
+    }
+
+    if (isBooked && isCurrentMonth && !isPast) {
       backgroundColor = '#e0e0e0'; // Grau für gebuchte Tage
       color = '#333';
     }
@@ -149,7 +167,7 @@ const BookingCalendar: React.FC<BookingCalendarProps> = ({
       fontWeight = 'bold';
     }
 
-    if (isSelected) {
+    if (isSelected && !isPast) {
       backgroundColor = 'var(--ion-color-primary)';
       color = 'white';
     }
@@ -159,13 +177,14 @@ const BookingCalendar: React.FC<BookingCalendarProps> = ({
       color,
       border,
       fontWeight,
+      opacity,
       borderRadius: '50%',
       width: '36px',
       height: '36px',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      cursor: isCurrentMonth ? 'pointer' : 'default',
+      cursor: isCurrentMonth && !isPast ? 'pointer' : 'not-allowed',
       margin: '2px auto',
     };
   };
@@ -173,14 +192,16 @@ const BookingCalendar: React.FC<BookingCalendarProps> = ({
   return (
     <div style={{ marginBottom: '20px' }}>
       {/* Header mit Navigation */}
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-        marginBottom: '16px',
-        border: '1px solid var(--ion-color-medium)',
-        borderRadius: '8px',
-      }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '16px',
+          border: '1px solid var(--ion-color-medium)',
+          borderRadius: '8px',
+        }}
+      >
         {/* Zurück-Button nur anzeigen wenn nicht im aktuellen Monat */}
         {currentMonth === today.getMonth() && currentYear === today.getFullYear() ? (
           <div style={{ width: '48px' }}></div>
@@ -198,93 +219,107 @@ const BookingCalendar: React.FC<BookingCalendarProps> = ({
       </div>
 
       {/* Wochentage Header */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(7, 1fr)',
-        textAlign: 'center',
-        marginBottom: '8px',
-        fontWeight: 'bold',
-        border: '1px solid var(--ion-color-medium)',
-        borderRadius: '8px',
-        color: '#666'
-      }}>
-        {weekDays.map(day => (
-          <div key={day} style={{ padding: '8px 0' }}>{day}</div>
-        ))}
-      </div>
-
-      {/* Kalender-Tage */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(7, 1fr)',
-        textAlign: 'center',
-      }}>
-        {calendarDays.map(({ date, day, isCurrentMonth }) => (
-          <div 
-            key={date}
-            onClick={() => isCurrentMonth && onDateSelect(date)}
-            style={{ 
-              display: 'flex', 
-              flexDirection: 'column', 
-              alignItems: 'center',
-              padding: '2px 0',
-              cursor: isCurrentMonth ? 'pointer' : 'default'
-            }}
-          >
-            <div style={getDayStyle(date, isCurrentMonth)}>
-              {day}
-            </div>
-            {/* Pfeil für 24h-Durchgangstage */}
-            {isCurrentMonth && fullDays.has(date) && (
-              <div style={{ 
-                fontSize: '14px', 
-                color: 'var(--ion-color-primary)',
-                marginTop: '-4px',
-                fontWeight: 'bold'
-              }}>
-                →
-              </div>
-            )}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(7, 1fr)',
+          textAlign: 'center',
+          marginBottom: '8px',
+          fontWeight: 'bold',
+          border: '1px solid var(--ion-color-medium)',
+          borderRadius: '8px',
+          color: '#666',
+        }}
+      >
+        {weekDays.map((day) => (
+          <div key={day} style={{ padding: '8px 0' }}>
+            {day}
           </div>
         ))}
       </div>
 
+      {/* Kalender-Tage */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(7, 1fr)',
+          textAlign: 'center',
+        }}
+      >
+        {calendarDays.map(({ date, day, isCurrentMonth }) => {
+          const isPast = date < todayStr;
+
+          return (
+            <div
+              key={date}
+              onClick={() => isCurrentMonth && !isPast && onDateSelect(date)}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                padding: '2px 0',
+                cursor: isCurrentMonth && !isPast ? 'pointer' : 'not-allowed',
+              }}
+            >
+              <div style={getDayStyle(date, isCurrentMonth)}>{day}</div>
+              {/* Pfeil für 24h-Durchgangstage */}
+              {isCurrentMonth && fullDays.has(date) && (
+                <div
+                  style={{
+                    fontSize: '14px',
+                    color: 'var(--ion-color-primary)',
+                    marginTop: '-4px',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  →
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
       {/* Legende */}
-      <div style={{ 
-        display: 'flex', 
-        flexWrap: 'wrap',
-        gap: '12px', 
-        marginTop: '16px',
-        justifyContent: 'center',
-        border: '1px solid var(--ion-color-medium)',
-        borderRadius: '8px',
-        padding: '8px 0px',
-        fontSize: '0.85em',
-        color: '#666'
-      }}>
+      <div
+        style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '12px',
+          marginTop: '16px',
+          justifyContent: 'center',
+          border: '1px solid var(--ion-color-medium)',
+          borderRadius: '8px',
+          padding: '8px 0px',
+          fontSize: '0.85em',
+          color: '#666',
+        }}
+      >
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-          <div style={{ 
-            width: '16px', 
-            height: '16px', 
-            backgroundColor: '#e0e0e0',
-            borderRadius: '50%'
-          }}></div>
+          <div
+            style={{
+              width: '16px',
+              height: '16px',
+              backgroundColor: '#e0e0e0',
+              borderRadius: '50%',
+            }}
+          ></div>
           <span>Gebucht</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-          <div style={{ 
-            width: '16px', 
-            height: '16px', 
-            border: '2px solid var(--ion-color-primary)',
-            borderRadius: '50%'
-          }}></div>
+          <div
+            style={{
+              width: '16px',
+              height: '16px',
+              border: '2px solid var(--ion-color-primary)',
+              borderRadius: '50%',
+            }}
+          ></div>
           <span>Heute</span>
         </div>
-
       </div>
     </div>
   );
 };
 
 export default BookingCalendar;
-
