@@ -12,10 +12,12 @@ import {
   useIonAlert,
   useIonToast,
 } from '@ionic/react';
-import { trashOutline } from 'ionicons/icons';
+import { trashOutline, createOutline } from 'ionicons/icons';
+import { useHistory } from 'react-router-dom';
 import { Booking } from '../types';
 import { bookingsService } from '../services/database';
 import { useAuth } from '../contexts/AuthContext';
+import { formatDate } from '../utils/dateUtils';
 
 interface BookingCardProps {
   booking: Booking;
@@ -26,15 +28,7 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onDelete }) => {
   const { profile, isAdmin } = useAuth();
   const [presentAlert] = useIonAlert();
   const [present] = useIonToast();
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('de-DE', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
+  const history = useHistory();
 
   // Zeit kommt als "HH:MM:SS" aus der DB - zeige nur "HH:MM"
   const formatTime = (timeString: string) => {
@@ -43,6 +37,11 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onDelete }) => {
   };
 
   const canDelete = isAdmin || booking.fahrer_id === profile?.id;
+  const canEdit = booking.gruppe_id === profile?.gruppe_id; // Alle Gruppenmitglieder können bearbeiten
+
+  const handleEdit = () => {
+    history.push(`/bookings/create?edit=${booking.id}`);
+  };
 
   const handleDelete = () => {
     presentAlert({
@@ -81,66 +80,89 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onDelete }) => {
   return (
     <IonCard>
       <IonCardHeader>
-        <IonCardTitle>
-          {booking.gruppe?.bezeichnung} 
-        </IonCardTitle>
+        <IonCardTitle className="small-card-title">{booking.gruppe?.bezeichnung}</IonCardTitle>
       </IonCardHeader>
       <IonCardContent>
-        <IonItem lines="none">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <IonLabel>
-            <IonText color="medium">
-              <p>Start</p>
-            </IonText>
-            <h3>{formatDate(booking.start_datum)} um {formatTime(booking.start_uhrzeit)}</h3>
-          </IonLabel>
-        </IonItem>
-
-        <IonItem lines="none">
-          <IonLabel>
-            <IonText color="medium">
-              <p>Ende</p>
-            </IonText>
-            <h3>{formatDate(booking.ende_datum)} um {formatTime(booking.ende_uhrzeit)}</h3>
-          </IonLabel>
-        </IonItem>
-
-        {booking.gruppe && (
-          <IonItem lines="none">
-            <IonLabel>
-              <IonText color="medium">
-                <p>Erstellt von {booking.fahrer?.vorname} {booking.fahrer?.name}</p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <IonText color="medium" className="small-padding">
+                <p>Start</p>
               </IonText>
-            </IonLabel>
-          </IonItem>
-        )}
+              <IonText color="primary">
+                <p style={{ fontWeight: 'bold' }}>
+                  {formatDate(booking.start_datum, true)} um {formatTime(booking.start_uhrzeit)}
+                </p>
+              </IonText>
+            </div>
+          </IonLabel>
+          <IonLabel>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <IonText color="medium">
+                <p>Ende</p>
+              </IonText>
+              <IonText color="primary">
+                <p style={{ fontWeight: 'bold' }}>
+                  {formatDate(booking.ende_datum, true)} um {formatTime(booking.ende_uhrzeit)}
+                </p>
+              </IonText>
+            </div>
+          </IonLabel>
+        </div>
 
-        {booking.kommentar && (
-          <IonItem lines="none">
+        {booking.kommentar && canEdit && (
+          <div style={{ padding: '16px 0px' }}>
             <IonLabel>
               <IonText color="medium">
                 <p>Kommentar</p>
               </IonText>
               <p>{booking.kommentar}</p>
             </IonLabel>
-          </IonItem>
+          </div>
         )}
 
-        {canDelete && (
-          <IonButton
-            expand="block"
-            color="danger"
-            fill="outline"
-            onClick={handleDelete}
-            style={{ marginTop: '10px' }}
-          >
-            <IonIcon slot="start" icon={trashOutline} />
-            Löschen
-          </IonButton>
+        {booking.gruppe && (
+          <div style={{ padding: '16px 0px' }}>
+            <IonLabel>
+              <IonText color="medium">
+                <p>
+                  Erstellt von {booking.fahrer?.vorname} {booking.fahrer?.name}
+                </p>
+              </IonText>
+            </IonLabel>
+          </div>
         )}
+
+        {/* Action Buttons */}
+        <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
+          {canEdit && (
+            <IonButton
+              expand="block"
+              color="primary"
+              fill="outline"
+              onClick={handleEdit}
+              style={{ flex: 1 }}
+            >
+              <IonIcon slot="start" icon={createOutline} />
+              Bearbeiten
+            </IonButton>
+          )}
+          {canDelete && (
+            <IonButton
+              expand="block"
+              color="danger"
+              fill="outline"
+              onClick={handleDelete}
+              style={{ flex: canEdit ? 1 : undefined }}
+            >
+              <IonIcon slot="start" icon={trashOutline} />
+              Löschen
+            </IonButton>
+          )}
+        </div>
       </IonCardContent>
     </IonCard>
   );
 };
 
 export default BookingCard;
-

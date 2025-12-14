@@ -1,21 +1,32 @@
 {
-  "short_name": "Ionic App",
-  "name": "My Ionic App",
+  "short_name": "Carsharing",
+  "name": "Carsharing App",
+  "description": "Einfach Fahrzeuge teilen und verwalten",
   "icons": [
     {
-      "src": "assets/icon/favicon.png",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
+      "src": "/images/favicon.png",
+      "sizes": "32x32",
+      "type": "image/png"
     },
     {
-      "src": "assets/icon/icon.png",
+      "src": "/images/icon-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/icon-512x512.png",
       "type": "image/png",
       "sizes": "512x512",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     }
   ],
-  "start_url": ".",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "theme_color": "#ffffff",
-  "background_color": "#ffffff"
+  "orientation": "portrait-primary",
+  "theme_color": "#3880ff",
+  "background_color": "#ffffff",
+  "categories": ["productivity", "utilities"],
+  "lang": "de-DE"
 }

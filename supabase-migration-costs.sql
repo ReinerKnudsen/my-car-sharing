@@ -56,7 +56,7 @@ CREATE POLICY "Only admins can update settings"
     USING (
         EXISTS (
             SELECT 1 FROM public.profiles
-            WHERE profiles.id = auth.uid()
+            WHERE profiles.id = (select auth.uid())
             AND profiles.ist_admin = true
         )
     );
@@ -69,7 +69,7 @@ CREATE POLICY "Only admins can insert settings"
     WITH CHECK (
         EXISTS (
             SELECT 1 FROM public.profiles
-            WHERE profiles.id = auth.uid()
+            WHERE profiles.id = (select auth.uid())
             AND profiles.ist_admin = true
         )
     );

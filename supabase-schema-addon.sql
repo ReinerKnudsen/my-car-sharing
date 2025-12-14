@@ -59,7 +59,7 @@ CREATE POLICY "Admins can create invitation codes"
     WITH CHECK (
         EXISTS (
             SELECT 1 FROM public.profiles
-            WHERE profiles.id = auth.uid()
+            WHERE profiles.id = (select auth.uid())
             AND profiles.ist_admin = true
         )
     );
@@ -72,7 +72,7 @@ CREATE POLICY "Group admins can create codes for their group"
     WITH CHECK (
         EXISTS (
             SELECT 1 FROM public.profiles
-            WHERE profiles.id = auth.uid()
+            WHERE profiles.id = (select auth.uid())
             AND profiles.ist_gruppen_admin = true
             AND profiles.gruppe_id = gruppe_id
         )
@@ -86,7 +86,7 @@ CREATE POLICY "Admins can update invitation codes"
     USING (
         EXISTS (
             SELECT 1 FROM public.profiles
-            WHERE profiles.id = auth.uid()
+            WHERE profiles.id = (select auth.uid())
             AND profiles.ist_admin = true
         )
     );
@@ -99,7 +99,7 @@ CREATE POLICY "Group admins can update codes for their group"
     USING (
         EXISTS (
             SELECT 1 FROM public.profiles p
-            WHERE p.id = auth.uid()
+            WHERE p.id = (select auth.uid())
             AND p.ist_gruppen_admin = true
             AND p.gruppe_id = invitation_codes.gruppe_id
         )
@@ -113,7 +113,7 @@ CREATE POLICY "Admins can delete invitation codes"
     USING (
         EXISTS (
             SELECT 1 FROM public.profiles
-            WHERE profiles.id = auth.uid()
+            WHERE profiles.id = (select auth.uid())
             AND profiles.ist_admin = true
         )
     );
@@ -126,7 +126,7 @@ CREATE POLICY "Group admins can delete codes for their group"
     USING (
         EXISTS (
             SELECT 1 FROM public.profiles p
-            WHERE p.id = auth.uid()
+            WHERE p.id = (select auth.uid())
             AND p.ist_gruppen_admin = true
             AND p.gruppe_id = invitation_codes.gruppe_id
         )

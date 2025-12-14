@@ -130,9 +130,9 @@ const Bookings: React.FC = () => {
             {/* Buchungen für ausgewählten Tag */}
             {selectedDate && (
               <div style={{ marginTop: '20px' }}>
-                <h3 style={{ marginBottom: '12px' }}>
+                <h4 style={{ marginBottom: '12px', textAlign: 'center', fontWeight: 'bold' }}>
                   {formatSelectedDate(selectedDate)}
-                </h3>
+                </h4>
                 
                 {bookingsForSelectedDate.length === 0 ? (
                   <IonText color="medium">

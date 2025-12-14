@@ -78,3 +78,41 @@ ion-tab-bar {
   border-top: 1px solid var(--ion-border-color);
 }
 
+/* Badge-Styling */
+.badge-indicator {
+  min-width: 60px;
+  padding: 4px 10px;
+}
+
+.badge-indicator.price {
+  background-color: var(--ion-color-secondary);
+  color: #fff;
+}
+
+.badge-indicator.km {
+  background-color: var(--ion-color-primary);
+  color: #fff;
+}
+
+/* Card-Title */
+.small-card-title {
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+/* Item */
+.small-padding {
+  padding: 0px 0px;
+}
+
+.value-label {
+  font-weight: 700;
+  color: var(--ion-color-medium);
+}
+
+.value-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
