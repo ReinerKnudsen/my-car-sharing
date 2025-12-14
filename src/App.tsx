@@ -6,7 +6,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ResetPassword from './pages/ResetPassword';
-import MainTabs from './components/MainTabs-simple';
+import MainTabs from './components/MainTabs';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -36,14 +36,16 @@ const AppRoutes: React.FC = () => {
 
   if (loading) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        flexDirection: 'column',
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '100vh',
-        gap: '16px'
-      }}>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+          gap: '16px',
+        }}
+      >
         <IonSpinner name="crescent" />
         <p>Lädt...</p>
       </div>
