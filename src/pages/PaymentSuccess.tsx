@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   IonContent,
   IonHeader,
@@ -21,14 +21,16 @@ import { receiptService } from '../services/receipt.service';
 const PaymentSuccess: React.FC = () => {
   const [processing, setProcessing] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const hasProcessed = useRef(false); // ← Guard: Nur einmal ausführen!
   const history = useHistory();
   const location = useLocation();
   const { profile } = useAuth();
   const [presentToast] = useIonToast();
 
   useEffect(() => {
-    // Warte bis profile geladen ist
-    if (profile?.gruppe_id) {
+    // Warte bis profile geladen ist UND noch nicht verarbeitet
+    if (profile?.gruppe_id && !hasProcessed.current) {
+      hasProcessed.current = true; // ← Markiere als verarbeitet
       handlePaymentSuccess();
     }
   }, [profile]); // ← Trigger wenn profile sich ändert
