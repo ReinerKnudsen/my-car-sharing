@@ -41,6 +41,8 @@ const ACTIVE_TRIP_KEY = 'carsharing_active_trip';
 
 const Dashboard: React.FC = () => {
   const { profile } = useAuth();
+  const appEnv = import.meta.env.VITE_APP_ENV || 'production';
+  const isDev = appEnv === 'development';
   const [upcomingBookings, setUpcomingBookings] = useState<Booking[]>([]);
   const [recentTrips, setRecentTrips] = useState<Trip[]>([]);
   const [totalKm, setTotalKm] = useState<number>(0);
@@ -276,7 +278,7 @@ const Dashboard: React.FC = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar color="primary">
-          <IonTitle>My CarSharing</IonTitle>
+          <IonTitle>My CarSharing{isDev && ' (DEV)'}</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">

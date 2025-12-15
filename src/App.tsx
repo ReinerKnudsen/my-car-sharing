@@ -6,6 +6,8 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ResetPassword from './pages/ResetPassword';
+import PaymentSuccess from './pages/PaymentSuccess';
+import PaymentCancel from './pages/PaymentCancel';
 import MainTabs from './components/MainTabs';
 
 /* Core CSS required for Ionic components to work properly */
@@ -68,6 +70,8 @@ const App: React.FC = () => {
             <Switch>
               <Route path="/register" component={Register} exact />
               <Route path="/reset-password" component={ResetPassword} exact />
+              <Route path="/payment-success" component={PaymentSuccess} exact />
+              <Route path="/payment-cancel" component={PaymentCancel} exact />
               <Route path="/" component={AppRoutes} />
             </Switch>
           </IonRouterOutlet>

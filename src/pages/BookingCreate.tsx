@@ -155,7 +155,10 @@ const BookingCreate: React.FC = () => {
         });
       }
       
-      history.goBack();
+      // Kurze Verzögerung um sicherzustellen, dass DB-Write committed ist
+      setTimeout(() => {
+        history.goBack();
+      }, 300);
     } catch (error: any) {
       present({
         message: error.message || `Fehler beim ${editMode ? 'Aktualisieren' : 'Erstellen'} der Buchung`,
