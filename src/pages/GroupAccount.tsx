@@ -44,6 +44,11 @@ const GroupAccount: React.FC = () => {
     loadData();
   });
 
+  // Lade auch bei Component Mount (erste Anzeige)
+  useEffect(() => {
+    loadData();
+  }, [profile?.gruppe_id]);
+
   const loadData = async () => {
     if (!profile?.gruppe_id) return;
 
@@ -69,41 +74,37 @@ const GroupAccount: React.FC = () => {
 
     const amountToPay = Math.abs(account.balance);
 
-    // PayPal.me Link generieren
-    // Format: paypal.me/username/betrag (username = Teil vor @)
-    const paypalUsername = paypalEmail.split('@')[0];
-    const paypalMeUrl = `https://www.paypal.me/${paypalUsername}/${amountToPay.toFixed(2)}EUR`;
+    // Hole aktuelle App-URL für return URLs
+    const appBaseUrl = window.location.origin;
+    const returnUrl = `${appBaseUrl}/payment-success?amount=${amountToPay.toFixed(2)}`;
+    const cancelUrl = `${appBaseUrl}/payment-cancel`;
+
+    // PayPal Base URL (Sandbox oder Production)
+    const paypalBaseUrl = import.meta.env.VITE_PAYPAL_BASE_URL || 'https://www.paypal.com';
+    const isSandbox = paypalBaseUrl.includes('sandbox');
+
+    // PayPal Payment Link mit return URLs
+    const paypalUrl =
+      `${paypalBaseUrl}/cgi-bin/webscr?` +
+      `cmd=_xclick` +
+      `&business=${encodeURIComponent(paypalEmail)}` +
+      `&amount=${amountToPay.toFixed(2)}` +
+      `&currency_code=EUR` +
+      `&item_name=${encodeURIComponent('CarSharing Gruppenkonto')}` +
+      `&return=${encodeURIComponent(returnUrl)}` +
+      `&cancel_return=${encodeURIComponent(cancelUrl)}`;
 
     presentAlert({
-      header: 'Per PayPal bezahlen',
-      message: `Zahlung von ${amountToPay.toFixed(2)} € wird geöffnet.\n\nBitte wähle "Freunde & Familie" für gebührenfreie Überweisung.\n\nHast du die Zahlung abgeschlossen?`,
+      header: `Per PayPal bezahlen${isSandbox ? ' (SANDBOX)' : ''}`,
+      message: isSandbox
+        ? `🧪 SANDBOX-MODUS\n\nDu wirst zur PayPal Sandbox weitergeleitet (Test-Umgebung).\n\nBetrag: ${amountToPay.toFixed(2)} €\n\nMelde dich mit einem Sandbox-Account an.`
+        : `Du wirst zu PayPal weitergeleitet, um ${amountToPay.toFixed(2)} € zu bezahlen.\n\n💡 Wähle "Freunde & Familie" für gebührenfreie Überweisung.\n\nNach erfolgreicher Zahlung wirst du automatisch zurückgeleitet.`,
       buttons: [
         {
-          text: 'PayPal öffnen',
+          text: isSandbox ? 'Zur Sandbox' : 'Zu PayPal',
           handler: () => {
-            // Öffne PayPal.me Link
-            window.open(paypalMeUrl, '_blank');
-
-            // Zeige Bestätigungs-Dialog nach kurzer Verzögerung
-            setTimeout(() => {
-              presentAlert({
-                header: 'Zahlung abgeschlossen?',
-                message: `Hast du ${amountToPay.toFixed(2)} € per PayPal überwiesen?`,
-                buttons: [
-                  {
-                    text: 'Nein, abgebrochen',
-                    role: 'cancel',
-                  },
-                  {
-                    text: 'Ja, bezahlt ✓',
-                    handler: async () => {
-                      setPaypalProcessing(true);
-                      await createPaymentReceipt(amountToPay);
-                    },
-                  },
-                ],
-              });
-            }, 2000);
+            // Redirect zu PayPal (gleicher Tab für bessere Rückkehr zur App)
+            window.location.href = paypalUrl;
           },
         },
         {
@@ -436,7 +437,6 @@ const GroupAccount: React.FC = () => {
             </IonCard>
           </>
         )}
-
       </IonContent>
     </IonPage>
   );

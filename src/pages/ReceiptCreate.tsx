@@ -122,7 +122,10 @@ const ReceiptCreate: React.FC = () => {
         color: 'success',
       });
 
-      history.goBack();
+      // Kurze Verzögerung um sicherzustellen, dass DB-Write committed ist
+      setTimeout(() => {
+        history.goBack();
+      }, 300);
     } catch (error: any) {
       present({
         message: error.message || 'Fehler beim Erstellen des Belegs',

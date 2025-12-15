@@ -1,0 +1,33 @@
+{
+  "short_name": "CarSharing",
+  "name": "CarSharing App",
+  "description": "Einfach Fahrzeuge teilen und verwalten",
+  "icons": [
+    {
+      "src": "/images/favicon.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/icon-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/icon-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#3880ff",
+  "background_color": "#ffffff",
+  "categories": ["productivity", "utilities"],
+  "lang": "de-DE"
+}
+
