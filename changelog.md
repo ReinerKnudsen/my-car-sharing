@@ -20,7 +20,7 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 
 ### Fixed
 
--
+- hopefully, workflows running now
 
 ## [2.0.1] - 2025-12-16
 
@@ -32,6 +32,7 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 ### Added
 
 - major
+
 ## [1.0.0] - 2025-12-16
 
 ### Added
