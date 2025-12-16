@@ -20,6 +20,7 @@ import {
 import { walletOutline, chevronForwardOutline } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import AppVersion from '../components/AppVersion';
 
 const Profile: React.FC = () => {
   const { profile, signOut, user, isAdmin, isGroupAdmin } = useAuth();
@@ -97,10 +98,10 @@ const Profile: React.FC = () => {
                       <p>Rolle</p>
                     </IonText>
                     <h2>
-                      {profile.ist_admin 
-                        ? 'Administrator' 
-                        : profile.ist_gruppen_admin 
-                          ? 'Gruppenadmin' 
+                      {profile.ist_admin
+                        ? 'Administrator'
+                        : profile.ist_gruppen_admin
+                          ? 'Gruppenadmin'
                           : 'Fahrer'}
                     </h2>
                   </IonLabel>
@@ -132,10 +133,10 @@ const Profile: React.FC = () => {
             </IonButton>
           </IonCardContent>
         </IonCard>
+        <AppVersion />
       </IonContent>
     </IonPage>
   );
 };
 
 export default Profile;
-
