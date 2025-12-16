@@ -16,13 +16,18 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 
 ### Changed
 
-- changed generate-version.js
-- changed the AppVersion component
+-
 
 ### Fixed
 
 -
 
+## [2.1.1] - 2025-12-16
+
+### Changed
+
+- changed generate-version.js
+- changed the AppVersion component
 ## [2.1.0] - 2025-12-16
 
 ### Changed
