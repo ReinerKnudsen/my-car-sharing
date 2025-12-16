@@ -38,11 +38,12 @@ jobs:
       - name: Commit and push changes
         if: steps.changelog.outputs.version_updated == 'true'
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
           git add package.json changelog.md
-          git commit -m "chore: release version ${{ steps.changelog.outputs.new_version }}"
-          git push
+          git diff --cached  # Show what's being committed
+          git commit -m "chore: release version ${{ steps.changelog.outputs.new_version }}" || echo "Nothing to commit"
+          git push origin HEAD:main || echo "Push failed"
 
       - name: Create git tag
         if: steps.changelog.outputs.version_updated == 'true'
