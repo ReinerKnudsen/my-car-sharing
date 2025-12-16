@@ -16,9 +16,8 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 
 ### Changed
 
-- added generate-version.js
-- added prebuild script to package.json
-- altered the AppVersion component
+- changed generate-version.js
+- changed the AppVersion component
 
 ### Fixed
 
