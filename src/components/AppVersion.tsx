@@ -1,17 +1,37 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { IonText } from '@ionic/react';
 
+interface VersionInfo {
+  version: string;
+  commit: string;
+  buildTime: string;
+}
+
 const AppVersion: React.FC = () => {
-  const version = import.meta.env.VITE_APP_VERSION || 'dev';
-  const commitSha = import.meta.env.VITE_COMMIT_SHA;
-  const deployId = import.meta.env.VITE_DEPLOY_ID;
+  const [versionInfo, setVersionInfo] = useState<VersionInfo>({
+    version: 'loading...',
+    commit: '',
+    buildTime: '',
+  });
+
+  useEffect(() => {
+    fetch('/version.json')
+      .then((res) => res.json())
+      .then((data) => setVersionInfo(data))
+      .catch(() =>
+        setVersionInfo({
+          version: 'dev',
+          commit: 'local',
+          buildTime: new Date().toISOString(),
+        })
+      );
+  }, []);
 
   return (
     <div style={{ padding: '16px', textAlign: 'center', fontSize: '0.75rem' }}>
       <IonText color="medium">
         <p>
-          Version: {version}
-          {commitSha && ` • ${commitSha.substring(0, 7)}`}
+          Version: {versionInfo.version} • {versionInfo.commit}
         </p>
       </IonText>
     </div>
