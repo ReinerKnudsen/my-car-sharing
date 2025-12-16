@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
 import { Profile } from '../types';
+import { profilesService } from './database';
 
 export const authService = {
   // Sign In
@@ -13,35 +14,46 @@ export const authService = {
   },
 
   // Sign Up (Admin creates user)
-  async signUp(email: string, password: string, vorname: string, name: string, gruppe_id: string | null, ist_admin: boolean = false, ist_gruppen_admin: boolean = false) {
+  async signUp(
+    email: string,
+    password: string,
+    vorname: string,
+    name: string,
+    gruppe_id: string | null,
+    ist_admin: boolean = false,
+    ist_gruppen_admin: boolean = false
+  ) {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
     });
-    
+
     if (error) throw error;
-    
-    // Create profile
+
+    // Create profile via profilesService (DRY principle)
     if (data.user) {
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          id: data.user.id,
-          vorname,
-          name,
-          gruppe_id,
-          ist_admin,
-          ist_gruppen_admin,
-        });
-      
-      if (profileError) throw profileError;
+      await profilesService.create({
+        id: data.user.id,
+        vorname,
+        name,
+        gruppe_id,
+        ist_admin,
+        ist_gruppen_admin,
+        ist_gesperrt: false, // New users are not blocked by default
+      });
     }
-    
+
     return data;
   },
 
   // Sign Up with Invitation Code (Self-registration)
-  async signUpWithInvitation(email: string, password: string, vorname: string, name: string, gruppe_id: string) {
+  async signUpWithInvitation(
+    email: string,
+    password: string,
+    vorname: string,
+    name: string,
+    gruppe_id: string
+  ) {
     // Sign up with user metadata - the trigger will create the profile
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -56,7 +68,7 @@ export const authService = {
         },
       },
     });
-    
+
     if (error) throw error;
     return data;
   },
@@ -67,8 +79,8 @@ export const authService = {
       // Lokale Session löschen (schnell, kein Server-Call)
       await supabase.auth.signOut({ scope: 'local' });
     } catch (error) {
-      console.error("Fehler beim Abmelden:", error);
-      
+      console.error('Fehler beim Abmelden:', error);
+
       // Fallback: Manuell localStorage löschen
       const keysToRemove: string[] = [];
       for (let i = 0; i < localStorage.length; i++) {
@@ -77,7 +89,7 @@ export const authService = {
           keysToRemove.push(key);
         }
       }
-      keysToRemove.forEach(key => localStorage.removeItem(key));
+      keysToRemove.forEach((key) => localStorage.removeItem(key));
     }
   },
 
@@ -90,7 +102,10 @@ export const authService = {
 
   // Get Current User
   async getCurrentUser() {
-    const { data: { user }, error } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
     if (error) throw error;
     return user;
   },
@@ -102,7 +117,7 @@ export const authService = {
       .select('*, gruppe:groups(*)')
       .eq('id', userId)
       .single();
-    
+
     if (error) throw error;
     return data;
   },
@@ -115,7 +130,7 @@ export const authService = {
       .eq('id', userId)
       .select()
       .single();
-    
+
     if (error) throw error;
     return data;
   },
@@ -124,7 +139,7 @@ export const authService = {
   async resetPassword(email: string) {
     // Get the current site URL for redirect
     const redirectUrl = `${window.location.origin}/reset-password`;
-    
+
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: redirectUrl,
     });
@@ -139,4 +154,3 @@ export const authService = {
     if (error) throw error;
   },
 };
-

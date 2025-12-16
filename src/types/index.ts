@@ -179,10 +179,16 @@ export interface AuthState {
 // Database Insert Types
 export type InsertTrip = Omit<Trip, 'id' | 'created_at' | 'fahrer'>;
 export type InsertBooking = Omit<Booking, 'id' | 'created_at' | 'gruppe' | 'fahrer'>;
-export type InsertProfile = Omit<Profile, 'id' | 'created_at' | 'gruppe'>;
+export type InsertProfile = Omit<Profile, 'created_at' | 'gruppe'>; // id is required (FK to auth.users)
 export type InsertGroup = Omit<Group, 'id' | 'created_at'>;
-export type InsertInvitationCode = Omit<InvitationCode, 'id' | 'created_at' | 'uses_count' | 'gruppe' | 'creator'>;
-export type InsertReceipt = Omit<Receipt, 'id' | 'created_at' | 'gruppe' | 'fahrer' | 'receipt_type'>;
+export type InsertInvitationCode = Omit<
+  InvitationCode,
+  'id' | 'created_at' | 'uses_count' | 'gruppe' | 'creator'
+>;
+export type InsertReceipt = Omit<
+  Receipt,
+  'id' | 'created_at' | 'gruppe' | 'fahrer' | 'receipt_type'
+>;
 export type InsertReceiptType = Omit<ReceiptType, 'id' | 'created_at'>;
 
 // Update Types
@@ -190,7 +196,8 @@ export type UpdateTrip = Partial<InsertTrip>;
 export type UpdateBooking = Partial<InsertBooking>;
 export type UpdateProfile = Partial<InsertProfile>;
 export type UpdateGroup = Partial<InsertGroup>;
-export type UpdateInvitationCode = Partial<Pick<InvitationCode, 'is_active' | 'expires_at' | 'max_uses'>>;
+export type UpdateInvitationCode = Partial<
+  Pick<InvitationCode, 'is_active' | 'expires_at' | 'max_uses'>
+>;
 export type UpdateReceipt = Partial<Omit<InsertReceipt, 'gruppe_id' | 'fahrer_id'>>;
 export type UpdateReceiptType = Partial<Omit<InsertReceiptType, 'sort_order'>>;
-
