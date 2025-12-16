@@ -3,6 +3,7 @@ import { IonText } from '@ionic/react';
 
 interface VersionInfo {
   version: string;
+  packageVersion: string;
   commit: string;
   buildTime: string;
 }
@@ -10,6 +11,7 @@ interface VersionInfo {
 const AppVersion: React.FC = () => {
   const [versionInfo, setVersionInfo] = useState<VersionInfo>({
     version: 'loading...',
+    packageVersion: '0.0.0',
     commit: '',
     buildTime: '',
   });
@@ -21,6 +23,7 @@ const AppVersion: React.FC = () => {
       .catch(() =>
         setVersionInfo({
           version: 'dev',
+          packageVersion: '0.0.0',
           commit: 'local',
           buildTime: new Date().toISOString(),
         })
@@ -30,9 +33,7 @@ const AppVersion: React.FC = () => {
   return (
     <div style={{ padding: '16px', textAlign: 'center', fontSize: '0.75rem' }}>
       <IonText color="medium">
-        <p>
-          Version: {versionInfo.version} • {versionInfo.commit}
-        </p>
+        <p>Version: {versionInfo.version}</p>
       </IonText>
     </div>
   );

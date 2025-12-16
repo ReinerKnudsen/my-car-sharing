@@ -2,13 +2,29 @@ import fs from 'fs';
 import { execSync } from 'child_process';
 
 try {
-  // Get git info
-  const branch = execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
+  // Read version from package.json
+  const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+  const version = packageJson.version;
+
+  // Get git commit
   const commit = execSync('git rev-parse --short HEAD').toString().trim();
+
+  // Try to get branch name, fallback to version from package.json
+  let branch = 'unknown';
+  try {
+    branch = execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
+    // If in detached HEAD state, use package.json version
+    if (branch === 'HEAD') {
+      branch = `v${version}`;
+    }
+  } catch (e) {
+    branch = `v${version}`;
+  }
 
   // Create version file
   const versionInfo = {
     version: branch,
+    packageVersion: version,
     commit: commit,
     buildTime: new Date().toISOString(),
   };
@@ -23,7 +39,12 @@ try {
   fs.writeFileSync(
     'public/version.json',
     JSON.stringify(
-      { version: 'unknown', commit: 'unknown', buildTime: new Date().toISOString() },
+      {
+        version: 'unknown',
+        packageVersion: '0.0.0',
+        commit: 'unknown',
+        buildTime: new Date().toISOString(),
+      },
       null,
       2
     )
