@@ -16,7 +16,7 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 
 ### Changed
 
--
+- another change to the workflow
 
 ### Fixed
 
@@ -41,6 +41,7 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 
 - updated toml file
 - Version in profille page
+
 ## [2.0.0] - 2025-12-16
 
 ### Added
