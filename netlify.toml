@@ -1,14 +1,8 @@
 [build]
-  # Build-Befehl
   command = "npm run build"
-  # Ordner der deployed wird
   publish = "dist"
 
-# Für Single Page Apps: Alle Routen auf index.html umleiten
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-
-
-
