@@ -1,0 +1,62 @@
+name: Changelog Automation
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+jobs:
+  update-changelog:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run changelog automation
+        id: changelog
+        run: node scripts/update-changelog.js
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit and push changes
+        if: steps.changelog.outputs.version_updated == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add package.json changelog.md
+          git commit -m "chore: release version ${{ steps.changelog.outputs.new_version }}"
+          git push
+
+      - name: Create git tag
+        if: steps.changelog.outputs.version_updated == 'true'
+        run: |
+          git tag v${{ steps.changelog.outputs.new_version }}
+          git push origin v${{ steps.changelog.outputs.new_version }}
+
+      - name: Create release
+        if: steps.changelog.outputs.version_updated == 'true'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.changelog.outputs.new_version }}
+          name: Release v${{ steps.changelog.outputs.new_version }}
+          body_path: ${{ steps.changelog.outputs.release_notes_file }}
+          draft: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

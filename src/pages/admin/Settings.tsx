@@ -27,6 +27,7 @@ import { useAuth } from '../../contexts/AuthContext';
 const Settings: React.FC = () => {
   const [kostenProKm, setKostenProKm] = useState<string>('0.30');
   const [paypalEmail, setPaypalEmail] = useState<string>('');
+  const [paypalClientId, setPaypalClientId] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [present] = useIonToast();
@@ -40,12 +41,14 @@ const Settings: React.FC = () => {
   const loadSettings = async () => {
     try {
       setLoading(true);
-      const [kostenValue, emailValue] = await Promise.all([
+      const [kostenValue, emailValue, clientIdValue] = await Promise.all([
         settingsService.getKostenProKm(),
         settingsService.getPayPalEmail(),
+        settingsService.getPayPalClientId(),
       ]);
       setKostenProKm(kostenValue.toString());
       setPaypalEmail(emailValue || '');
+      setPaypalClientId(clientIdValue || '');
     } catch (error) {
       console.error('Error loading settings:', error);
     } finally {
@@ -70,6 +73,7 @@ const Settings: React.FC = () => {
     try {
       await settingsService.update('kosten_pro_km', value.toFixed(2), profile.id);
       await settingsService.update('paypal_email', paypalEmail, profile.id);
+      await settingsService.update('paypal_client_id', paypalClientId, profile.id);
       present({
         message: 'Einstellungen gespeichert',
         duration: 2000,
@@ -206,24 +210,45 @@ const Settings: React.FC = () => {
 
             <IonCard>
               <IonCardHeader>
-                <IonCardTitle>PayPal.me Integration</IonCardTitle>
+                <IonCardTitle>PayPal Integration (SDK)</IonCardTitle>
               </IonCardHeader>
               <IonCardContent>
                 <IonText color="medium">
                   <p style={{ marginBottom: '16px' }}>
-                    Konfiguriere deine PayPal E-Mail-Adresse für Gruppenzahlungen. Nutzer können direkt
-                    per PayPal.me Link bezahlen (Freunde & Familie - keine Gebühren).
+                    Konfiguriere deine PayPal Business-Daten für automatische Gruppenzahlungen. 
+                    Die PayPal SDK Integration ermöglicht nahtlose In-App-Zahlungen mit automatischer 
+                    Belegerstellung.
                   </p>
                 </IonText>
 
                 <IonInput
                   type="email"
-                  label="PayPal E-Mail-Adresse"
+                  label="PayPal E-Mail-Adresse (Business)"
                   labelPlacement="floating"
                   fill="solid"
                   value={paypalEmail}
                   onIonInput={(e) => setPaypalEmail(e.detail.value || '')}
-                  placeholder="paypal@beispiel.de"
+                  placeholder="business@beispiel.de"
+                  style={{
+                    marginBottom: '16px',
+                    '--background': '#f4f5f8',
+                    '--border-width': '1px',
+                    '--border-style': 'solid',
+                    '--border-color': '#d7d8da',
+                    '--border-radius': '8px',
+                    '--padding-start': '16px',
+                    '--padding-end': '16px',
+                  }}
+                />
+
+                <IonInput
+                  type="text"
+                  label="PayPal Client ID"
+                  labelPlacement="floating"
+                  fill="solid"
+                  value={paypalClientId}
+                  onIonInput={(e) => setPaypalClientId(e.detail.value || '')}
+                  placeholder="AXXXxxx..."
                   style={{
                     marginBottom: '16px',
                     '--background': '#f4f5f8',
@@ -251,10 +276,13 @@ const Settings: React.FC = () => {
                     </p>
                     <ul style={{ margin: 0, paddingLeft: '20px' }}>
                       <li>Nutzer klicken auf "Bezahlen"</li>
-                      <li>PayPal.me Link öffnet sich automatisch</li>
-                      <li>Zahlung als "Freunde & Familie" (keine Gebühren!)</li>
-                      <li>Nach Zahlung: Bestätigung im Dialog</li>
+                      <li>PayPal-Button öffnet sich in der App</li>
+                      <li>Nach erfolgreicher Zahlung: Automatischer Beleg</li>
+                      <li>Kontosaldo wird sofort aktualisiert</li>
                     </ul>
+                    <p style={{ margin: '12px 0 0 0', fontSize: '13px' }}>
+                      🔑 <strong>Client ID finden:</strong> PayPal Developer Dashboard → Apps & Credentials
+                    </p>
                   </IonText>
                 </div>
                 <IonButton

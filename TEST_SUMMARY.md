@@ -4,33 +4,33 @@
 
 Alle Tests wurden erfolgreich implementiert und sind einsatzbereit.
 
+Wir führen die Tests aktuell nicht mehr durch.
+
 ## 📊 Test-Coverage
 
 ### Unit-Tests
 
 **Services:**
+
 - ✅ `authService` - 100% Coverage
   - Sign In/Out/Up
   - Session Management
   - Profile Management
   - Password Reset
-  
 - ✅ `groupsService` - 100% Coverage
   - CRUD-Operationen für Gruppen
-  
 - ✅ `profilesService` - 100% Coverage
   - CRUD-Operationen für Profile
   - Gruppenfilterung
-  
 - ✅ `tripsService` - 100% Coverage
   - CRUD-Operationen für Fahrten
   - Kilometer-Berechnungen
-  
 - ✅ `bookingsService` - 100% Coverage
   - CRUD-Operationen für Buchungen
   - Zeitfilterung
 
 **Komponenten:**
+
 - ✅ `BookingCard` - Rendering und Delete-Funktionalität
 - ✅ `TripCard` - Rendering und Kilometer-Anzeige
 - ✅ `ProtectedRoute` - Authentifizierungs-Guards
@@ -39,6 +39,7 @@ Alle Tests wurden erfolgreich implementiert und sind einsatzbereit.
 ### E2E-Tests
 
 **User Flows:**
+
 - ✅ Authentifizierung (Login/Logout)
 - ✅ Dashboard-Anzeige
 - ✅ Buchungen erstellen/anzeigen/löschen
@@ -50,16 +51,19 @@ Alle Tests wurden erfolgreich implementiert und sind einsatzbereit.
 ## 📁 Erstelle Dateien
 
 ### Konfiguration
+
 - `playwright.config.ts` - Playwright-Konfiguration
 - `vitest.config.ts` - Vitest-Konfiguration
 - `.github/workflows/tests.yml` - CI/CD Pipeline
 
 ### Test-Setup
+
 - `src/test/setup.ts` - Vitest-Setup mit Mocks
 - `src/test/test-utils.tsx` - Test-Utilities und Mock-Daten
 - `e2e/fixtures/test-helpers.ts` - E2E-Test-Helpers
 
 ### Unit-Tests
+
 - `src/services/__tests__/auth.service.test.ts` (216 Zeilen)
 - `src/services/__tests__/database.test.ts` (295 Zeilen)
 - `src/components/__tests__/BookingCard.test.tsx` (63 Zeilen)
@@ -68,6 +72,7 @@ Alle Tests wurden erfolgreich implementiert und sind einsatzbereit.
 - `src/components/__tests__/AdminRoute.test.tsx` (66 Zeilen)
 
 ### E2E-Tests
+
 - `e2e/auth.spec.ts` (92 Zeilen)
 - `e2e/dashboard.spec.ts` (47 Zeilen)
 - `e2e/bookings.spec.ts` (125 Zeilen)
@@ -75,6 +80,7 @@ Alle Tests wurden erfolgreich implementiert und sind einsatzbereit.
 - `e2e/admin.spec.ts` (135 Zeilen)
 
 ### Dokumentation
+
 - `TESTING.md` - Umfassende Test-Dokumentation (400+ Zeilen)
 - `TEST_SUMMARY.md` - Diese Datei
 
@@ -108,11 +114,13 @@ npm run test:e2e:debug         # Debug-Mode
 ## 📈 Test-Metriken
 
 **Unit-Tests:**
+
 - Service-Tests: 9 Test-Suites, 40+ Tests
 - Komponenten-Tests: 4 Test-Suites, 20+ Tests
 - Geschätzte Laufzeit: ~5 Sekunden
 
 **E2E-Tests:**
+
 - 5 Test-Suites
 - 30+ Szenarien (die meisten optional/skipped)
 - Geschätzte Laufzeit: ~2 Minuten (wenn aktiv)
@@ -154,6 +162,7 @@ Für Produktions-Einsatz:
 ## 📚 Dokumentation
 
 Vollständige Test-Dokumentation finden Sie in:
+
 - [TESTING.md](TESTING.md) - Detaillierte Anleitung
 - [README.md](README.md) - Projekt-Übersicht
 - [SCRIPTS.md](SCRIPTS.md) - Alle npm-Scripts
@@ -161,12 +170,14 @@ Vollständige Test-Dokumentation finden Sie in:
 ## 💡 Tipps
 
 **Unit-Tests debuggen:**
+
 ```bash
 # In VS Code
 # Fügen Sie Breakpoints hinzu und starten Sie Debug-Konfiguration
 ```
 
 **E2E-Tests debuggen:**
+
 ```bash
 # Mit Playwright Inspector
 npx playwright test --debug
@@ -176,6 +187,7 @@ await page.pause();
 ```
 
 **Coverage verbessern:**
+
 ```bash
 # Coverage-Report im Browser öffnen
 npm run test:unit:coverage
@@ -196,4 +208,3 @@ open coverage/index.html
 
 **Status:** ✅ Produktionsbereit (nach Aktivierung der E2E-Tests)
 **Letzte Aktualisierung:** 2024-11-27
-

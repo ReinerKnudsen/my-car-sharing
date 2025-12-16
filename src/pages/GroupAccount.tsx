@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   IonContent,
   IonHeader,
@@ -18,11 +18,12 @@ import {
   IonButtons,
   IonButton,
   IonIcon,
+  IonModal,
   useIonAlert,
   useIonToast,
   useIonViewWillEnter,
 } from '@ionic/react';
-import { logoPaypal } from 'ionicons/icons';
+import { logoPaypal, closeOutline } from 'ionicons/icons';
 import { RefresherEventDetail } from '@ionic/core';
 import { useAuth } from '../contexts/AuthContext';
 import { receiptService } from '../services/receipt.service';
@@ -35,7 +36,11 @@ const GroupAccount: React.FC = () => {
   const [transactions, setTransactions] = useState<GroupAccountTransaction[]>([]);
   const [loading, setLoading] = useState(false);
   const [paypalEmail, setPaypalEmail] = useState<string | null>(null);
+  const [paypalClientId, setPaypalClientId] = useState<string | null>(null);
+  const [paypalSdkLoaded, setPaypalSdkLoaded] = useState(false);
+  const [showPaypalModal, setShowPaypalModal] = useState(false);
   const [paypalProcessing, setPaypalProcessing] = useState(false);
+  const paypalButtonRef = useRef<HTMLDivElement>(null);
   const { profile, isGroupAdmin, isAdmin } = useAuth();
   const [presentAlert] = useIonAlert();
   const [presentToast] = useIonToast();
@@ -49,19 +54,56 @@ const GroupAccount: React.FC = () => {
     loadData();
   }, [profile?.gruppe_id]);
 
+  // Load PayPal SDK when client ID is available
+  useEffect(() => {
+    if (paypalClientId && !paypalSdkLoaded) {
+      loadPayPalSdk(paypalClientId);
+    }
+  }, [paypalClientId, paypalSdkLoaded]);
+
+  const loadPayPalSdk = (clientId: string) => {
+    // Check if SDK already loaded
+    if ((window as any).paypal) {
+      setPaypalSdkLoaded(true);
+      return;
+    }
+
+    const script = document.createElement('script');
+    const paypalBaseUrl = import.meta.env.VITE_PAYPAL_BASE_URL || 'https://www.paypal.com';
+    const isSandbox = paypalBaseUrl.includes('sandbox');
+
+    script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=EUR${isSandbox ? '&enable-funding=venmo' : ''}`;
+    script.async = true;
+    script.onload = () => {
+      setPaypalSdkLoaded(true);
+    };
+    script.onerror = () => {
+      presentToast({
+        message: 'PayPal SDK konnte nicht geladen werden',
+        duration: 3000,
+        color: 'danger',
+      });
+    };
+    document.body.appendChild(script);
+  };
+
   const loadData = async () => {
     if (!profile?.gruppe_id) return;
 
     try {
       setLoading(true);
-      const [accountData, transactionData, paypalEmailData] = await Promise.all([
-        receiptService.getGroupAccount(profile.gruppe_id),
-        receiptService.getGroupAccountTransactions(profile.gruppe_id, undefined, undefined, 20),
-        settingsService.getPayPalEmail(),
-      ]);
+      const [accountData, transactionData, paypalEmailData, paypalClientIdData] = await Promise.all(
+        [
+          receiptService.getGroupAccount(profile.gruppe_id),
+          receiptService.getGroupAccountTransactions(profile.gruppe_id, undefined, undefined, 20),
+          settingsService.getPayPalEmail(),
+          settingsService.getPayPalClientId(),
+        ]
+      );
       setAccount(accountData);
       setTransactions(transactionData);
       setPaypalEmail(paypalEmailData);
+      setPaypalClientId(paypalClientIdData);
     } catch (error) {
       console.error('Error loading group account:', error);
     } finally {
@@ -69,50 +111,16 @@ const GroupAccount: React.FC = () => {
     }
   };
 
-  const handlePayPalPayment = async () => {
-    if (!account || !profile?.gruppe_id || !paypalEmail) return;
-
-    const amountToPay = Math.abs(account.balance);
-
-    // Hole aktuelle App-URL für return URLs
-    const appBaseUrl = window.location.origin;
-    const returnUrl = `${appBaseUrl}/payment-success?amount=${amountToPay.toFixed(2)}`;
-    const cancelUrl = `${appBaseUrl}/payment-cancel`;
-
-    // PayPal Base URL (Sandbox oder Production)
-    const paypalBaseUrl = import.meta.env.VITE_PAYPAL_BASE_URL || 'https://www.paypal.com';
-    const isSandbox = paypalBaseUrl.includes('sandbox');
-
-    // PayPal Payment Link mit return URLs
-    const paypalUrl =
-      `${paypalBaseUrl}/cgi-bin/webscr?` +
-      `cmd=_xclick` +
-      `&business=${encodeURIComponent(paypalEmail)}` +
-      `&amount=${amountToPay.toFixed(2)}` +
-      `&currency_code=EUR` +
-      `&item_name=${encodeURIComponent('CarSharing Gruppenkonto')}` +
-      `&return=${encodeURIComponent(returnUrl)}` +
-      `&cancel_return=${encodeURIComponent(cancelUrl)}`;
-
-    presentAlert({
-      header: `Per PayPal bezahlen${isSandbox ? ' (SANDBOX)' : ''}`,
-      message: isSandbox
-        ? `🧪 SANDBOX-MODUS\n\nDu wirst zur PayPal Sandbox weitergeleitet (Test-Umgebung).\n\nBetrag: ${amountToPay.toFixed(2)} €\n\nMelde dich mit einem Sandbox-Account an.`
-        : `Du wirst zu PayPal weitergeleitet, um ${amountToPay.toFixed(2)} € zu bezahlen.\n\n💡 Wähle "Freunde & Familie" für gebührenfreie Überweisung.\n\nNach erfolgreicher Zahlung wirst du automatisch zurückgeleitet.`,
-      buttons: [
-        {
-          text: isSandbox ? 'Zur Sandbox' : 'Zu PayPal',
-          handler: () => {
-            // Redirect zu PayPal (gleicher Tab für bessere Rückkehr zur App)
-            window.location.href = paypalUrl;
-          },
-        },
-        {
-          text: 'Abbrechen',
-          role: 'cancel',
-        },
-      ],
-    });
+  const handlePayPalPayment = () => {
+    if (!paypalSdkLoaded || !paypalClientId) {
+      presentToast({
+        message: 'PayPal ist noch nicht konfiguriert',
+        duration: 3000,
+        color: 'warning',
+      });
+      return;
+    }
+    setShowPaypalModal(true);
   };
 
   const createPaymentReceipt = async (amount: number) => {
@@ -158,6 +166,86 @@ const GroupAccount: React.FC = () => {
       setPaypalProcessing(false);
     }
   };
+
+  // Render PayPal button in the modal
+  const renderPayPalButton = () => {
+    if (!paypalSdkLoaded || !account || !paypalButtonRef.current) return;
+
+    const paypal = (window as any).paypal;
+    if (!paypal) return;
+
+    // Clear previous button
+    paypalButtonRef.current.innerHTML = '';
+
+    const amountToPay = Math.abs(account.balance);
+
+    paypal
+      .Buttons({
+        createOrder: (data: any, actions: any) => {
+          return actions.order.create({
+            purchase_units: [
+              {
+                description: 'CarSharing Gruppenkonto',
+                amount: {
+                  currency_code: 'EUR',
+                  value: amountToPay.toFixed(2),
+                },
+                payee: {
+                  email_address: paypalEmail,
+                },
+              },
+            ],
+          });
+        },
+        onApprove: async (data: any, actions: any) => {
+          setPaypalProcessing(true);
+          try {
+            const order = await actions.order.capture();
+
+            // Create receipt
+            await createPaymentReceipt(amountToPay);
+
+            // Close modal
+            setShowPaypalModal(false);
+          } catch (error) {
+            console.error('Error capturing payment:', error);
+            presentToast({
+              message: 'Fehler bei der Zahlungsabwicklung',
+              duration: 3000,
+              color: 'danger',
+            });
+            setPaypalProcessing(false);
+          }
+        },
+        onCancel: () => {
+          presentToast({
+            message: 'Zahlung abgebrochen',
+            duration: 2000,
+            color: 'medium',
+          });
+          setShowPaypalModal(false);
+        },
+        onError: (err: any) => {
+          console.error('PayPal error:', err);
+          presentToast({
+            message: 'PayPal Fehler: ' + (err.message || 'Unbekannter Fehler'),
+            duration: 3000,
+            color: 'danger',
+          });
+        },
+      })
+      .render(paypalButtonRef.current);
+  };
+
+  // Render button when modal opens and SDK is loaded
+  useEffect(() => {
+    if (showPaypalModal && paypalSdkLoaded) {
+      // Small delay to ensure modal is fully rendered
+      setTimeout(() => {
+        renderPayPalButton();
+      }, 100);
+    }
+  }, [showPaypalModal, paypalSdkLoaded]);
 
   const handleRefresh = async (event: CustomEvent<RefresherEventDetail>) => {
     await loadData();
@@ -333,8 +421,8 @@ const GroupAccount: React.FC = () => {
               </IonCard>
             )}
 
-            {/* PayPal Zahlung - nur bei negativem Saldo */}
-            {account && account.balance < 0 && paypalEmail && (
+            {/* PayPal Zahlung - nur bei negativem Saldo und wenn PayPal konfiguriert ist */}
+            {account && account.balance < 0 && paypalEmail && paypalClientId && (
               <IonCard style={{ background: 'var(--ion-color-warning-tint)' }}>
                 <IonCardContent>
                   <div style={{ textAlign: 'center' }}>
@@ -347,7 +435,7 @@ const GroupAccount: React.FC = () => {
                       expand="block"
                       color="dark"
                       onClick={handlePayPalPayment}
-                      disabled={paypalProcessing}
+                      disabled={paypalProcessing || !paypalSdkLoaded}
                       style={{
                         '--background': '#0070ba',
                         '--background-hover': '#005ea6',
@@ -356,6 +444,11 @@ const GroupAccount: React.FC = () => {
                     >
                       {paypalProcessing ? (
                         <IonSpinner name="crescent" />
+                      ) : !paypalSdkLoaded ? (
+                        <>
+                          <IonSpinner name="crescent" style={{ marginRight: '8px' }} />
+                          PayPal lädt...
+                        </>
                       ) : (
                         <>
                           <IonIcon slot="start" icon={logoPaypal} />
@@ -437,6 +530,53 @@ const GroupAccount: React.FC = () => {
             </IonCard>
           </>
         )}
+
+        {/* PayPal Checkout Modal */}
+        <IonModal isOpen={showPaypalModal} onDidDismiss={() => setShowPaypalModal(false)}>
+          <IonHeader>
+            <IonToolbar>
+              <IonTitle>PayPal Zahlung</IonTitle>
+              <IonButtons slot="end">
+                <IonButton onClick={() => setShowPaypalModal(false)}>
+                  <IonIcon icon={closeOutline} />
+                </IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent className="ion-padding">
+            <div style={{ marginBottom: '20px', textAlign: 'center' }}>
+              <IonText>
+                <h2>Zahlung: {account && Math.abs(account.balance).toFixed(2)} €</h2>
+                <p style={{ color: '#666', fontSize: '14px' }}>An: {paypalEmail}</p>
+              </IonText>
+            </div>
+
+            {/* PayPal Button Container */}
+            <div
+              ref={paypalButtonRef}
+              style={{
+                minHeight: '150px',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              {!paypalSdkLoaded && (
+                <div style={{ textAlign: 'center' }}>
+                  <IonSpinner name="crescent" />
+                  <p style={{ marginTop: '16px', color: '#666' }}>PayPal lädt...</p>
+                </div>
+              )}
+            </div>
+
+            {paypalProcessing && (
+              <div style={{ textAlign: 'center', marginTop: '20px' }}>
+                <IonSpinner name="crescent" />
+                <p style={{ marginTop: '16px', color: '#666' }}>Zahlung wird verarbeitet...</p>
+              </div>
+            )}
+          </IonContent>
+        </IonModal>
       </IonContent>
     </IonPage>
   );

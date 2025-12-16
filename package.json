@@ -1,7 +1,7 @@
 {
   "name": "carsharing-app",
   "private": true,
-  "version": "0.0.1",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -25,7 +25,9 @@
     "sync": "npx cap sync",
     "sync:ios": "npx cap sync ios",
     "sync:android": "npx cap sync android",
-    "test:db": "tsx scripts/test-db-connection.ts"
+    "test:db": "tsx scripts/test-db-connection.ts",
+    "changelog:test": "node scripts/test-changelog.js",
+    "changelog:update": "node scripts/update-changelog.js"
   },
   "dependencies": {
     "@capacitor/android": "^7.4.4",
@@ -49,6 +51,7 @@
   },
   "devDependencies": {
     "@capacitor/cli": "7.4.4",
+    "@octokit/rest": "^20.0.2",
     "@playwright/test": "^1.57.0",
     "@testing-library/dom": ">=7.21.4",
     "@testing-library/jest-dom": "^5.16.5",
