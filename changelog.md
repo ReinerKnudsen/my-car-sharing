@@ -20,18 +20,20 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 
 ### Fixed
 
--
+- Fehler beim Abschicken des Einladungscodes behoben (dynamischer import im Code)
 
 ## [2.1.4] - 2025-12-17
 
 ### Changed
 
 - github flow will sync back the resetted changelog from main to dev;
+
 ## [2.1.3] - 2025-12-17
 
 ### Changed
 
 - updated th github flow for better deployment
+
 ## [2.1.2] - 2025-12-16
 
 ### Changed

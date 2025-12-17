@@ -36,7 +36,7 @@ const Login: React.FC = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email || !password) {
       present({
         message: 'Bitte E-Mail und Passwort eingeben',
@@ -68,7 +68,6 @@ const Login: React.FC = () => {
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!resetEmail) {
       present({
         message: 'Bitte E-Mail-Adresse eingeben',
@@ -122,7 +121,7 @@ const Login: React.FC = () => {
                   value={email}
                   onIonInput={(e) => setEmail(e.detail.value!)}
                   required
-                  style={{ 
+                  style={{
                     marginBottom: '16px',
                     '--background': '#f4f5f8',
                     '--border-width': '1px',
@@ -142,7 +141,7 @@ const Login: React.FC = () => {
                   value={password}
                   onIonInput={(e) => setPassword(e.detail.value!)}
                   required
-                  style={{ 
+                  style={{
                     marginBottom: '16px',
                     '--background': '#f4f5f8',
                     '--border-width': '1px',
@@ -176,22 +175,18 @@ const Login: React.FC = () => {
                 Passwort vergessen?
               </IonButton>
 
-              <div style={{ 
-                marginTop: '24px', 
-                paddingTop: '20px', 
-                borderTop: '1px solid #d7d8da',
-                textAlign: 'center'
-              }}>
+              <div
+                style={{
+                  marginTop: '24px',
+                  paddingTop: '20px',
+                  borderTop: '1px solid #d7d8da',
+                  textAlign: 'center',
+                }}
+              >
                 <IonText color="medium">
-                  <p style={{ marginBottom: '12px' }}>
-                    Noch kein Account?
-                  </p>
+                  <p style={{ marginBottom: '12px' }}>Noch kein Account?</p>
                 </IonText>
-                <IonButton
-                  fill="outline"
-                  expand="block"
-                  routerLink="/register"
-                >
+                <IonButton fill="outline" expand="block" routerLink="/register">
                   Mit Einladungscode registrieren
                 </IonButton>
               </div>
@@ -215,10 +210,11 @@ const Login: React.FC = () => {
             <div style={{ maxWidth: '500px', margin: '0 auto', paddingTop: '20px' }}>
               <IonText color="medium">
                 <p style={{ marginBottom: '20px' }}>
-                  Gib deine E-Mail-Adresse ein und wir senden dir einen Link zum Zurücksetzen deines Passworts.
+                  Gib deine E-Mail-Adresse ein und wir senden dir einen Link zum Zurücksetzen deines
+                  Passworts.
                 </p>
               </IonText>
-              
+
               <form onSubmit={handleResetPassword}>
                 <IonInput
                   type="email"
@@ -228,7 +224,7 @@ const Login: React.FC = () => {
                   value={resetEmail}
                   onIonInput={(e) => setResetEmail(e.detail.value!)}
                   required
-                  style={{ 
+                  style={{
                     marginBottom: '16px',
                     '--background': '#f4f5f8',
                     '--border-width': '1px',
