@@ -16,7 +16,7 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 
 ### Changed
 
-- updated th github flow for better deployment
+- github flow will sync back the resetted changelog from main to dev;
 
 ### Fixed
 
@@ -27,12 +27,14 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 ### Changed
 
 - another change to the workflow
+
 ## [2.1.1] - 2025-12-16
 
 ### Changed
 
 - changed generate-version.js
 - changed the AppVersion component
+
 ## [2.1.0] - 2025-12-16
 
 ### Changed
@@ -40,6 +42,7 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 - added generate-version.js
 - added prebuild script to package.json
 - altered the AppVersion component
+
 ## [2.0.3] - 2025-12-16
 
 ### Fixed
