@@ -22,6 +22,11 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 
 -
 
+## [2.1.2] - 2025-12-16
+
+### Changed
+
+- another change to the workflow
 ## [2.1.1] - 2025-12-16
 
 ### Changed
