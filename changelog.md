@@ -20,8 +20,13 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 
 ### Fixed
 
-- Fehler beim Abschicken des Einladungscodes behoben (dynamischer import im Code)
+-
 
+## [2.1.5] - 2025-12-17
+
+### Fixed
+
+- Fehler beim Abschicken des Einladungscodes behoben (dynamischer import im Code)
 ## [2.1.4] - 2025-12-17
 
 ### Changed
