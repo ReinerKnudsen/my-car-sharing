@@ -20,8 +20,13 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 
 ### Fixed
 
-- Cache busting für App Version
+-
 
+## [2.1.6] - 2025-12-17
+
+### Fixed
+
+- Cache busting für App Version
 ## [2.1.5] - 2025-12-17
 
 ### Fixed
