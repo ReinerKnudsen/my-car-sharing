@@ -17,7 +17,7 @@ const AppVersion: React.FC = () => {
   });
 
   useEffect(() => {
-    fetch('/version.json')
+    fetch(`/version.json?t=${Date.now()}`)
       .then((res) => res.json())
       .then((data) => setVersionInfo(data))
       .catch(() =>
