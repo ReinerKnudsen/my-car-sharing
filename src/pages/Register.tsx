@@ -22,6 +22,7 @@ import { checkmarkCircleOutline } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 import { authService } from '../services/auth.service';
 import { invitationService } from '../services/invitation.service';
+import { supabase } from '../services/supabase';
 
 const Register: React.FC = () => {
   // Step 1: Code validation
@@ -63,9 +64,11 @@ const Register: React.FC = () => {
         setGruppeId(result.gruppe_id);
 
         // Get group name for display
-        const { data: gruppe } = await import('../services/supabase').then(m => 
-          m.supabase.from('groups').select('bezeichnung').eq('id', result.gruppe_id).single()
-        );
+        const { data: gruppe } = await supabase
+          .from('groups')
+          .select('bezeichnung')
+          .eq('id', result.gruppe_id)
+          .single();
         if (gruppe) {
           setGruppeName(gruppe.bezeichnung);
         }
@@ -190,8 +193,8 @@ const Register: React.FC = () => {
               <IonCardContent>
                 <IonText color="medium">
                   <p style={{ marginBottom: '20px' }}>
-                    Du benötigst einen Einladungscode, um dich zu registrieren. 
-                    Diesen erhältst du von deinem Gruppen-Administrator.
+                    Du benötigst einen Einladungscode, um dich zu registrieren. Diesen erhältst du
+                    von deinem Gruppen-Administrator.
                   </p>
                 </IonText>
 
@@ -235,16 +238,22 @@ const Register: React.FC = () => {
               </IonCardHeader>
               <IonCardContent>
                 {/* Success indicator */}
-                <div style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '8px',
-                  padding: '12px',
-                  backgroundColor: 'var(--ion-color-success-tint)',
-                  borderRadius: '8px',
-                  marginBottom: '20px'
-                }}>
-                  <IonIcon icon={checkmarkCircleOutline} color="success" style={{ fontSize: '24px' }} />
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '12px',
+                    backgroundColor: 'var(--ion-color-success-tint)',
+                    borderRadius: '8px',
+                    marginBottom: '20px',
+                  }}
+                >
+                  <IonIcon
+                    icon={checkmarkCircleOutline}
+                    color="success"
+                    style={{ fontSize: '24px' }}
+                  />
                   <div>
                     <strong>Code gültig!</strong>
                     <br />
