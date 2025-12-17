@@ -16,12 +16,17 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 
 ### Changed
 
-- github flow will sync back the resetted changelog from main to dev;
+-
 
 ### Fixed
 
 -
 
+## [2.1.4] - 2025-12-17
+
+### Changed
+
+- github flow will sync back the resetted changelog from main to dev;
 ## [2.1.3] - 2025-12-17
 
 ### Changed
