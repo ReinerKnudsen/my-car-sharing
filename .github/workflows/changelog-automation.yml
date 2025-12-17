@@ -67,3 +67,13 @@ jobs:
           echo "🚀 Triggering Netlify build with version ${{ steps.changelog.outputs.new_version }}"
           curl -X POST -d '{}' ${{ secrets.NETLIFY_BUILD_HOOK }}
           echo "✅ Netlify build triggered"
+
+      - name: Sync changelog back to dev
+        if: steps.changelog.outputs.version_updated == 'true'
+        run: |
+          echo "📝 Syncing updated changelog back to dev branch"
+          git fetch origin dev
+          git checkout dev
+          git merge main --no-edit
+          git push origin dev
+          echo "✅ Dev branch updated with new changelog"
