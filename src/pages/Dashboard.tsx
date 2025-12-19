@@ -11,22 +11,20 @@ import {
   IonCardContent,
   IonRefresher,
   IonRefresherContent,
-  IonSpinner,
   IonText,
   IonToggle,
   IonInput,
   IonButton,
   IonIcon,
-  useIonAlert,
+  IonSkeletonText,
   useIonToast,
   useIonViewWillEnter,
 } from '@ionic/react';
 import { car, checkmarkCircle } from 'ionicons/icons';
 import { RefresherEventDetail } from '@ionic/core';
 import { useAuth } from '../contexts/AuthContext';
-import { bookingsService, tripsService } from '../services/database';
-import { settingsService } from '../services/settings.service';
-import { Booking, Trip, GroupCosts, DriverCosts } from '../types';
+import { useData } from '../contexts/DataContext';
+import { tripsService } from '../services/database';
 import { formatDate } from '../utils/dateUtils';
 import BookingCard from '../components/BookingCard';
 
@@ -41,25 +39,35 @@ const ACTIVE_TRIP_KEY = 'carsharing_active_trip';
 
 const Dashboard: React.FC = () => {
   const { profile } = useAuth();
+  const {
+    bookings,
+    trips,
+    lastKilometer: contextLastKm,
+    groupCosts,
+    driverCosts,
+    kostenProKm,
+    loading,
+    refreshAll,
+    refreshTrips,
+    refreshDashboard,
+  } = useData();
   const appEnv = import.meta.env.VITE_APP_ENV || 'production';
   const isDev = appEnv === 'development';
-  const [upcomingBookings, setUpcomingBookings] = useState<Booking[]>([]);
-  const [recentTrips, setRecentTrips] = useState<Trip[]>([]);
-  const [totalKm, setTotalKm] = useState<number>(0);
-  const [myKm, setMyKm] = useState<number>(0);
-  const [loading, setLoading] = useState(false);
-  const [lastKilometer, setLastKilometer] = useState<number>(0);
   const [activeTrip, setActiveTrip] = useState<ActiveTrip | null>(null);
   const [endKilometerInput, setEndKilometerInput] = useState<string>('');
   const [startKilometerInput, setStartKilometerInput] = useState<string>('');
   const [showEndDialog, setShowEndDialog] = useState(false);
   const [showStartDialog, setShowStartDialog] = useState(false);
-  const [groupCosts, setGroupCosts] = useState<GroupCosts | null>(null);
-  const [driverCosts, setDriverCosts] = useState<DriverCosts[]>([]);
-  const [kostenProKm, setKostenProKm] = useState<number>(0.3);
+  const [lastKilometer, setLastKilometer] = useState<number>(contextLastKm);
 
-  const [presentAlert] = useIonAlert();
   const [presentToast] = useIonToast();
+
+  const upcomingBookings = bookings.slice(0, 4);
+  const recentTrips = trips.slice(0, 4);
+
+  useEffect(() => {
+    setLastKilometer(contextLastKm);
+  }, [contextLastKm]);
 
   // Lade aktive Fahrt aus localStorage beim Start
   useEffect(() => {
@@ -69,63 +77,10 @@ const Dashboard: React.FC = () => {
     }
   }, []);
 
-  // Lade Daten wenn profile verfügbar wird (wichtig für initialen Load)
-  useEffect(() => {
-    if (profile) {
-      loadDashboardData();
-    }
-  }, [profile]);
-
-  // Lade Daten jedes Mal wenn das Dashboard angezeigt wird (Tab-Wechsel)
+  // Refresh bei Tab-Wechsel
   useIonViewWillEnter(() => {
-    loadDashboardData();
+    refreshAll();
   });
-
-  const loadDashboardData = async () => {
-    if (!profile) return;
-
-    setLoading(true);
-    try {
-      // Load upcoming bookings (max 4)
-      const bookings = await bookingsService.getUpcoming();
-      setUpcomingBookings(bookings.slice(0, 4));
-
-      // Load recent trips (max 4)
-      const trips = await tripsService.getAll();
-      setRecentTrips(trips.slice(0, 4));
-
-      // Lade letzten Kilometerstand
-      const lastTrip = await tripsService.getLastTrip();
-      if (lastTrip) {
-        setLastKilometer(lastTrip.end_kilometer);
-      }
-
-      // Calculate total kilometers
-      const total = await tripsService.getTotalKilometers();
-      setTotalKm(total);
-
-      // Calculate user's kilometers
-      const userKm = await tripsService.getKilometersByFahrer(profile.id);
-      setMyKm(userKm);
-
-      // Load cost per km setting
-      const costRate = await settingsService.getKostenProKm();
-      setKostenProKm(costRate);
-
-      // Load group costs if user has a group
-      if (profile.gruppe_id) {
-        const costs = await settingsService.getGroupCosts(profile.gruppe_id);
-        setGroupCosts(costs);
-
-        const driverData = await settingsService.getGroupCostsByDriver(profile.gruppe_id);
-        setDriverCosts(driverData);
-      }
-    } catch (error) {
-      console.error('Error loading dashboard data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Fahrt starten - Dialog öffnen
   const handleStartTrip = () => {
@@ -189,7 +144,8 @@ const Dashboard: React.FC = () => {
       });
 
       // Dashboard neu laden
-      loadDashboardData();
+      await refreshTrips();
+      await refreshDashboard();
     } catch (error: any) {
       presentToast({
         message: error.message || 'Fehler beim Starten',
@@ -250,7 +206,8 @@ const Dashboard: React.FC = () => {
       });
 
       // Dashboard neu laden
-      loadDashboardData();
+      await refreshTrips();
+      await refreshDashboard();
     } catch (error: any) {
       presentToast({
         message: error.message || 'Fehler beim Speichern',
@@ -270,9 +227,164 @@ const Dashboard: React.FC = () => {
   };
 
   const handleRefresh = async (event: CustomEvent<RefresherEventDetail>) => {
-    await loadDashboardData();
+    await refreshAll();
     event.detail.complete();
   };
+
+  // Skeleton Loading Component
+  const DashboardSkeleton = () => (
+    <>
+      {/* Welcome Card Skeleton */}
+      <IonCard>
+        <IonCardHeader>
+          <IonSkeletonText animated style={{ width: '60%', height: '24px' }} />
+        </IonCardHeader>
+        <IonCardContent>
+          <IonSkeletonText animated style={{ width: '40%', height: '16px' }} />
+        </IonCardContent>
+      </IonCard>
+
+      {/* Fahrt Card Skeleton */}
+      <IonCard>
+        <IonCardContent style={{ padding: '20px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1 }}>
+              <IonSkeletonText
+                animated
+                style={{ width: '36px', height: '36px', borderRadius: '50%' }}
+              />
+              <div style={{ flex: 1 }}>
+                <IonSkeletonText
+                  animated
+                  style={{ width: '50%', height: '18px', marginBottom: '8px' }}
+                />
+                <IonSkeletonText animated style={{ width: '70%', height: '14px' }} />
+              </div>
+            </div>
+            <IonSkeletonText
+              animated
+              style={{ width: '60px', height: '36px', borderRadius: '18px' }}
+            />
+          </div>
+        </IonCardContent>
+      </IonCard>
+
+      {/* Upcoming Bookings Skeleton */}
+      <IonCard>
+        <IonCardHeader>
+          <IonSkeletonText animated style={{ width: '50%', height: '20px' }} />
+        </IonCardHeader>
+        <IonCardContent>
+          {[1, 2, 3].map((i) => (
+            <div
+              key={i}
+              style={{
+                marginBottom: '12px',
+                padding: '12px',
+                background: '#f5f5f5',
+                borderRadius: '8px',
+              }}
+            >
+              <IonSkeletonText
+                animated
+                style={{ width: '40%', height: '16px', marginBottom: '8px' }}
+              />
+              <IonSkeletonText
+                animated
+                style={{ width: '80%', height: '14px', marginBottom: '4px' }}
+              />
+              <IonSkeletonText animated style={{ width: '60%', height: '14px' }} />
+            </div>
+          ))}
+        </IonCardContent>
+      </IonCard>
+
+      {/* Recent Trips Skeleton */}
+      <IonCard>
+        <IonCardHeader>
+          <IonSkeletonText animated style={{ width: '40%', height: '20px' }} />
+        </IonCardHeader>
+        <IonCardContent>
+          {[1, 2, 3].map((i) => (
+            <div
+              key={i}
+              style={{
+                marginBottom: '10px',
+                padding: '10px',
+                background: '#f5f5f5',
+                borderRadius: '8px',
+              }}
+            >
+              <IonSkeletonText
+                animated
+                style={{ width: '30%', height: '16px', marginBottom: '6px' }}
+              />
+              <IonSkeletonText animated style={{ width: '70%', height: '14px' }} />
+            </div>
+          ))}
+        </IonCardContent>
+      </IonCard>
+
+      {/* Group Costs Skeleton */}
+      <IonCard>
+        <IonCardHeader>
+          <IonSkeletonText animated style={{ width: '60%', height: '20px' }} />
+        </IonCardHeader>
+        <IonCardContent>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, 1fr)',
+              gap: '12px',
+              marginBottom: '20px',
+            }}
+          >
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                style={{
+                  padding: '12px',
+                  background: '#f5f5f5',
+                  borderRadius: '8px',
+                  textAlign: 'center',
+                }}
+              >
+                <IonSkeletonText
+                  animated
+                  style={{ width: '60%', height: '16px', margin: '0 auto 8px' }}
+                />
+                <IonSkeletonText
+                  animated
+                  style={{ width: '40%', height: '12px', margin: '0 auto' }}
+                />
+              </div>
+            ))}
+          </div>
+          <IonSkeletonText
+            animated
+            style={{ width: '40%', height: '14px', marginBottom: '12px' }}
+          />
+          {[1, 2].map((i) => (
+            <div
+              key={i}
+              style={{
+                marginBottom: '8px',
+                padding: '10px',
+                background: '#f5f5f5',
+                borderRadius: '8px',
+              }}
+            >
+              <IonSkeletonText
+                animated
+                style={{ width: '50%', height: '16px', marginBottom: '6px' }}
+              />
+              <IonSkeletonText animated style={{ width: '70%', height: '12px' }} />
+            </div>
+          ))}
+        </IonCardContent>
+      </IonCard>
+    </>
+  );
 
   return (
     <IonPage>
@@ -287,9 +399,7 @@ const Dashboard: React.FC = () => {
         </IonRefresher>
 
         {loading ? (
-          <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
-            <IonSpinner />
-          </div>
+          <DashboardSkeleton />
         ) : (
           <>
             {/* Welcome Card */}

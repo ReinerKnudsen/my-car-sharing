@@ -19,6 +19,7 @@ import {
 } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useData } from '../contexts/DataContext';
 import { tripsService } from '../services/database';
 import { settingsService } from '../services/settings.service';
 import { Trip } from '../types';
@@ -36,8 +37,9 @@ const TripCreate: React.FC = () => {
   const [kommentar, setKommentar] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [lastTrip, setLastTrip] = useState<Trip | null>(null);
-  const [kostenProKm, setKostenProKm] = useState<number>(0.30);
+  const [kostenProKm, setKostenProKm] = useState<number>(0.3);
   const { profile } = useAuth();
+  const { refreshTrips, refreshDashboard } = useData();
   const history = useHistory();
   const [present] = useIonToast();
 
@@ -63,7 +65,7 @@ const TripCreate: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!datum || !startKilometer || !endKilometer) {
       present({
         message: 'Bitte alle Pflichtfelder ausfüllen',
@@ -71,7 +73,7 @@ const TripCreate: React.FC = () => {
         color: 'warning',
       });
       return;
-    }  
+    }
 
     if (!profile) {
       present({
@@ -117,7 +119,7 @@ const TripCreate: React.FC = () => {
     try {
       const tripDistance = endKm - startKm;
       const kosten = tripDistance * kostenProKm;
-      
+
       await tripsService.create({
         start_kilometer: startKm,
         end_kilometer: endKm,
@@ -126,14 +128,18 @@ const TripCreate: React.FC = () => {
         kommentar: kommentar || null,
         kosten,
       });
-      
+
       const distance = tripDistance;
       present({
-        message: `Fahrt erfolgreich erstellt! ${distance} km`,
+        message: 'Fahrt erfolgreich gespeichert!',
         duration: 2000,
         color: 'success',
       });
-      
+
+      // Aktualisiere Trips und Dashboard im Context
+      await refreshTrips();
+      await refreshDashboard();
+
       // Kurze Verzögerung um sicherzustellen, dass DB-Write committed ist
       setTimeout(() => {
         history.goBack();
@@ -179,7 +185,7 @@ const TripCreate: React.FC = () => {
                 max={getTodayString()}
                 onIonInput={(e) => setDatum(e.detail.value!)}
                 required
-                style={{ 
+                style={{
                   marginBottom: '16px',
                   '--background': '#f4f5f8',
                   '--border-width': '1px',
@@ -199,7 +205,7 @@ const TripCreate: React.FC = () => {
                 value={startKilometer}
                 onIonInput={(e) => setStartKilometer(e.detail.value!)}
                 required
-                style={{ 
+                style={{
                   marginBottom: '16px',
                   '--background': '#f4f5f8',
                   '--border-width': '1px',
@@ -219,7 +225,7 @@ const TripCreate: React.FC = () => {
                 value={endKilometer}
                 onIonInput={(e) => setEndKilometer(e.detail.value!)}
                 required
-                style={{ 
+                style={{
                   marginBottom: '16px',
                   '--background': '#f4f5f8',
                   '--border-width': '1px',
@@ -238,7 +244,7 @@ const TripCreate: React.FC = () => {
                 value={kommentar}
                 onIonInput={(e) => setKommentar(e.detail.value!)}
                 rows={3}
-                style={{ 
+                style={{
                   marginBottom: '16px',
                   '--background': '#f4f5f8',
                   '--border-width': '1px',
@@ -251,12 +257,14 @@ const TripCreate: React.FC = () => {
               />
 
               {distance > 0 && (
-                <div style={{ 
-                  padding: '12px', 
-                  background: '#e3f2fd', 
-                  borderRadius: '8px',
-                  marginBottom: '16px'
-                }}>
+                <div
+                  style={{
+                    padding: '12px',
+                    background: '#e3f2fd',
+                    borderRadius: '8px',
+                    marginBottom: '16px',
+                  }}
+                >
                   <p style={{ margin: 0, color: '#1976d2' }}>
                     Gefahrene Strecke: <strong>{distance.toLocaleString('de-DE')} km</strong>
                   </p>
@@ -283,4 +291,3 @@ const TripCreate: React.FC = () => {
 };
 
 export default TripCreate;
-
