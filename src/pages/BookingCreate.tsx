@@ -21,6 +21,7 @@ import {
 } from '@ionic/react';
 import { useHistory, useLocation, useParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useData } from '../contexts/DataContext';
 import { bookingsService } from '../services/database';
 
 const BookingCreate: React.FC = () => {
@@ -34,6 +35,7 @@ const BookingCreate: React.FC = () => {
   const [editMode, setEditMode] = useState(false);
   const [bookingId, setBookingId] = useState<string | null>(null);
   const { profile } = useAuth();
+  const { refreshBookings } = useData();
   const history = useHistory();
   const location = useLocation();
   const [present] = useIonToast();
@@ -43,7 +45,7 @@ const BookingCreate: React.FC = () => {
     const params = new URLSearchParams(location.search);
     const editId = params.get('edit');
     const dateFromUrl = params.get('startDate');
-    
+
     if (editId) {
       loadBookingForEdit(editId);
     } else if (dateFromUrl) {
@@ -109,7 +111,7 @@ const BookingCreate: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!startDatum || !startUhrzeit || !endeDatum || !endeUhrzeit || !profile?.gruppe_id) {
       present({
         message: 'Bitte alle Pflichtfelder ausfüllen',
@@ -130,7 +132,7 @@ const BookingCreate: React.FC = () => {
           ende_uhrzeit: endeUhrzeit,
           kommentar: kommentar || null,
         });
-        
+
         present({
           message: 'Buchung erfolgreich aktualisiert!',
           duration: 2000,
@@ -147,21 +149,25 @@ const BookingCreate: React.FC = () => {
           fahrer_id: profile.id,
           kommentar: kommentar || null,
         });
-        
+
         present({
           message: 'Buchung erfolgreich erstellt!',
           duration: 2000,
           color: 'success',
         });
       }
-      
+
+      // Aktualisiere Bookings im Context
+      await refreshBookings();
+
       // Kurze Verzögerung um sicherzustellen, dass DB-Write committed ist
       setTimeout(() => {
         history.goBack();
       }, 300);
     } catch (error: any) {
       present({
-        message: error.message || `Fehler beim ${editMode ? 'Aktualisieren' : 'Erstellen'} der Buchung`,
+        message:
+          error.message || `Fehler beim ${editMode ? 'Aktualisieren' : 'Erstellen'} der Buchung`,
         duration: 3000,
         color: 'danger',
       });
@@ -257,21 +263,23 @@ const BookingCreate: React.FC = () => {
                   style={inputStyle}
                 />
 
-              <IonButton
-                expand="block"
-                type="submit"
-                disabled={loading}
-                style={{ marginTop: '20px' }}
-              >
-                {loading ? (
-                  <IonSpinner name="crescent" />
-                ) : (
-                  editMode ? 'Buchung aktualisieren' : 'Buchung erstellen'
-                )}
-              </IonButton>
-            </form>
-          </IonCardContent>
-        </IonCard>
+                <IonButton
+                  expand="block"
+                  type="submit"
+                  disabled={loading}
+                  style={{ marginTop: '20px' }}
+                >
+                  {loading ? (
+                    <IonSpinner name="crescent" />
+                  ) : editMode ? (
+                    'Buchung aktualisieren'
+                  ) : (
+                    'Buchung erstellen'
+                  )}
+                </IonButton>
+              </form>
+            </IonCardContent>
+          </IonCard>
         )}
       </IonContent>
     </IonPage>
@@ -279,4 +287,3 @@ const BookingCreate: React.FC = () => {
 };
 
 export default BookingCreate;
-

@@ -9,7 +9,6 @@ import {
   IonIcon,
   IonRefresher,
   IonRefresherContent,
-  IonSpinner,
   IonText,
   IonFab,
   IonFabButton,
@@ -24,52 +23,38 @@ import { add } from 'ionicons/icons';
 import { RefresherEventDetail } from '@ionic/core';
 import { useHistory } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { tripsService } from '../services/database';
+import { useData } from '../contexts/DataContext';
 import { Trip } from '../types';
 import TripCard from '../components/TripCard';
 
 const Trips: React.FC = () => {
-  const [trips, setTrips] = useState<Trip[]>([]);
+  const { trips, loading, refreshTrips } = useData();
   const [filteredTrips, setFilteredTrips] = useState<Trip[]>([]);
-  const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState<'all' | 'mine'>('mine');
   const { profile } = useAuth();
   const history = useHistory();
 
   // Lädt Fahrten jedes Mal, wenn die Seite angezeigt wird
   useIonViewWillEnter(() => {
-    loadTrips();
+    refreshTrips();
   });
 
   useEffect(() => {
     filterTrips();
   }, [trips, filter, profile]);
 
-  const loadTrips = async () => {
-    try {
-      setLoading(true);
-      const data = await tripsService.getAll();
-      setTrips(data);
-      // sort trips by end_kilometer descending
-    } catch (error) {
-      console.error('Error loading trips:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const filterTrips = () => {
     let filtered = [...trips];
-    
+
     if (filter === 'mine' && profile) {
       filtered = trips.filter((t) => t.fahrer_id === profile.id);
     }
-    
+
     setFilteredTrips(filtered);
   };
 
   const handleRefresh = async (event: CustomEvent<RefresherEventDetail>) => {
-    await loadTrips();
+    await refreshTrips();
     event.detail.complete();
   };
 
@@ -95,13 +80,12 @@ const Trips: React.FC = () => {
         </IonToolbar>
         <IonToolbar>
           <IonSegment value={filter} onIonChange={(e) => setFilter(e.detail.value as any)}>
-          <IonSegmentButton value="mine">
+            <IonSegmentButton value="mine">
               <IonLabel>Meine Fahrten</IonLabel>
             </IonSegmentButton>
             <IonSegmentButton value="all">
               <IonLabel>Alle</IonLabel>
             </IonSegmentButton>
-            
           </IonSegment>
         </IonToolbar>
       </IonHeader>
@@ -112,7 +96,7 @@ const Trips: React.FC = () => {
 
         {loading ? (
           <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
-            <IonSpinner />
+            <p>Lädt Fahrten...</p>
           </div>
         ) : filteredTrips.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '40px' }}>
@@ -125,14 +109,13 @@ const Trips: React.FC = () => {
             </IonButton>
           </div>
         ) : (
-          filteredTrips.map((trip, index) => (
-            <TripCard
-              key={trip.id}
-              trip={trip}
-              isFirst={index === 0}
-              onDelete={loadTrips}
-            />
-          ))
+          filteredTrips.map((trip) => {
+            // Nur der Trip mit dem höchsten end_kilometer darf gelöscht werden
+            const isLastTrip = trips.length > 0 && trip.id === trips[0]?.id;
+            return (
+              <TripCard key={trip.id} trip={trip} isFirst={isLastTrip} onDelete={refreshTrips} />
+            );
+          })
         )}
 
         {/* Android: FAB Button unten rechts */}
@@ -149,4 +132,3 @@ const Trips: React.FC = () => {
 };
 
 export default Trips;
-
