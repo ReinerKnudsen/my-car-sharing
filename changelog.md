@@ -12,8 +12,6 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 
 ### Added
 
-- add Skeletons beim Laden der Daten beim Start der App
-- add DataContext für das lokale Halten von Daten in der Session
 -
 
 ### Changed
@@ -22,8 +20,18 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 
 ### Fixed
 
-- nur noch die absolut letzte Fahrt kann gelöscht werden.
+-
 
+## [2.2.0] - 2025-12-19
+
+### Added
+
+- add Skeletons beim Laden der Daten beim Start der App
+- add DataContext für das lokale Halten von Daten in der Session
+
+### Fixed
+
+- nur noch die absolut letzte Fahrt kann gelöscht werden.
 ## [2.1.7] - 2025-12-19
 
 ### Changed
