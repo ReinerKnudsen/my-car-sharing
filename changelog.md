@@ -16,12 +16,17 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 
 ### Changed
 
-- updated the Readme.md with the latest changes
+-
 
 ### Fixed
 
 -
 
+## [2.1.7] - 2025-12-19
+
+### Changed
+
+- updated the Readme.md with the latest changes
 ## [2.1.6] - 2025-12-17
 
 ### Fixed
