@@ -9,7 +9,6 @@ import {
   IonIcon,
   IonRefresher,
   IonRefresherContent,
-  IonSpinner,
   IonText,
   IonFab,
   IonFabButton,
@@ -20,14 +19,12 @@ import {
 import { add } from 'ionicons/icons';
 import { RefresherEventDetail } from '@ionic/core';
 import { useHistory } from 'react-router-dom';
-import { bookingsService } from '../services/database';
-import { Booking } from '../types';
+import { useData } from '../contexts/DataContext';
 import BookingCard from '../components/BookingCard';
 import BookingCalendar from '../components/BookingCalendar';
 
 const Bookings: React.FC = () => {
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [loading, setLoading] = useState(false);
+  const { bookings, loading, refreshBookings } = useData();
   // Initialisiere mit heutigem Datum im Format YYYY-MM-DD
   const getTodayString = () => {
     const today = new Date();
@@ -38,34 +35,21 @@ const Bookings: React.FC = () => {
 
   // Lädt Buchungen jedes Mal, wenn die Seite angezeigt wird
   useIonViewWillEnter(() => {
-    loadBookings();
+    refreshBookings();
   });
-
-  const loadBookings = async () => {
-    try {
-      setLoading(true);
-      // Holt nur aktive/zukünftige Buchungen (ende_datum >= heute)
-      const data = await bookingsService.getAll();
-      setBookings(data);
-    } catch (error) {
-      console.error('Error loading bookings:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Filtere Buchungen für den ausgewählten Tag
   const bookingsForSelectedDate = useMemo(() => {
     if (!selectedDate) return [];
-    
+
     // String-Vergleich um Zeitzonen-Probleme zu vermeiden
-    return bookings.filter(booking => {
+    return bookings.filter((booking) => {
       return selectedDate >= booking.start_datum && selectedDate <= booking.ende_datum;
     });
   }, [bookings, selectedDate]);
 
   const handleRefresh = async (event: CustomEvent<RefresherEventDetail>) => {
-    await loadBookings();
+    await refreshBookings();
     event.detail.complete();
   };
 
@@ -82,7 +66,7 @@ const Bookings: React.FC = () => {
 
   const handleDateSelect = (date: string) => {
     // Toggle: Klick auf gleichen Tag hebt Auswahl auf
-    setSelectedDate(prev => prev === date ? null : date);
+    setSelectedDate((prev) => (prev === date ? null : date));
   };
 
   const formatSelectedDate = (dateStr: string) => {
@@ -90,7 +74,7 @@ const Bookings: React.FC = () => {
       weekday: 'long',
       day: 'numeric',
       month: 'long',
-      year: 'numeric'
+      year: 'numeric',
     });
   };
 
@@ -116,12 +100,12 @@ const Bookings: React.FC = () => {
 
         {loading ? (
           <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
-            <IonSpinner />
+            <p>Lädt Buchungen...</p>
           </div>
         ) : (
           <>
             {/* Kalender */}
-            <BookingCalendar 
+            <BookingCalendar
               bookings={bookings}
               onDateSelect={handleDateSelect}
               selectedDate={selectedDate}
@@ -133,18 +117,14 @@ const Bookings: React.FC = () => {
                 <h4 style={{ marginBottom: '12px', textAlign: 'center', fontWeight: 'bold' }}>
                   {formatSelectedDate(selectedDate)}
                 </h4>
-                
+
                 {bookingsForSelectedDate.length === 0 ? (
                   <IonText color="medium">
                     <p>Keine Buchungen an diesem Tag</p>
                   </IonText>
                 ) : (
                   bookingsForSelectedDate.map((booking) => (
-                    <BookingCard
-                      key={booking.id}
-                      booking={booking}
-                      onDelete={loadBookings}
-                    />
+                    <BookingCard key={booking.id} booking={booking} onDelete={refreshBookings} />
                   ))
                 )}
               </div>
@@ -186,4 +166,3 @@ const Bookings: React.FC = () => {
 };
 
 export default Bookings;
-
