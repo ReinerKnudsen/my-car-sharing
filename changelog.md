@@ -16,7 +16,7 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 
 ### Changed
 
--
+- Dashboard in Komponenten zerlegt und damit vereinfacht
 
 ### Fixed
 
@@ -29,6 +29,7 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 - add Differenzfahrten werden richtig angelegt
 - add Differenzfahrten werden richtig angezeigt
 - add Differenzfahrten können übernommen werden
+
 ## [2.2.0] - 2025-12-19
 
 ### Added
