@@ -23,7 +23,7 @@ export interface Trip {
   start_kilometer: number;
   end_kilometer: number;
   datum: string;
-  fahrer_id: string;
+  fahrer_id: string | null;
   kommentar: string | null;
   kosten: number | null;
   created_at: string;
