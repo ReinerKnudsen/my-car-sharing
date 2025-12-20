@@ -129,7 +129,6 @@ const TripCreate: React.FC = () => {
         kosten,
       });
 
-      const distance = tripDistance;
       present({
         message: 'Fahrt erfolgreich gespeichert!',
         duration: 2000,

@@ -115,8 +115,8 @@ const Dashboard: React.FC = () => {
           start_kilometer: lastKilometer,
           end_kilometer: inputKm,
           datum,
-          fahrer_id: profile.id,
-          kommentar: '⚠️ Nachgetragen - Fahrer unbekannt',
+          fahrer_id: null,
+          kommentar: '⚠️ Nachgetragen',
           kosten,
         });
 
@@ -644,28 +644,39 @@ const Dashboard: React.FC = () => {
                     <p>Noch keine Fahrten</p>
                   </IonText>
                 ) : (
-                  recentTrips.map((trip) => (
-                    <div
-                      key={trip.id}
-                      style={{
-                        marginBottom: '10px',
-                        padding: '10px',
-                        background: '#f5f5f5',
-                        borderRadius: '8px',
-                      }}
-                    >
-                      <strong>{formatDate(trip.datum, false)}</strong>
-                      <p style={{ margin: '5px 0 0 0', color: '#666' }}>
-                        {trip.fahrer?.vorname} {trip.fahrer?.name} -{' '}
-                        {trip.end_kilometer - trip.start_kilometer} km
-                        {trip.kosten !== null && trip.kosten !== undefined && (
-                          <span style={{ color: 'var(--ion-color-success)', marginLeft: '8px' }}>
-                            ({trip.kosten.toFixed(2)} €)
-                          </span>
-                        )}
-                      </p>
-                    </div>
-                  ))
+                  recentTrips.map((trip) => {
+                    const isUnclaimed = !trip.fahrer_id;
+                    return (
+                      <div
+                        key={trip.id}
+                        style={{
+                          marginBottom: '10px',
+                          padding: '10px',
+                          background: isUnclaimed ? '#fff3e0' : '#f5f5f5',
+                          borderRadius: '8px',
+                          borderLeft: isUnclaimed ? '4px solid #ff9800' : 'none',
+                        }}
+                      >
+                        <strong>{formatDate(trip.datum, false)}</strong>
+                        <p style={{ margin: '5px 0 0 0', color: '#666' }}>
+                          {isUnclaimed ? (
+                            <span style={{ color: '#ff9800', fontWeight: 'bold' }}>⚠️</span>
+                          ) : (
+                            <>
+                              {trip.fahrer?.vorname} {trip.fahrer?.name}
+                            </>
+                          )}
+                          {' - '}
+                          {trip.end_kilometer - trip.start_kilometer} km
+                          {trip.kosten !== null && trip.kosten !== undefined && (
+                            <span style={{ color: 'var(--ion-color-success)', marginLeft: '8px' }}>
+                              ({trip.kosten.toFixed(2)} €)
+                            </span>
+                          )}
+                        </p>
+                      </div>
+                    );
+                  })
                 )}
               </IonCardContent>
             </IonCard>
