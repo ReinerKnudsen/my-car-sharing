@@ -12,7 +12,9 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 
 ### Added
 
--
+- add Differenzfahrten werden richtig angelegt
+- add Differenzfahrten werden richtig angezeigt
+- add Differenzfahrten können übernommen werden
 
 ### Changed
 
@@ -32,6 +34,7 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 ### Fixed
 
 - nur noch die absolut letzte Fahrt kann gelöscht werden.
+
 ## [2.1.7] - 2025-12-19
 
 ### Changed
