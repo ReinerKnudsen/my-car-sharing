@@ -12,9 +12,7 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 
 ### Added
 
-- add Differenzfahrten werden richtig angelegt
-- add Differenzfahrten werden richtig angezeigt
-- add Differenzfahrten können übernommen werden
+-
 
 ### Changed
 
@@ -24,6 +22,13 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 
 -
 
+## [2.3.0] - 2025-12-20
+
+### Added
+
+- add Differenzfahrten werden richtig angelegt
+- add Differenzfahrten werden richtig angezeigt
+- add Differenzfahrten können übernommen werden
 ## [2.2.0] - 2025-12-19
 
 ### Added
