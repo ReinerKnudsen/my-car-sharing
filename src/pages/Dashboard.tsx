@@ -14,6 +14,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useData } from '../contexts/DataContext';
 import {
   DashboardSkeleton,
+  WelcomeCard,
   TripControl,
   UpcomingBookings,
   RecentTrips,
@@ -112,6 +113,8 @@ const Dashboard: React.FC = () => {
           <DashboardSkeleton />
         ) : (
           <>
+            <WelcomeCard profile={profile} />
+
             <TripControl
               activeTrip={activeTrip}
               lastKilometer={lastKilometer}
