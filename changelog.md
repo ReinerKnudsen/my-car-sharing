@@ -12,7 +12,7 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 
 ### Added
 
--
+- add Willkommensabschnitt auf dem Dashboard wieder ergänzt
 
 ### Changed
 
@@ -27,6 +27,7 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 ### Changed
 
 - Dashboard in Komponenten zerlegt und damit vereinfacht
+
 ## [2.3.0] - 2025-12-20
 
 ### Added
