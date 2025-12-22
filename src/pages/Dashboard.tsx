@@ -120,6 +120,7 @@ const Dashboard: React.FC = () => {
               lastKilometer={lastKilometer}
               kostenProKm={kostenProKm}
               profileId={profile.id}
+              gruppeId={profile.gruppe_id || ''}
               onTripStart={handleTripStart}
               onTripEnd={handleTripEnd}
               onRefresh={handleTripRefresh}

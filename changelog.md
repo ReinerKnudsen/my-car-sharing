@@ -12,7 +12,7 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 
 ### Added
 
--
+- add dokumentation erstellt
 
 ### Changed
 
@@ -27,6 +27,7 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 ### Added
 
 - add Willkommensabschnitt auf dem Dashboard wieder ergänzt
+
 ## [2.3.1] - 2025-12-20
 
 ### Changed

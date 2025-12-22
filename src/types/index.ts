@@ -46,6 +46,17 @@ export interface GroupCosts {
   total_costs: number;
 }
 
+export interface ActiveTrip {
+  id: string;
+  fahrer_id: string;
+  gruppe_id: string;
+  start_kilometer: number;
+  started_at: string;
+  created_at: string;
+  // Joined data
+  fahrer?: Profile;
+}
+
 export interface DriverCosts {
   fahrer_id: string;
   fahrer_name: string;
@@ -190,6 +201,7 @@ export type InsertReceipt = Omit<
   'id' | 'created_at' | 'gruppe' | 'fahrer' | 'receipt_type'
 >;
 export type InsertReceiptType = Omit<ReceiptType, 'id' | 'created_at'>;
+export type InsertActiveTrip = Omit<ActiveTrip, 'id' | 'created_at' | 'fahrer'>;
 
 // Update Types
 export type UpdateTrip = Partial<InsertTrip>;
