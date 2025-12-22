@@ -1,49 +1,40 @@
 import { supabase } from './supabase';
-import { 
-  Group, 
-  Profile, 
-  Trip, 
+import {
+  Group,
+  Profile,
+  Trip,
   Booking,
+  ActiveTrip,
   InsertGroup,
   InsertProfile,
   InsertTrip,
   InsertBooking,
+  InsertActiveTrip,
   UpdateGroup,
   UpdateProfile,
   UpdateTrip,
-  UpdateBooking
+  UpdateBooking,
 } from '../types';
 
 // Groups Service
 export const groupsService = {
   async getAll(): Promise<Group[]> {
-    const { data, error } = await supabase
-      .from('groups')
-      .select('*')
-      .order('bezeichnung');
-    
+    const { data, error } = await supabase.from('groups').select('*').order('bezeichnung');
+
     if (error) throw error;
     return data || [];
   },
 
   async getById(id: string): Promise<Group | null> {
-    const { data, error } = await supabase
-      .from('groups')
-      .select('*')
-      .eq('id', id)
-      .single();
-    
+    const { data, error } = await supabase.from('groups').select('*').eq('id', id).single();
+
     if (error) throw error;
     return data;
   },
 
   async create(group: InsertGroup): Promise<Group> {
-    const { data, error } = await supabase
-      .from('groups')
-      .insert(group)
-      .select()
-      .single();
-    
+    const { data, error } = await supabase.from('groups').insert(group).select().single();
+
     if (error) throw error;
     return data;
   },
@@ -55,17 +46,14 @@ export const groupsService = {
       .eq('id', id)
       .select()
       .single();
-    
+
     if (error) throw error;
     return data;
   },
 
   async delete(id: string): Promise<void> {
-    const { error } = await supabase
-      .from('groups')
-      .delete()
-      .eq('id', id);
-    
+    const { error } = await supabase.from('groups').delete().eq('id', id);
+
     if (error) throw error;
   },
 };
@@ -77,7 +65,7 @@ export const profilesService = {
       .from('profiles')
       .select('*, gruppe:groups(*)')
       .order('name');
-    
+
     if (error) throw error;
     return data || [];
   },
@@ -88,7 +76,7 @@ export const profilesService = {
       .select('*, gruppe:groups(*)')
       .eq('id', id)
       .single();
-    
+
     if (error) throw error;
     return data;
   },
@@ -99,7 +87,7 @@ export const profilesService = {
       .select('*, gruppe:groups(*)')
       .eq('gruppe_id', gruppeId)
       .order('name');
-    
+
     if (error) throw error;
     return data || [];
   },
@@ -110,7 +98,7 @@ export const profilesService = {
       .insert(profile)
       .select('*, gruppe:groups(*)')
       .single();
-    
+
     if (error) throw error;
     return data;
   },
@@ -122,17 +110,14 @@ export const profilesService = {
       .eq('id', id)
       .select('*, gruppe:groups(*)')
       .single();
-    
+
     if (error) throw error;
     return data;
   },
 
   async delete(id: string): Promise<void> {
-    const { error } = await supabase
-      .from('profiles')
-      .delete()
-      .eq('id', id);
-    
+    const { error } = await supabase.from('profiles').delete().eq('id', id);
+
     if (error) throw error;
   },
 };
@@ -145,7 +130,7 @@ export const tripsService = {
       .select('*, fahrer:profiles(*, gruppe:groups(*))')
       .order('end_kilometer', { ascending: false }) // Höchster Kilometerstand zuerst
       .limit(50); // Nur die letzten 50 Fahrten laden
-    
+
     if (error) throw error;
     return data || [];
   },
@@ -156,7 +141,7 @@ export const tripsService = {
       .select('*, fahrer:profiles(*, gruppe:groups(*))')
       .eq('id', id)
       .single();
-    
+
     if (error) throw error;
     return data;
   },
@@ -167,7 +152,7 @@ export const tripsService = {
       .select('*, fahrer:profiles(*, gruppe:groups(*))')
       .eq('fahrer_id', fahrerId)
       .order('datum', { ascending: false });
-    
+
     if (error) throw error;
     return data || [];
   },
@@ -178,7 +163,7 @@ export const tripsService = {
       .insert(trip)
       .select('*, fahrer:profiles(*, gruppe:groups(*))')
       .single();
-    
+
     if (error) throw error;
     return data;
   },
@@ -190,29 +175,24 @@ export const tripsService = {
       .eq('id', id)
       .select('*, fahrer:profiles(*, gruppe:groups(*))')
       .single();
-    
+
     if (error) throw error;
     return data;
   },
 
   async delete(id: string): Promise<void> {
-    const { error } = await supabase
-      .from('trips')
-      .delete()
-      .eq('id', id);
-    
+    const { error } = await supabase.from('trips').delete().eq('id', id);
+
     if (error) throw error;
   },
 
   async getTotalKilometers(): Promise<number> {
-    const { data, error } = await supabase
-      .from('trips')
-      .select('start_kilometer, end_kilometer');
-    
+    const { data, error } = await supabase.from('trips').select('start_kilometer, end_kilometer');
+
     if (error) throw error;
-    
+
     if (!data || data.length === 0) return 0;
-    
+
     return data.reduce((total, trip) => {
       return total + (trip.end_kilometer - trip.start_kilometer);
     }, 0);
@@ -223,11 +203,11 @@ export const tripsService = {
       .from('trips')
       .select('start_kilometer, end_kilometer')
       .eq('fahrer_id', fahrerId);
-    
+
     if (error) throw error;
-    
+
     if (!data || data.length === 0) return 0;
-    
+
     return data.reduce((total, trip) => {
       return total + (trip.end_kilometer - trip.start_kilometer);
     }, 0);
@@ -241,13 +221,13 @@ export const tripsService = {
       .order('end_kilometer', { ascending: false })
       .limit(1)
       .single();
-    
+
     if (error) {
       // Kein Eintrag gefunden ist kein Fehler
       if (error.code === 'PGRST116') return null;
       throw error;
     }
-    
+
     return data;
   },
 };
@@ -263,7 +243,7 @@ export const bookingsService = {
       .gte('ende_datum', today)
       .order('start_datum')
       .order('start_uhrzeit');
-    
+
     if (error) throw error;
     return data || [];
   },
@@ -274,7 +254,7 @@ export const bookingsService = {
       .select('*, gruppe:groups(*), fahrer:profiles(*, gruppe:groups(*))')
       .eq('id', id)
       .single();
-    
+
     if (error) throw error;
     return data;
   },
@@ -288,7 +268,7 @@ export const bookingsService = {
       .gte('ende_datum', today)
       .order('start_datum')
       .order('start_uhrzeit');
-    
+
     if (error) throw error;
     return data || [];
   },
@@ -302,7 +282,7 @@ export const bookingsService = {
       .gte('ende_datum', today)
       .order('start_datum')
       .order('start_uhrzeit');
-    
+
     if (error) throw error;
     return data || [];
   },
@@ -318,7 +298,7 @@ export const bookingsService = {
       .insert(booking)
       .select('*, gruppe:groups(*), fahrer:profiles(*, gruppe:groups(*))')
       .single();
-    
+
     if (error) throw error;
     return data;
   },
@@ -330,18 +310,63 @@ export const bookingsService = {
       .eq('id', id)
       .select('*, gruppe:groups(*), fahrer:profiles(*, gruppe:groups(*))')
       .single();
-    
+
     if (error) throw error;
     return data;
   },
 
   async delete(id: string): Promise<void> {
-    const { error } = await supabase
-      .from('bookings')
-      .delete()
-      .eq('id', id);
-    
+    const { error } = await supabase.from('bookings').delete().eq('id', id);
+
     if (error) throw error;
   },
 };
 
+// Active Trips Service
+export const activeTripsService = {
+  async getByGroup(gruppeId: string): Promise<ActiveTrip | null> {
+    const { data, error } = await supabase
+      .from('active_trips')
+      .select('*, fahrer:profiles(*, gruppe:groups(*))')
+      .eq('gruppe_id', gruppeId)
+      .maybeSingle();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async getAny(): Promise<ActiveTrip | null> {
+    const { data, error } = await supabase
+      .from('active_trips')
+      .select('*, fahrer:profiles(*, gruppe:groups(*))')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async create(activeTrip: InsertActiveTrip): Promise<ActiveTrip> {
+    const { data, error } = await supabase
+      .from('active_trips')
+      .insert(activeTrip)
+      .select('*, fahrer:profiles(*, gruppe:groups(*))')
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async delete(id: string): Promise<void> {
+    const { error } = await supabase.from('active_trips').delete().eq('id', id);
+
+    if (error) throw error;
+  },
+
+  async deleteByGroup(gruppeId: string): Promise<void> {
+    const { error } = await supabase.from('active_trips').delete().eq('gruppe_id', gruppeId);
+
+    if (error) throw error;
+  },
+};

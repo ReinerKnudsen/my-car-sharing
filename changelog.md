@@ -12,7 +12,8 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 
 ### Added
 
--
+- add Es wird geprüft ob eine andere Fahrt läuft
+- add Eine laufende Fahrt wird automatisch beendet, wenn ein anderer Fahrer eine Fahrt startet
 
 ### Changed
 
@@ -27,6 +28,7 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 ### Added
 
 - add Willkommensabschnitt auf dem Dashboard wieder ergänzt
+
 ## [2.3.1] - 2025-12-20
 
 ### Changed
