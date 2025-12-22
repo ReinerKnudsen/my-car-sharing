@@ -99,26 +99,28 @@ const TripControl: React.FC<TripControlProps> = ({
       // WICHTIG: Lade aktuelle aktive Fahrt aus DB (könnte sich geändert haben)
       const currentActiveTrip = await activeTripsService.getAny();
 
-      // Wenn eine andere Fahrt läuft, beende sie automatisch
+      // Wenn eine andere Fahrt läuft, erstelle Differenzfahrt (nachgetragen)
       if (currentActiveTrip && currentActiveTrip.fahrer_id !== profileId) {
         const distance = inputKm - currentActiveTrip.start_kilometer;
         const kosten = distance * kostenProKm;
 
+        // Erstelle nachgetragene Fahrt (fahrer_id = NULL)
         await tripsService.create({
           start_kilometer: currentActiveTrip.start_kilometer,
           end_kilometer: inputKm,
           datum,
-          fahrer_id: currentActiveTrip.fahrer_id,
-          kommentar: `✓ Automatisch beendet`,
+          fahrer_id: null,
+          kommentar: `⚠️ Gestartet und nicht beendet von ${currentActiveTrip.fahrer?.vorname}`,
           kosten,
         });
 
+        // Lösche aktive Aufzeichnung von Fahrer 1
         await activeTripsService.delete(currentActiveTrip.id);
 
         presentToast({
-          message: `Fahrt von ${currentActiveTrip.fahrer?.vorname} automatisch beendet`,
+          message: `Differenzfahrt erstellt - ${currentActiveTrip.fahrer?.vorname} kann diese beanspruchen`,
           duration: 3000,
-          color: 'success',
+          color: 'warning',
         });
       }
       // Wenn eigene Fahrt läuft, beende sie auch

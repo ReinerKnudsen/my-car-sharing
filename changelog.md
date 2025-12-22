@@ -12,8 +12,7 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 
 ### Added
 
-- add Es wird geprüft ob eine andere Fahrt läuft
-- add Eine laufende Fahrt wird automatisch beendet, wenn ein anderer Fahrer eine Fahrt startet
+-
 
 ### Changed
 
@@ -21,7 +20,7 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 
 ### Fixed
 
--
+- gestartete Aufzeichnung kann durch anderen Fahrer nicht beendet werden
 
 ## [2.4.0] - 2025-12-21
 
