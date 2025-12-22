@@ -20,7 +20,7 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 
 ### Fixed
 
--
+- 
 
 ## [2.4.0] - 2025-12-21
 

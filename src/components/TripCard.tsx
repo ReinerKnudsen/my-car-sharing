@@ -94,7 +94,7 @@ const TripCard: React.FC<TripCardProps> = ({ trip, isFirst = false, onDelete }) 
 
               await tripsService.update(trip.id, {
                 fahrer_id: profile.id,
-                kommentar: trip.kommentar?.replace('⚠️ Nachgetragen', '') || '',
+                kommentar: '',
               });
 
               present({
