@@ -47,7 +47,7 @@ const Trips: React.FC = () => {
     let filtered = [...trips];
 
     if (filter === 'mine' && profile) {
-      filtered = trips.filter((t) => t.fahrer_id === profile.id);
+      filtered = trips.filter((t) => t.fahrer?.gruppe_id === profile.gruppe_id);
     }
 
     setFilteredTrips(filtered);
@@ -81,7 +81,7 @@ const Trips: React.FC = () => {
         <IonToolbar>
           <IonSegment value={filter} onIonChange={(e) => setFilter(e.detail.value as any)}>
             <IonSegmentButton value="mine">
-              <IonLabel>Meine Fahrten</IonLabel>
+              <IonLabel>Unsere Fahrten</IonLabel>
             </IonSegmentButton>
             <IonSegmentButton value="all">
               <IonLabel>Alle</IonLabel>

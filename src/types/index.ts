@@ -188,6 +188,7 @@ export interface AuthState {
 }
 
 // Database Insert Types
+/** OMIT vewendet die gesamte Typedefinition, aber entfernt die angegebenen Felder */
 export type InsertTrip = Omit<Trip, 'id' | 'created_at' | 'fahrer'>;
 export type InsertBooking = Omit<Booking, 'id' | 'created_at' | 'gruppe' | 'fahrer'>;
 export type InsertProfile = Omit<Profile, 'created_at' | 'gruppe'>; // id is required (FK to auth.users)
@@ -204,10 +205,12 @@ export type InsertReceiptType = Omit<ReceiptType, 'id' | 'created_at'>;
 export type InsertActiveTrip = Omit<ActiveTrip, 'id' | 'created_at' | 'fahrer'>;
 
 // Update Types
+/** PARTIAL vewendet die gesamte Typedefinition, aber macht alle/die angegebenen Felder optional */
 export type UpdateTrip = Partial<InsertTrip>;
 export type UpdateBooking = Partial<InsertBooking>;
 export type UpdateProfile = Partial<InsertProfile>;
 export type UpdateGroup = Partial<InsertGroup>;
+/** PICK selektiert Felder aus der angegebenen Typedefinition */
 export type UpdateInvitationCode = Partial<
   Pick<InvitationCode, 'is_active' | 'expires_at' | 'max_uses'>
 >;

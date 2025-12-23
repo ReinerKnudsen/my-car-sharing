@@ -77,7 +77,7 @@ const TripCard: React.FC<TripCardProps> = ({ trip, isFirst = false, onDelete }) 
 
   const handleClaimTrip = () => {
     presentAlert({
-      header: 'Fahrt beanspruchen',
+      header: 'Fahrt übernehmen',
       message: 'Bist Du sicher, dass Du die Fahrt in Dein Konto übernehmen willst?',
       buttons: [
         {
@@ -196,7 +196,7 @@ const TripCard: React.FC<TripCardProps> = ({ trip, isFirst = false, onDelete }) 
             style={{ marginTop: '10px' }}
           >
             <IonIcon slot="start" icon={handLeftOutline} />
-            Fahrt beanspruchen
+            Fahrt übernehmen
           </IonButton>
         )}
 
