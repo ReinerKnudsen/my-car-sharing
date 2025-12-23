@@ -115,8 +115,40 @@ const TripCreate: React.FC = () => {
       return;
     }
 
+    // Datum darf nicht vor der letzten Fahrt liegen
+    if (lastTrip && datum < lastTrip.datum) {
+      present({
+        message: 'Das Datum darf nicht vor der letzten Fahrt liegen',
+        duration: 3000,
+        color: 'warning',
+      });
+      return;
+    }
+
     setLoading(true);
     try {
+      // Prüfe auf fehlende Kilometer und erstelle Differenzfahrt
+      if (lastTrip && startKm > lastTrip.end_kilometer) {
+        const gapDistance = startKm - lastTrip.end_kilometer;
+        const gapKosten = gapDistance * kostenProKm;
+
+        await tripsService.create({
+          start_kilometer: lastTrip.end_kilometer,
+          end_kilometer: startKm,
+          datum,
+          fahrer_id: null,
+          kommentar: '⚠️ Nachgetragen - Fahrer unbekannt',
+          kosten: gapKosten,
+        });
+
+        present({
+          message: `Fehlende Fahrt nachgetragen: ${lastTrip.end_kilometer.toLocaleString('de-DE')} → ${startKm.toLocaleString('de-DE')} km`,
+          duration: 3000,
+          color: 'warning',
+        });
+      }
+
+      // Erstelle die eigentliche Fahrt
       const tripDistance = endKm - startKm;
       const kosten = tripDistance * kostenProKm;
 

@@ -16,7 +16,9 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 
 ### Changed
 
--
+- "Meine Fahrten" wurde zu "Unsere Fahrten" geändert
+- "Fahrt beanspruchen" wurde zu "Fahrt übernehmen" geändert
+- Differenzfahrtenfunktion auch auf der Seite "Fahrten" eingerichtet
 
 ### Fixed
 
@@ -27,6 +29,7 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 ### Added
 
 - add dokumentation erstellt
+
 ## [2.4.0] - 2025-12-21
 
 ### Added
