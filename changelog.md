@@ -16,7 +16,7 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 
 ### Changed
 
--
+- Fehlerbehandlung für Start-Kilometerstand bei fahrt aufzeichnen verbessert
 
 ### Fixed
 
@@ -29,6 +29,7 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 - "Meine Fahrten" wurde zu "Unsere Fahrten" geändert
 - "Fahrt beanspruchen" wurde zu "Fahrt übernehmen" geändert
 - Differenzfahrtenfunktion auch auf der Seite "Fahrten" eingerichtet
+
 ## [2.5.0] - 2025-12-22
 
 ### Added
