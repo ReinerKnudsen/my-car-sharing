@@ -1,5 +1,6 @@
 import React from 'react';
 import { Redirect, Route } from 'react-router-dom';
+import AdminRoute from './AdminRoute';
 import { IonIcon, IonLabel, IonRouterOutlet, IonTabBar, IonTabButton, IonTabs } from '@ionic/react';
 import {
   speedometerOutline,
@@ -42,12 +43,12 @@ const MainTabs: React.FC = () => {
         <Route exact path="/receipts/create" component={ReceiptCreate} />
         <Route exact path="/group-account" component={GroupAccount} />
         <Route exact path="/profile" component={Profile} />
-        <Route exact path="/admin/users" component={Users} />
-        <Route exact path="/admin/groups" component={Groups} />
-        <Route exact path="/admin/invitation-codes" component={InvitationCodes} />
-        <Route exact path="/admin/settings" component={Settings} />
-        <Route exact path="/admin/receipt-types" component={ReceiptTypes} />
-        <Route exact path="/admin/register" component={Register} />
+        <AdminRoute exact path="/admin/users" component={Users} />
+        <AdminRoute exact path="/admin/groups" component={Groups} />
+        <AdminRoute exact path="/admin/invitation-codes" component={InvitationCodes} />
+        <AdminRoute exact path="/admin/settings" component={Settings} />
+        <AdminRoute exact path="/admin/receipt-types" component={ReceiptTypes} />
+        <AdminRoute exact path="/admin/register" component={Register} />
         <Route exact path="/">
           <Redirect to="/dashboard" />
         </Route>

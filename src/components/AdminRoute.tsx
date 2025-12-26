@@ -13,7 +13,14 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ component: Component, ...rest }
   if (loading) {
     return (
       <IonContent>
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100%',
+          }}
+        >
           <IonSpinner />
         </div>
       </IonContent>
@@ -41,4 +48,3 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ component: Component, ...rest }
 };
 
 export default AdminRoute;
-
