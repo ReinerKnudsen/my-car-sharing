@@ -12,6 +12,20 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 
 ### Added
 
+-
+
+### Changed
+
+-
+
+### Fixed
+
+-
+
+## [2.5.2] - 2025-12-27
+
+### Added
+
 - AdminRoute-Komponente für Admin-Routen implementiert
 
 ### Changed
@@ -21,12 +35,7 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 
 ### Fixed
 
--
-
-### Removed
-
 - ProtectedRoute-Komponente entfernt (nicht verwendet)
-
 ## [2.5.1] - 2025-12-23
 
 ### Changed
