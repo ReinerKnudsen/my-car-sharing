@@ -85,7 +85,14 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onDelete }) => {
       <IonCardContent>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <IonLabel>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                alignItems: 'start',
+              }}
+            >
               <IonText color="medium" className="small-padding">
                 <p>Start</p>
               </IonText>
@@ -97,7 +104,14 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onDelete }) => {
             </div>
           </IonLabel>
           <IonLabel>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                alignItems: 'start',
+              }}
+            >
               <IonText color="medium">
                 <p>Ende</p>
               </IonText>
@@ -111,7 +125,7 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onDelete }) => {
         </div>
 
         {booking.kommentar && canEdit && (
-          <div style={{ padding: '16px 0px' }}>
+          <div style={{ padding: '8px 0px' }}>
             <IonLabel>
               <IonText color="medium">
                 <p>Kommentar</p>
@@ -122,7 +136,7 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onDelete }) => {
         )}
 
         {booking.gruppe && (
-          <div style={{ padding: '16px 0px' }}>
+          <div style={{ padding: '8px 0px' }}>
             <IonLabel>
               <IonText color="medium">
                 <p>

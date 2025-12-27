@@ -92,6 +92,16 @@ const TripControl: React.FC<TripControlProps> = ({
       return;
     }
 
+    if (inputKm < lastKilometer) {
+      presentToast({
+        message: 'Der Kilometerstand darf nicht kleiner sein als der letzte gespeicherte.',
+        duration: 3000,
+        color: 'warning',
+      });
+      setStartKilometerInput(lastKilometer.toString());
+      return;
+    }
+
     try {
       const today = new Date();
       const datum = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;

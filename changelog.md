@@ -12,15 +12,20 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 
 ### Added
 
--
+- AdminRoute-Komponente für Admin-Routen implementiert
 
 ### Changed
 
--
+- Fehlerbehandlung für Start-Kilometerstand bei fahrt aufzeichnen verbessert
+- Anzeige der nächsten Buchungen überarbeitet
 
 ### Fixed
 
 -
+
+### Removed
+
+- ProtectedRoute-Komponente entfernt (nicht verwendet)
 
 ## [2.5.1] - 2025-12-23
 
@@ -29,6 +34,7 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 - "Meine Fahrten" wurde zu "Unsere Fahrten" geändert
 - "Fahrt beanspruchen" wurde zu "Fahrt übernehmen" geändert
 - Differenzfahrtenfunktion auch auf der Seite "Fahrten" eingerichtet
+
 ## [2.5.0] - 2025-12-22
 
 ### Added
