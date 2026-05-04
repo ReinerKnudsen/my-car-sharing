@@ -32,11 +32,17 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 
 - Admin-Seiten hatten kein einheitliches Header-Design (fehlende primary-Farbe)
 
-### Removed
+## [2.5.2] - 2025-12-27
 
 - ProtectedRoute-Komponente entfernt (nicht verwendet)
 - AuthGuard-Komponente entfernt (nicht verwendet)
 
+- Fehlerbehandlung für Start-Kilometerstand bei fahrt aufzeichnen verbessert
+- Anzeige der nächsten Buchungen überarbeitet
+
+### Fixed
+
+- ProtectedRoute-Komponente entfernt (nicht verwendet)
 ## [2.5.1] - 2025-12-23
 
 ### Changed
