@@ -7,7 +7,6 @@ import {
   calendarOutline,
   carOutline,
   peopleOutline,
-  personOutline,
   receiptOutline,
 } from 'ionicons/icons';
 import { useAuth } from '../contexts/AuthContext';
@@ -26,10 +25,11 @@ import Groups from '../pages/admin/Groups';
 import InvitationCodes from '../pages/admin/InvitationCodes';
 import Settings from '../pages/admin/Settings';
 import ReceiptTypes from '../pages/admin/ReceiptTypes';
+import AdminOverview from '../pages/admin/AdminOverview';
 import Register from '../pages/Register';
 
 const MainTabs: React.FC = () => {
-  const { isAdmin, isGroupAdmin } = useAuth();
+  const { isAdmin } = useAuth();
 
   return (
     <IonTabs>
@@ -43,9 +43,15 @@ const MainTabs: React.FC = () => {
         <Route exact path="/receipts/create" component={ReceiptCreate} />
         <Route exact path="/group-account" component={GroupAccount} />
         <Route exact path="/profile" component={Profile} />
-        <AdminRoute exact path="/admin/users" component={Users} />
+        <AdminRoute exact path="/admin" component={AdminOverview} />
+        <AdminRoute exact path="/admin/users" component={Users} allowGroupAdmin />
         <AdminRoute exact path="/admin/groups" component={Groups} />
-        <AdminRoute exact path="/admin/invitation-codes" component={InvitationCodes} />
+        <AdminRoute
+          exact
+          path="/admin/invitation-codes"
+          component={InvitationCodes}
+          allowGroupAdmin
+        />
         <AdminRoute exact path="/admin/settings" component={Settings} />
         <AdminRoute exact path="/admin/receipt-types" component={ReceiptTypes} />
         <AdminRoute exact path="/admin/register" component={Register} />
@@ -75,17 +81,12 @@ const MainTabs: React.FC = () => {
           <IonLabel>Belege</IonLabel>
         </IonTabButton>
 
-        {(isAdmin || isGroupAdmin) && (
-          <IonTabButton tab="admin" href="/admin/users">
+        {isAdmin && (
+          <IonTabButton tab="admin" href="/admin">
             <IonIcon icon={peopleOutline} />
             <IonLabel>Verwaltung</IonLabel>
           </IonTabButton>
         )}
-
-        <IonTabButton tab="profile" href="/profile">
-          <IonIcon icon={personOutline} />
-          <IonLabel>Profil</IonLabel>
-        </IonTabButton>
       </IonTabBar>
     </IonTabs>
   );

@@ -12,23 +12,30 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 
 ### Added
 
--
+- AdminRoute-Komponente für Admin-Routen implementiert
+- ProfileAvatarButton-Komponente: Initialen-Avatar im Header für Navigation zum Profil
+- Gruppenverwaltungs-Button auf der Profil-Seite für Gruppenadmins
 
 ### Changed
 
--
+- Fehlerbehandlung für Start-Kilometerstand bei fahrt aufzeichnen verbessert
+- Anzeige der nächsten Buchungen überarbeitet
+- Navigation redesigned: Profil über Avatar-Icon im Header erreichbar (statt Tab)
+- Verwaltung-Tab nur noch für Superadmins sichtbar
+- Gruppenadmin-Funktionen (Mitglieder, Einladungscodes) über Profil erreichbar
+- AdminRoute unterstützt jetzt allowGroupAdmin-Prop
+- Bottom Tab Bar auf 4 Tabs reduziert (bessere Kompatibilität mit kleinen Displays)
+- Admin-Navigation: Segment-Tabs durch Listennavigation (Settings-Style) ersetzt
+- Dashboard: Tipp auf „Kommende Buchungen" / „Letzte Fahrten" navigiert zur jeweiligen Seite
 
 ### Fixed
 
--
+- Admin-Seiten hatten kein einheitliches Header-Design (fehlende primary-Farbe)
 
 ## [2.5.2] - 2025-12-27
 
-### Added
-
-- AdminRoute-Komponente für Admin-Routen implementiert
-
-### Changed
+- ProtectedRoute-Komponente entfernt (nicht verwendet)
+- AuthGuard-Komponente entfernt (nicht verwendet)
 
 - Fehlerbehandlung für Start-Kilometerstand bei fahrt aufzeichnen verbessert
 - Anzeige der nächsten Buchungen überarbeitet

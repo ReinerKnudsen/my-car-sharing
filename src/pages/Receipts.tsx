@@ -32,6 +32,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { receiptService } from '../services/receipt.service';
 import { Receipt } from '../types';
 import { formatDate } from '../utils/dateUtils';
+import ProfileAvatarButton from '../components/ProfileAvatarButton';
 
 const Receipts: React.FC = () => {
   const [receipts, setReceipts] = useState<Receipt[]>([]);
@@ -52,11 +53,11 @@ const Receipts: React.FC = () => {
 
   const loadReceipts = async () => {
     if (!profile) return;
-    
+
     try {
       setLoading(true);
       let data: Receipt[];
-      
+
       if (filter === 'alle' && isAdmin) {
         data = await receiptService.getAll();
       } else if (profile.gruppe_id) {
@@ -64,7 +65,7 @@ const Receipts: React.FC = () => {
       } else {
         data = [];
       }
-      
+
       setReceipts(data);
     } catch (error) {
       console.error('Error loading receipts:', error);
@@ -87,7 +88,7 @@ const Receipts: React.FC = () => {
     const createdAt = new Date(receipt.created_at);
     const now = new Date();
     const hoursSinceCreation = (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60);
-    const canDelete = isAdmin || receipt.fahrer_id === profile?.id && hoursSinceCreation < 24;
+    const canDelete = isAdmin || (receipt.fahrer_id === profile?.id && hoursSinceCreation < 24);
 
     if (!canDelete) {
       presentToast({
@@ -145,6 +146,7 @@ const Receipts: React.FC = () => {
               </IonButton>
             </IonButtons>
           )}
+          <ProfileAvatarButton />
         </IonToolbar>
         {isAdmin && (
           <IonToolbar>
@@ -191,22 +193,26 @@ const Receipts: React.FC = () => {
           <>
             {/* Zusammenfassung */}
             <IonCard style={{ marginBottom: '16px' }}>
-              <IonCardContent style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'center',
-                padding: '12px 16px'
-              }}>
+              <IonCardContent
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '12px 16px',
+                }}
+              >
                 <div>
                   <IonText color="medium" style={{ fontSize: '14px' }}>
                     {receipts.length} Beleg{receipts.length !== 1 ? 'e' : ''}
                   </IonText>
                 </div>
-                <div style={{ 
-                  fontSize: '20px', 
-                  fontWeight: 'bold', 
-                  color: 'var(--ion-color-danger)' 
-                }}>
+                <div
+                  style={{
+                    fontSize: '20px',
+                    fontWeight: 'bold',
+                    color: 'var(--ion-color-danger)',
+                  }}
+                >
                   {totalAmount.toFixed(2)} €
                 </div>
               </IonCardContent>
@@ -214,9 +220,9 @@ const Receipts: React.FC = () => {
 
             {/* Belege Liste */}
             {receipts.map((receipt) => (
-              <ReceiptCard 
-                key={receipt.id} 
-                receipt={receipt} 
+              <ReceiptCard
+                key={receipt.id}
+                receipt={receipt}
                 onDelete={() => handleDelete(receipt)}
                 showGroup={filter === 'alle'}
                 currentUserId={profile?.id}
@@ -248,12 +254,12 @@ interface ReceiptCardProps {
   isAdmin: boolean;
 }
 
-const ReceiptCard: React.FC<ReceiptCardProps> = ({ 
-  receipt, 
-  onDelete, 
-  showGroup, 
+const ReceiptCard: React.FC<ReceiptCardProps> = ({
+  receipt,
+  onDelete,
+  showGroup,
   currentUserId,
-  isAdmin 
+  isAdmin,
 }) => {
   // Kann innerhalb von 24h gelöscht werden oder von Admin
   const createdAt = new Date(receipt.created_at);
@@ -268,14 +274,10 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({
           <div style={{ flex: 1 }}>
             {/* Datum und Art */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-              <span style={{ fontWeight: 'bold' }}>
-                {formatDate(receipt.datum, false)}
-              </span>
-              <IonBadge color="medium">
-                {receipt.receipt_type?.bezeichnung || 'Unbekannt'}
-              </IonBadge>
+              <span style={{ fontWeight: 'bold' }}>{formatDate(receipt.datum, false)}</span>
+              <IonBadge color="medium">{receipt.receipt_type?.bezeichnung || 'Unbekannt'}</IonBadge>
             </div>
-            
+
             {/* Fahrer */}
             <div style={{ color: '#666', fontSize: '14px' }}>
               {receipt.fahrer?.vorname} {receipt.fahrer?.name}
@@ -285,32 +287,31 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({
                 </span>
               )}
             </div>
-            
+
             {/* Kommentar */}
             {receipt.kommentar && (
-              <div style={{ marginTop: '8px', fontSize: '14px', color: '#888', fontStyle: 'italic' }}>
+              <div
+                style={{ marginTop: '8px', fontSize: '14px', color: '#888', fontStyle: 'italic' }}
+              >
                 {receipt.kommentar}
               </div>
             )}
           </div>
-          
+
           {/* Betrag und Löschen */}
           <div style={{ textAlign: 'right' }}>
-            <div style={{ 
-              fontSize: '18px', 
-              fontWeight: 'bold', 
-              color: 'var(--ion-color-danger)',
-              marginBottom: '8px'
-            }}>
+            <div
+              style={{
+                fontSize: '18px',
+                fontWeight: 'bold',
+                color: 'var(--ion-color-danger)',
+                marginBottom: '8px',
+              }}
+            >
               {receipt.betrag.toFixed(2)} €
             </div>
             {canDelete && (
-              <IonButton 
-                fill="clear" 
-                size="small" 
-                color="danger"
-                onClick={onDelete}
-              >
+              <IonButton fill="clear" size="small" color="danger" onClick={onDelete}>
                 <IonIcon icon={trashOutline} />
               </IonButton>
             )}
@@ -322,4 +323,3 @@ const ReceiptCard: React.FC<ReceiptCardProps> = ({
 };
 
 export default Receipts;
-

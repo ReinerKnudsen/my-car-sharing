@@ -3,6 +3,10 @@ import { IonButton, IonIcon } from '@ionic/react';
 import { chevronBack, chevronForward } from 'ionicons/icons';
 import { Booking } from '../types';
 
+/** Der Buchungskalender wird auf der Buchungsseite (Bookings.tsx) verwendet.
+ *  Die Komponente zeigt verfügbare Tage basierend auf vorhandenen Buchungen an.
+ */
+
 interface BookingCalendarProps {
   bookings: Booking[];
   onDateSelect: (date: string) => void;

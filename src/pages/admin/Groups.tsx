@@ -16,19 +16,15 @@ import {
   IonFab,
   IonFabButton,
   IonModal,
-  IonItem,
-  IonLabel,
   IonInput,
   IonButtons,
-  IonSegment,
-  IonSegmentButton,
+  IonBackButton,
   useIonAlert,
   useIonToast,
   isPlatform,
 } from '@ionic/react';
 import { add, trashOutline, pencilOutline, close } from 'ionicons/icons';
 import { RefresherEventDetail } from '@ionic/core';
-import { useHistory } from 'react-router-dom';
 import { groupsService } from '../../services/database';
 import { Group } from '../../types';
 
@@ -40,7 +36,6 @@ const Groups: React.FC = () => {
   const [groupName, setGroupName] = useState('');
   const [presentAlert] = useIonAlert();
   const [present] = useIonToast();
-  const history = useHistory();
   const isIOS = isPlatform('ios');
 
   useEffect(() => {
@@ -161,8 +156,11 @@ const Groups: React.FC = () => {
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar>
-          <IonTitle>Verwaltung</IonTitle>
+        <IonToolbar color="primary">
+          <IonButtons slot="start">
+            <IonBackButton defaultHref="/admin" />
+          </IonButtons>
+          <IonTitle>Gruppen</IonTitle>
           {isIOS && (
             <IonButtons slot="end">
               <IonButton onClick={() => handleOpenModal()}>
@@ -170,30 +168,6 @@ const Groups: React.FC = () => {
               </IonButton>
             </IonButtons>
           )}
-        </IonToolbar>
-        <IonToolbar>
-          <IonSegment value="groups" onIonChange={(e) => {
-            if (e.detail.value === 'users') history.push('/admin/users');
-            if (e.detail.value === 'codes') history.push('/admin/invitation-codes');
-            if (e.detail.value === 'settings') history.push('/admin/settings');
-            if (e.detail.value === 'receipt-types') history.push('/admin/receipt-types');
-          }}>
-            <IonSegmentButton value="users">
-              <IonLabel>Fahrer</IonLabel>
-            </IonSegmentButton>
-            <IonSegmentButton value="groups">
-              <IonLabel>Gruppen</IonLabel>
-            </IonSegmentButton>
-            <IonSegmentButton value="codes">
-              <IonLabel>Einladungen</IonLabel>
-            </IonSegmentButton>
-            <IonSegmentButton value="settings">
-              <IonLabel>Kosten</IonLabel>
-            </IonSegmentButton>
-            <IonSegmentButton value="receipt-types">
-              <IonLabel>Belegarten</IonLabel>
-            </IonSegmentButton>
-          </IonSegment>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
@@ -219,21 +193,15 @@ const Groups: React.FC = () => {
           groups.map((group) => (
             <IonCard key={group.id}>
               <IonCardContent>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div
+                  style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                >
                   <h2>{group.bezeichnung}</h2>
                   <div>
-                    <IonButton
-                      fill="clear"
-                      color="primary"
-                      onClick={() => handleOpenModal(group)}
-                    >
+                    <IonButton fill="clear" color="primary" onClick={() => handleOpenModal(group)}>
                       <IonIcon icon={pencilOutline} />
                     </IonButton>
-                    <IonButton
-                      fill="clear"
-                      color="danger"
-                      onClick={() => handleDeleteGroup(group)}
-                    >
+                    <IonButton fill="clear" color="danger" onClick={() => handleDeleteGroup(group)}>
                       <IonIcon icon={trashOutline} />
                     </IonButton>
                   </div>
@@ -271,7 +239,7 @@ const Groups: React.FC = () => {
               value={groupName}
               onIonInput={(e) => setGroupName(e.detail.value!)}
               placeholder="z.B. Familie Müller"
-              style={{ 
+              style={{
                 marginBottom: '16px',
                 '--background': '#f4f5f8',
                 '--border-width': '1px',
@@ -283,11 +251,7 @@ const Groups: React.FC = () => {
               }}
             />
 
-            <IonButton
-              expand="block"
-              onClick={handleSaveGroup}
-              style={{ marginTop: '20px' }}
-            >
+            <IonButton expand="block" onClick={handleSaveGroup} style={{ marginTop: '20px' }}>
               {editingGroup ? 'Aktualisieren' : 'Erstellen'}
             </IonButton>
           </IonContent>
@@ -298,4 +262,3 @@ const Groups: React.FC = () => {
 };
 
 export default Groups;
-

@@ -17,7 +17,7 @@ import {
   IonIcon,
   useIonToast,
 } from '@ionic/react';
-import { walletOutline, chevronForwardOutline } from 'ionicons/icons';
+import { walletOutline, chevronForwardOutline, peopleOutline } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import AppVersion from '../components/AppVersion';
@@ -119,6 +119,21 @@ const Profile: React.FC = () => {
               >
                 <IonIcon slot="start" icon={walletOutline} />
                 Gruppenkonto
+                <IonIcon slot="end" icon={chevronForwardOutline} />
+              </IonButton>
+            )}
+
+            {/* Gruppenverwaltung Link für Gruppenadmin (ohne Superadmin-Tab) */}
+            {isGroupAdmin && !isAdmin && (
+              <IonButton
+                expand="block"
+                fill="outline"
+                color="secondary"
+                onClick={() => history.push('/admin/users')}
+                style={{ marginTop: '12px' }}
+              >
+                <IonIcon slot="start" icon={peopleOutline} />
+                Gruppenverwaltung
                 <IonIcon slot="end" icon={chevronForwardOutline} />
               </IonButton>
             )}

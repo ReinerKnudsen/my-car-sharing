@@ -11,6 +11,7 @@ import {
 } from '@ionic/react';
 import { RefresherEventDetail } from '@ionic/core';
 import { useAuth } from '../contexts/AuthContext';
+import ProfileAvatarButton from '../components/ProfileAvatarButton';
 import { useData } from '../contexts/DataContext';
 import {
   DashboardSkeleton,
@@ -102,6 +103,7 @@ const Dashboard: React.FC = () => {
       <IonHeader>
         <IonToolbar color="primary">
           <IonTitle>Dashboard</IonTitle>
+          <ProfileAvatarButton />
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">

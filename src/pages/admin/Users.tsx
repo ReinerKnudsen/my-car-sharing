@@ -13,22 +13,20 @@ import {
   IonText,
   IonCard,
   IonCardContent,
-  IonLabel,
   IonBadge,
   IonFab,
   IonFabButton,
-  IonSegment,
-  IonSegmentButton,
   IonButtons,
+  IonBackButton,
   IonActionSheet,
   useIonAlert,
   useIonToast,
   isPlatform,
 } from '@ionic/react';
-import { 
-  add, 
-  trashOutline, 
-  personAddOutline, 
+import {
+  add,
+  trashOutline,
+  personAddOutline,
   ellipsisVertical,
   shieldCheckmarkOutline,
   shieldOutline,
@@ -64,10 +62,10 @@ const Users: React.FC = () => {
     try {
       setLoading(true);
       const data = await profilesService.getAll();
-      
+
       // If user is only a group admin, filter to show only users from their group
       if (isOnlyGroupAdmin && currentUser?.gruppe_id) {
-        const filteredUsers = data.filter(u => u.gruppe_id === currentUser.gruppe_id);
+        const filteredUsers = data.filter((u) => u.gruppe_id === currentUser.gruppe_id);
         setUsers(filteredUsers);
       } else {
         setUsers(data);
@@ -97,7 +95,8 @@ const Users: React.FC = () => {
     // Prevent deletion if user is a group admin
     if (user.ist_gruppen_admin) {
       present({
-        message: 'Gruppen-Admin kann nicht gelöscht werden. Bitte zuerst den Gruppen-Admin Status entfernen.',
+        message:
+          'Gruppen-Admin kann nicht gelöscht werden. Bitte zuerst den Gruppen-Admin Status entfernen.',
         duration: 4000,
         color: 'warning',
       });
@@ -140,10 +139,10 @@ const Users: React.FC = () => {
   const handleToggleBlock = async (user: Profile) => {
     const newBlockedState = !user.ist_gesperrt;
     const action = newBlockedState ? 'sperren' : 'entsperren';
-    
+
     presentAlert({
       header: `Benutzer ${action}`,
-      message: newBlockedState 
+      message: newBlockedState
         ? `${user.vorname} ${user.name} wird gesperrt und kann keine Buchungen oder Fahrten mehr erstellen.`
         : `${user.vorname} ${user.name} wird entsperrt und kann wieder normal arbeiten.`,
       buttons: [
@@ -187,7 +186,7 @@ const Users: React.FC = () => {
 
     // Check if there's already a group admin for this group
     const existingAdmin = users.find(
-      u => u.gruppe_id === user.gruppe_id && u.ist_gruppen_admin && u.id !== user.id
+      (u) => u.gruppe_id === user.gruppe_id && u.ist_gruppen_admin && u.id !== user.id
     );
 
     if (existingAdmin) {
@@ -216,10 +215,10 @@ const Users: React.FC = () => {
     try {
       // Merke: War ich vorher Gruppenadmin?
       const wasIGroupAdmin = currentUser?.ist_gruppen_admin;
-      
+
       const { error } = await supabase.rpc('set_group_admin', {
         user_id: user.id,
-        remove_existing: removeExisting
+        remove_existing: removeExisting,
       });
 
       if (error) throw error;
@@ -229,11 +228,11 @@ const Users: React.FC = () => {
         duration: 2000,
         color: 'success',
       });
-      
+
       // Lade User-Liste und eigenes Profil neu
       loadUsers();
       await refreshProfile();
-      
+
       // Wenn ich vorher Gruppenadmin war und jetzt nicht mehr:
       // → Redirect zum Dashboard
       if (wasIGroupAdmin && user.id !== currentUser?.id) {
@@ -269,7 +268,7 @@ const Users: React.FC = () => {
           handler: async () => {
             try {
               const { error } = await supabase.rpc('remove_group_admin', {
-                user_id: user.id
+                user_id: user.id,
               });
 
               if (error) throw error;
@@ -279,7 +278,7 @@ const Users: React.FC = () => {
                 duration: 2000,
                 color: 'success',
               });
-              
+
               // Lade User-Liste und eigenes Profil neu
               loadUsers();
               await refreshProfile(); // ← Wichtig: Eigenes Profil aktualisieren!
@@ -322,9 +321,9 @@ const Users: React.FC = () => {
     }
 
     // Group Admin actions - for full admins or group admins (of same group)
-    const canManageGroupAdmin = isAdmin || 
-      (isGroupAdmin && selectedUser.gruppe_id === currentUser?.gruppe_id);
-    
+    const canManageGroupAdmin =
+      isAdmin || (isGroupAdmin && selectedUser.gruppe_id === currentUser?.gruppe_id);
+
     if (canManageGroupAdmin && selectedUser.gruppe_id) {
       if (selectedUser.ist_gruppen_admin) {
         buttons.push({
@@ -386,7 +385,10 @@ const Users: React.FC = () => {
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar>
+        <IonToolbar color="primary">
+          <IonButtons slot="start">
+            <IonBackButton defaultHref={isOnlyGroupAdmin ? '/profile' : '/admin'} />
+          </IonButtons>
           <IonTitle>{getPageTitle()}</IonTitle>
           {/* Only show add button for full admins */}
           {isIOS && isAdmin && (
@@ -397,46 +399,6 @@ const Users: React.FC = () => {
             </IonButtons>
           )}
         </IonToolbar>
-        {/* Segment navigation - different for admins vs group admins */}
-        {isAdmin ? (
-          <IonToolbar>
-            <IonSegment value="users" onIonChange={(e) => {
-              if (e.detail.value === 'groups') history.push('/admin/groups');
-              if (e.detail.value === 'codes') history.push('/admin/invitation-codes');
-              if (e.detail.value === 'settings') history.push('/admin/settings');
-              if (e.detail.value === 'receipt-types') history.push('/admin/receipt-types');
-            }}>
-              <IonSegmentButton value="users">
-                <IonLabel>Fahrer</IonLabel>
-              </IonSegmentButton>
-              <IonSegmentButton value="groups">
-                <IonLabel>Gruppen</IonLabel>
-              </IonSegmentButton>
-              <IonSegmentButton value="codes">
-                <IonLabel>Einladungen</IonLabel>
-              </IonSegmentButton>
-              <IonSegmentButton value="settings">
-                <IonLabel>Kosten</IonLabel>
-              </IonSegmentButton>
-              <IonSegmentButton value="receipt-types">
-                <IonLabel>Belegarten</IonLabel>
-              </IonSegmentButton>
-            </IonSegment>
-          </IonToolbar>
-        ) : isGroupAdmin ? (
-          <IonToolbar>
-            <IonSegment value="users" onIonChange={(e) => {
-              if (e.detail.value === 'codes') history.push('/admin/invitation-codes');
-            }}>
-              <IonSegmentButton value="users">
-                <IonLabel>Mitglieder</IonLabel>
-              </IonSegmentButton>
-              <IonSegmentButton value="codes">
-                <IonLabel>Einladungen</IonLabel>
-              </IonSegmentButton>
-            </IonSegment>
-          </IonToolbar>
-        ) : null}
       </IonHeader>
       <IonContent className="ion-padding">
         <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
@@ -450,7 +412,11 @@ const Users: React.FC = () => {
         ) : users.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '40px' }}>
             <IonText color="medium">
-              <p>{isOnlyGroupAdmin ? 'Noch keine Mitglieder in deiner Gruppe' : 'Noch keine Benutzer vorhanden'}</p>
+              <p>
+                {isOnlyGroupAdmin
+                  ? 'Noch keine Mitglieder in deiner Gruppe'
+                  : 'Noch keine Benutzer vorhanden'}
+              </p>
             </IonText>
             {isAdmin && (
               <IonButton onClick={handleCreateUser}>
@@ -469,41 +435,36 @@ const Users: React.FC = () => {
           users.map((user) => (
             <IonCard key={user.id} style={{ opacity: user.ist_gesperrt ? 0.6 : 1 }}>
               <IonCardContent>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                  }}
+                >
                   <div style={{ flex: 1 }}>
                     <h2 style={{ margin: '0 0 4px 0' }}>
                       {user.vorname} {user.name}
-                      {user.id === currentUser?.id && (
-                        <IonText color="medium"> (Du)</IonText>
-                      )}
+                      {user.id === currentUser?.id && <IonText color="medium"> (Du)</IonText>}
                     </h2>
-                    
+
                     {/* Show group only for full admins (group admins see only their group anyway) */}
                     {isAdmin && user.gruppe && (
                       <IonText color="medium">
-                        <p style={{ margin: '0 0 8px 0' }}>
-                          Gruppe: {user.gruppe.bezeichnung}
-                        </p>
+                        <p style={{ margin: '0 0 8px 0' }}>Gruppe: {user.gruppe.bezeichnung}</p>
                       </IonText>
                     )}
-                    
+
                     <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-                      {user.ist_admin && (
-                        <IonBadge color="primary">Admin</IonBadge>
-                      )}
+                      {user.ist_admin && <IonBadge color="primary">Admin</IonBadge>}
                       {user.ist_gruppen_admin && (
                         <IonBadge color="secondary">Gruppen-Admin</IonBadge>
                       )}
-                      {user.ist_gesperrt && (
-                        <IonBadge color="danger">Gesperrt</IonBadge>
-                      )}
+                      {user.ist_gesperrt && <IonBadge color="danger">Gesperrt</IonBadge>}
                     </div>
                   </div>
-                  
-                  <IonButton
-                    fill="clear"
-                    onClick={() => handleUserAction(user)}
-                  >
+
+                  <IonButton fill="clear" onClick={() => handleUserAction(user)}>
                     <IonIcon icon={ellipsisVertical} />
                   </IonButton>
                 </div>

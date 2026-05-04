@@ -14,13 +14,11 @@ import {
   IonCardHeader,
   IonCardTitle,
   IonInput,
-  IonLabel,
-  IonSegment,
-  IonSegmentButton,
+  IonButtons,
+  IonBackButton,
   useIonToast,
 } from '@ionic/react';
 import { saveOutline } from 'ionicons/icons';
-import { useHistory } from 'react-router-dom';
 import { settingsService } from '../../services/settings.service';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -31,7 +29,6 @@ const Settings: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [present] = useIonToast();
-  const history = useHistory();
   const { profile } = useAuth();
 
   useEffect(() => {
@@ -97,35 +94,11 @@ const Settings: React.FC = () => {
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar>
-          <IonTitle>Verwaltung</IonTitle>
-        </IonToolbar>
-        <IonToolbar>
-          <IonSegment
-            value="settings"
-            onIonChange={(e) => {
-              if (e.detail.value === 'users') history.push('/admin/users');
-              if (e.detail.value === 'groups') history.push('/admin/groups');
-              if (e.detail.value === 'codes') history.push('/admin/invitation-codes');
-              if (e.detail.value === 'receipt-types') history.push('/admin/receipt-types');
-            }}
-          >
-            <IonSegmentButton value="users">
-              <IonLabel>Fahrer</IonLabel>
-            </IonSegmentButton>
-            <IonSegmentButton value="groups">
-              <IonLabel>Gruppen</IonLabel>
-            </IonSegmentButton>
-            <IonSegmentButton value="codes">
-              <IonLabel>Einladungen</IonLabel>
-            </IonSegmentButton>
-            <IonSegmentButton value="settings">
-              <IonLabel>Kosten</IonLabel>
-            </IonSegmentButton>
-            <IonSegmentButton value="receipt-types">
-              <IonLabel>Belegarten</IonLabel>
-            </IonSegmentButton>
-          </IonSegment>
+        <IonToolbar color="primary">
+          <IonButtons slot="start">
+            <IonBackButton defaultHref="/admin" />
+          </IonButtons>
+          <IonTitle>Kosten & PayPal</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
@@ -215,8 +188,8 @@ const Settings: React.FC = () => {
               <IonCardContent>
                 <IonText color="medium">
                   <p style={{ marginBottom: '16px' }}>
-                    Konfiguriere deine PayPal Business-Daten für automatische Gruppenzahlungen. 
-                    Die PayPal SDK Integration ermöglicht nahtlose In-App-Zahlungen mit automatischer 
+                    Konfiguriere deine PayPal Business-Daten für automatische Gruppenzahlungen. Die
+                    PayPal SDK Integration ermöglicht nahtlose In-App-Zahlungen mit automatischer
                     Belegerstellung.
                   </p>
                 </IonText>
@@ -281,7 +254,8 @@ const Settings: React.FC = () => {
                       <li>Kontosaldo wird sofort aktualisiert</li>
                     </ul>
                     <p style={{ margin: '12px 0 0 0', fontSize: '13px' }}>
-                      🔑 <strong>Client ID finden:</strong> PayPal Developer Dashboard → Apps & Credentials
+                      🔑 <strong>Client ID finden:</strong> PayPal Developer Dashboard → Apps &
+                      Credentials
                     </p>
                   </IonText>
                 </div>
