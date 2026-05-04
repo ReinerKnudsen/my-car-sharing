@@ -1,5 +1,14 @@
 import React from 'react';
-import { IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonText } from '@ionic/react';
+import {
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardContent,
+  IonText,
+  IonIcon,
+} from '@ionic/react';
+import { chevronForwardOutline } from 'ionicons/icons';
+import { useHistory } from 'react-router-dom';
 import { Trip } from '../../types';
 import { formatDate } from '../../utils/dateUtils';
 
@@ -8,10 +17,21 @@ interface RecentTripsProps {
 }
 
 const RecentTrips: React.FC<RecentTripsProps> = ({ trips }) => {
+  const history = useHistory();
+
   return (
     <IonCard>
-      <IonCardHeader>
-        <IonCardTitle className="small-card-title">Letzte Fahrten</IonCardTitle>
+      <IonCardHeader onClick={() => history.push('/trips')} style={{ cursor: 'pointer' }}>
+        <IonCardTitle
+          className="small-card-title"
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+        >
+          Letzte Fahrten
+          <IonIcon
+            icon={chevronForwardOutline}
+            style={{ fontSize: '18px', color: 'var(--ion-color-medium)' }}
+          />
+        </IonCardTitle>
       </IonCardHeader>
       <IonCardContent>
         {trips.length === 0 ? (

@@ -5,10 +5,15 @@ import { IonSpinner, IonContent, IonCard, IonCardContent } from '@ionic/react';
 
 interface AdminRouteProps extends RouteProps {
   component: React.ComponentType<any>;
+  allowGroupAdmin?: boolean;
 }
 
-const AdminRoute: React.FC<AdminRouteProps> = ({ component: Component, ...rest }) => {
-  const { user, isAdmin, loading } = useAuth();
+const AdminRoute: React.FC<AdminRouteProps> = ({
+  component: Component,
+  allowGroupAdmin = false,
+  ...rest
+}) => {
+  const { user, isAdmin, isGroupAdmin, loading } = useAuth();
 
   if (loading) {
     return (
@@ -31,7 +36,9 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ component: Component, ...rest }
     return <Redirect to="/login" />;
   }
 
-  if (!isAdmin) {
+  const hasAccess = isAdmin || (allowGroupAdmin && isGroupAdmin);
+
+  if (!hasAccess) {
     return (
       <IonContent className="ion-padding">
         <IonCard>

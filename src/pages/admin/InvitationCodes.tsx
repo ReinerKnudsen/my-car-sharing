@@ -18,20 +18,24 @@ import {
   IonModal,
   IonInput,
   IonButtons,
+  IonBackButton,
   IonSelect,
   IonSelectOption,
   IonBadge,
   IonChip,
-  IonSegment,
-  IonSegmentButton,
-  IonLabel,
   useIonAlert,
   useIonToast,
   isPlatform,
 } from '@ionic/react';
-import { add, trashOutline, copyOutline, close, banOutline, checkmarkCircleOutline } from 'ionicons/icons';
+import {
+  add,
+  trashOutline,
+  copyOutline,
+  close,
+  banOutline,
+  checkmarkCircleOutline,
+} from 'ionicons/icons';
 import { RefresherEventDetail } from '@ionic/core';
-import { useHistory } from 'react-router-dom';
 import { invitationService } from '../../services/invitation.service';
 import { groupsService } from '../../services/database';
 import { InvitationCode, Group } from '../../types';
@@ -49,7 +53,6 @@ const InvitationCodes: React.FC = () => {
   const [presentAlert] = useIonAlert();
   const [present] = useIonToast();
   const { profile, isAdmin, isGroupAdmin } = useAuth();
-  const history = useHistory();
   const isIOS = isPlatform('ios');
   const isOnlyGroupAdmin = isGroupAdmin && !isAdmin;
 
@@ -60,7 +63,7 @@ const InvitationCodes: React.FC = () => {
   const loadData = async () => {
     try {
       setLoading(true);
-      
+
       // If user is group admin (not full admin), only load their group's codes
       if (profile?.ist_gruppen_admin && !profile?.ist_admin && profile?.gruppe_id) {
         const [codesData, groupsData] = await Promise.all([
@@ -69,7 +72,7 @@ const InvitationCodes: React.FC = () => {
         ]);
         setCodes(codesData);
         // Filter groups to only show the user's group
-        setGroups(groupsData.filter(g => g.id === profile.gruppe_id));
+        setGroups(groupsData.filter((g) => g.id === profile.gruppe_id));
       } else {
         // Full admin sees all codes and groups
         const [codesData, groupsData] = await Promise.all([
@@ -260,8 +263,11 @@ const InvitationCodes: React.FC = () => {
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar>
-          <IonTitle>{isAdmin ? 'Verwaltung' : 'Einladungscodes'}</IonTitle>
+        <IonToolbar color="primary">
+          <IonButtons slot="start">
+            <IonBackButton defaultHref={isOnlyGroupAdmin ? '/profile' : '/admin'} />
+          </IonButtons>
+          <IonTitle>Einladungscodes</IonTitle>
           {isIOS && (
             <IonButtons slot="end">
               <IonButton onClick={handleOpenModal}>
@@ -270,45 +276,6 @@ const InvitationCodes: React.FC = () => {
             </IonButtons>
           )}
         </IonToolbar>
-        {isAdmin ? (
-          <IonToolbar>
-            <IonSegment value="codes" onIonChange={(e) => {
-              if (e.detail.value === 'users') history.push('/admin/users');
-              if (e.detail.value === 'groups') history.push('/admin/groups');
-              if (e.detail.value === 'settings') history.push('/admin/settings');
-              if (e.detail.value === 'receipt-types') history.push('/admin/receipt-types');
-            }}>
-              <IonSegmentButton value="users">
-                <IonLabel>Fahrer</IonLabel>
-              </IonSegmentButton>
-              <IonSegmentButton value="groups">
-                <IonLabel>Gruppen</IonLabel>
-              </IonSegmentButton>
-              <IonSegmentButton value="codes">
-                <IonLabel>Einladungen</IonLabel>
-              </IonSegmentButton>
-              <IonSegmentButton value="settings">
-                <IonLabel>Kosten</IonLabel>
-              </IonSegmentButton>
-              <IonSegmentButton value="receipt-types">
-                <IonLabel>Belegarten</IonLabel>
-              </IonSegmentButton>
-            </IonSegment>
-          </IonToolbar>
-        ) : isOnlyGroupAdmin ? (
-          <IonToolbar>
-            <IonSegment value="codes" onIonChange={(e) => {
-              if (e.detail.value === 'users') history.push('/admin/users');
-            }}>
-              <IonSegmentButton value="users">
-                <IonLabel>Mitglieder</IonLabel>
-              </IonSegmentButton>
-              <IonSegmentButton value="codes">
-                <IonLabel>Einladungen</IonLabel>
-              </IonSegmentButton>
-            </IonSegment>
-          </IonToolbar>
-        ) : null}
       </IonHeader>
       <IonContent className="ion-padding">
         <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
@@ -333,19 +300,38 @@ const InvitationCodes: React.FC = () => {
           codes.map((code) => (
             <IonCard key={code.id}>
               <IonCardContent>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                  }}
+                >
                   <div style={{ flex: 1 }}>
                     {/* Code */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                      <span style={{ 
-                        fontFamily: 'monospace', 
-                        fontSize: '1.4em', 
-                        fontWeight: 'bold',
-                        letterSpacing: '2px'
-                      }}>
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        marginBottom: '8px',
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontFamily: 'monospace',
+                          fontSize: '1.4em',
+                          fontWeight: 'bold',
+                          letterSpacing: '2px',
+                        }}
+                      >
                         {code.code}
                       </span>
-                      <IonButton fill="clear" size="small" onClick={() => handleCopyCode(code.code)}>
+                      <IonButton
+                        fill="clear"
+                        size="small"
+                        onClick={() => handleCopyCode(code.code)}
+                      >
                         <IonIcon icon={copyOutline} />
                       </IonButton>
                     </div>
@@ -358,32 +344,28 @@ const InvitationCodes: React.FC = () => {
                     </div>
 
                     {/* Status badges */}
-                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '8px' }}>
+                    <div
+                      style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '8px' }}
+                    >
                       {code.is_active && !isExpired(code) && !isFullyUsed(code) ? (
                         <IonBadge color="success">Aktiv</IonBadge>
                       ) : (
                         <IonBadge color="medium">Inaktiv</IonBadge>
                       )}
-                      
+
                       <IonBadge color="light">
                         {code.uses_count}/{code.max_uses} verwendet
                       </IonBadge>
-                      
-                      {isExpired(code) && (
-                        <IonBadge color="danger">Abgelaufen</IonBadge>
-                      )}
-                      
-                      {isFullyUsed(code) && (
-                        <IonBadge color="warning">Aufgebraucht</IonBadge>
-                      )}
+
+                      {isExpired(code) && <IonBadge color="danger">Abgelaufen</IonBadge>}
+
+                      {isFullyUsed(code) && <IonBadge color="warning">Aufgebraucht</IonBadge>}
                     </div>
 
                     {/* Meta info */}
                     <IonText color="medium" style={{ fontSize: '0.85em' }}>
                       <div>Erstellt am {formatDate(code.created_at)}</div>
-                      {code.expires_at && (
-                        <div>Gültig bis {formatDate(code.expires_at)}</div>
-                      )}
+                      {code.expires_at && <div>Gültig bis {formatDate(code.expires_at)}</div>}
                     </IonText>
                   </div>
 
@@ -397,11 +379,7 @@ const InvitationCodes: React.FC = () => {
                     >
                       <IonIcon icon={code.is_active ? banOutline : checkmarkCircleOutline} />
                     </IonButton>
-                    <IonButton
-                      fill="clear"
-                      color="danger"
-                      onClick={() => handleDeleteCode(code)}
-                    >
+                    <IonButton fill="clear" color="danger" onClick={() => handleDeleteCode(code)}>
                       <IonIcon icon={trashOutline} />
                     </IonButton>
                   </div>
@@ -537,4 +515,3 @@ const InvitationCodes: React.FC = () => {
 };
 
 export default InvitationCodes;
-
