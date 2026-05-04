@@ -1,5 +1,14 @@
 import React from 'react';
-import { IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonText } from '@ionic/react';
+import {
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardContent,
+  IonText,
+  IonIcon,
+} from '@ionic/react';
+import { chevronForwardOutline } from 'ionicons/icons';
+import { useHistory } from 'react-router-dom';
 import { Booking } from '../../types';
 import BookingCard from '../BookingCard';
 
@@ -9,10 +18,21 @@ interface UpcomingBookingsProps {
 }
 
 const UpcomingBookings: React.FC<UpcomingBookingsProps> = ({ bookings, onRefresh }) => {
+  const history = useHistory();
+
   return (
     <IonCard>
-      <IonCardHeader>
-        <IonCardTitle className="small-card-title">Kommende Buchungen</IonCardTitle>
+      <IonCardHeader onClick={() => history.push('/bookings')} style={{ cursor: 'pointer' }}>
+        <IonCardTitle
+          className="small-card-title"
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+        >
+          Kommende Buchungen
+          <IonIcon
+            icon={chevronForwardOutline}
+            style={{ fontSize: '18px', color: 'var(--ion-color-medium)' }}
+          />
+        </IonCardTitle>
       </IonCardHeader>
       <IonCardContent>
         {bookings.length === 0 ? (

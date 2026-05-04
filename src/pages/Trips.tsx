@@ -26,6 +26,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useData } from '../contexts/DataContext';
 import { Trip } from '../types';
 import TripCard from '../components/TripCard';
+import ProfileAvatarButton from '../components/ProfileAvatarButton';
 
 const Trips: React.FC = () => {
   const { trips, loading, refreshTrips } = useData();
@@ -77,6 +78,7 @@ const Trips: React.FC = () => {
               </IonButton>
             </IonButtons>
           )}
+          <ProfileAvatarButton />
         </IonToolbar>
         <IonToolbar>
           <IonSegment value={filter} onIonChange={(e) => setFilter(e.detail.value as any)}>

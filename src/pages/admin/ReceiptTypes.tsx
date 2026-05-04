@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   IonContent,
   IonHeader,
@@ -20,9 +20,7 @@ import {
   IonInput,
   IonTextarea,
   IonBadge,
-  IonSegment,
-  IonSegmentButton,
-  IonLabel,
+  IonBackButton,
   useIonViewWillEnter,
   useIonAlert,
   useIonToast,
@@ -30,7 +28,6 @@ import {
 } from '@ionic/react';
 import { add, createOutline, eyeOffOutline, eyeOutline, closeOutline } from 'ionicons/icons';
 import { RefresherEventDetail } from '@ionic/core';
-import { useHistory } from 'react-router-dom';
 import { receiptService } from '../../services/receipt.service';
 import { ReceiptType } from '../../types';
 
@@ -41,8 +38,7 @@ const ReceiptTypes: React.FC = () => {
   const [editingType, setEditingType] = useState<ReceiptType | null>(null);
   const [formData, setFormData] = useState({ bezeichnung: '', beschreibung: '' });
   const [saving, setSaving] = useState(false);
-  
-  const history = useHistory();
+
   const [presentAlert] = useIonAlert();
   const [presentToast] = useIonToast();
 
@@ -75,9 +71,9 @@ const ReceiptTypes: React.FC = () => {
 
   const openEditModal = (type: ReceiptType) => {
     setEditingType(type);
-    setFormData({ 
-      bezeichnung: type.bezeichnung, 
-      beschreibung: type.beschreibung || '' 
+    setFormData({
+      bezeichnung: type.bezeichnung,
+      beschreibung: type.beschreibung || '',
     });
     setShowModal(true);
   };
@@ -132,7 +128,7 @@ const ReceiptTypes: React.FC = () => {
 
   const handleToggleActive = async (type: ReceiptType) => {
     const action = type.aktiv ? 'deaktivieren' : 'aktivieren';
-    
+
     presentAlert({
       header: `Belegart ${action}`,
       message: `Möchtest du "${type.bezeichnung}" ${action}?`,
@@ -182,8 +178,11 @@ const ReceiptTypes: React.FC = () => {
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar>
-          <IonTitle>Verwaltung</IonTitle>
+        <IonToolbar color="primary">
+          <IonButtons slot="start">
+            <IonBackButton defaultHref="/admin" />
+          </IonButtons>
+          <IonTitle>Belegarten</IonTitle>
           {isIOS && (
             <IonButtons slot="end">
               <IonButton onClick={openCreateModal}>
@@ -191,30 +190,6 @@ const ReceiptTypes: React.FC = () => {
               </IonButton>
             </IonButtons>
           )}
-        </IonToolbar>
-        <IonToolbar>
-          <IonSegment value="receipt-types" onIonChange={(e) => {
-            if (e.detail.value === 'users') history.push('/admin/users');
-            if (e.detail.value === 'groups') history.push('/admin/groups');
-            if (e.detail.value === 'codes') history.push('/admin/invitation-codes');
-            if (e.detail.value === 'settings') history.push('/admin/settings');
-          }}>
-            <IonSegmentButton value="users">
-              <IonLabel>Fahrer</IonLabel>
-            </IonSegmentButton>
-            <IonSegmentButton value="groups">
-              <IonLabel>Gruppen</IonLabel>
-            </IonSegmentButton>
-            <IonSegmentButton value="codes">
-              <IonLabel>Einladungen</IonLabel>
-            </IonSegmentButton>
-            <IonSegmentButton value="settings">
-              <IonLabel>Kosten</IonLabel>
-            </IonSegmentButton>
-            <IonSegmentButton value="receipt-types">
-              <IonLabel>Belegarten</IonLabel>
-            </IonSegmentButton>
-          </IonSegment>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
@@ -240,13 +215,13 @@ const ReceiptTypes: React.FC = () => {
           receiptTypes.map((type) => (
             <IonCard key={type.id} style={{ margin: '0 0 12px 0' }}>
               <IonCardContent style={{ padding: '12px 16px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div
+                  style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                >
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <strong>{type.bezeichnung}</strong>
-                      {!type.aktiv && (
-                        <IonBadge color="medium">Inaktiv</IonBadge>
-                      )}
+                      {!type.aktiv && <IonBadge color="medium">Inaktiv</IonBadge>}
                     </div>
                     {type.beschreibung && (
                       <div style={{ color: '#666', fontSize: '14px', marginTop: '4px' }}>
@@ -255,15 +230,11 @@ const ReceiptTypes: React.FC = () => {
                     )}
                   </div>
                   <div style={{ display: 'flex', gap: '4px' }}>
-                    <IonButton 
-                      fill="clear" 
-                      size="small"
-                      onClick={() => openEditModal(type)}
-                    >
+                    <IonButton fill="clear" size="small" onClick={() => openEditModal(type)}>
                       <IonIcon icon={createOutline} />
                     </IonButton>
-                    <IonButton 
-                      fill="clear" 
+                    <IonButton
+                      fill="clear"
                       size="small"
                       color={type.aktiv ? 'medium' : 'success'}
                       onClick={() => handleToggleActive(type)}
@@ -329,4 +300,3 @@ const ReceiptTypes: React.FC = () => {
 };
 
 export default ReceiptTypes;
-

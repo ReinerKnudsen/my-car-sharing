@@ -22,6 +22,7 @@ import { useHistory } from 'react-router-dom';
 import { useData } from '../contexts/DataContext';
 import BookingCard from '../components/BookingCard';
 import BookingCalendar from '../components/BookingCalendar';
+import ProfileAvatarButton from '../components/ProfileAvatarButton';
 
 const Bookings: React.FC = () => {
   const { bookings, loading, refreshBookings } = useData();
@@ -91,6 +92,7 @@ const Bookings: React.FC = () => {
               </IonButton>
             </IonButtons>
           )}
+          <ProfileAvatarButton />
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
