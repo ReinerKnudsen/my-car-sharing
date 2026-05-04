@@ -12,6 +12,20 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 
 ### Added
 
+-
+
+### Changed
+
+-
+
+### Fixed
+
+-
+
+## [2.5.3] - 2026-05-04
+
+### Added
+
 - AdminRoute-Komponente für Admin-Routen implementiert
 - ProfileAvatarButton-Komponente: Initialen-Avatar im Header für Navigation zum Profil
 - Gruppenverwaltungs-Button auf der Profil-Seite für Gruppenadmins
@@ -31,7 +45,6 @@ Patch: Everything else → bumps patch version (1.0.0 → 1.0.1)
 ### Fixed
 
 - Admin-Seiten hatten kein einheitliches Header-Design (fehlende primary-Farbe)
-
 ## [2.5.2] - 2025-12-27
 
 - ProtectedRoute-Komponente entfernt (nicht verwendet)
